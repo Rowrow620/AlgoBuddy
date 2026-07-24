@@ -9,6 +9,9 @@ use crate::algorithms::{
     valid_anagram::generate_valid_anagram_steps,
     valid_palindrome::generate_valid_palindrome_steps,
     valid_parentheses::generate_valid_parentheses_steps,
+    best_time_stock::generate_best_time_stock_steps,
+    binary_search::generate_binary_search_steps,
+    reverse_linked_list::generate_reverse_linked_list_steps,
 };
 use crate::model::*;
 
@@ -47,6 +50,11 @@ pub struct VisualizerApp {
     palindrome_s_input: String,
     parentheses_s_input: String,
 
+    stock_prices_input: String,
+    binary_search_nums_input: String,
+    binary_search_target_input: i32,
+    linked_list_nodes_input: String,
+
     // Playback state
     steps: Vec<Step>,
     current_step_idx: usize,
@@ -81,8 +89,13 @@ impl Default for VisualizerApp {
             prod_nums_input: "1, 2, 4, 6".to_string(),
             prod_nums: vec![1, 2, 4, 6],
 
-            palindrome_s_input: "A man, a plan, a canal: Panama".to_string(),
-            parentheses_s_input: "()[]{}".to_string(),
+            palindrome_s_input: "Was it a car or a cat I saw?".to_string(),
+            parentheses_s_input: "([{}])".to_string(),
+
+            stock_prices_input: "10, 1, 5, 6, 7, 1".to_string(),
+            binary_search_nums_input: "-1, 0, 2, 4, 6, 8".to_string(),
+            binary_search_target_input: 4,
+            linked_list_nodes_input: "0, 1, 2, 3".to_string(),
 
             steps: Vec::new(),
             current_step_idx: 0,
@@ -143,8 +156,26 @@ impl VisualizerApp {
             Problem::ValidPalindrome => {
                 generate_valid_palindrome_steps(&self.palindrome_s_input, app_id)
             }
+            Problem::BestTimeStock => {
+                let parsed: Vec<i32> = self.stock_prices_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let prices = if parsed.is_empty() { vec![10, 1, 5, 6, 7, 1] } else { parsed };
+                generate_best_time_stock_steps(&prices)
+            }
             Problem::ValidParentheses => {
                 generate_valid_parentheses_steps(&self.parentheses_s_input)
+            }
+            Problem::BinarySearch => {
+                let parsed: Vec<i32> = self.binary_search_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![-1, 0, 2, 4, 6, 8] } else { parsed };
+                generate_binary_search_steps(&nums, self.binary_search_target_input)
+            }
+            Problem::ReverseLinkedList => {
+                let parsed: Vec<i32> = self.linked_list_nodes_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nodes = if parsed.is_empty() { vec![0, 1, 2, 3] } else { parsed };
+                generate_reverse_linked_list_steps(&nodes)
             }
         };
         self.current_step_idx = 0;
@@ -305,7 +336,6 @@ impl eframe::App for VisualizerApp {
 
                     ui.label(RichText::new(format!("Category: {}", p.category().name())).font(egui::FontId::proportional(12.0)).color(MUTED));
 
-                    // Current Approach Metrics
                     if let Some(active_approach) = details.approaches.get(self.selected_approach_id) {
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                             ui.label(RichText::new(format!("Time: {} | Space: {}", active_approach.time_complexity, active_approach.space_complexity)).font(egui::FontId::monospace(12.0)).color(EMERALD_TEXT).strong());
@@ -337,9 +367,7 @@ impl eframe::App for VisualizerApp {
                             ui.label(RichText::new("nums:").strong());
                             ui.add(egui::TextEdit::singleline(&mut self.two_sum_nums_input).desired_width(160.0));
                             ui.label(RichText::new("target:").strong());
-                            if ui.add(egui::DragValue::new(&mut self.two_sum_target_input).speed(1.0)).changed() {
-                                self.recompute_steps();
-                            }
+                            if ui.add(egui::DragValue::new(&mut self.two_sum_target_input).speed(1.0)).changed() { self.recompute_steps(); }
                         }
                         Problem::ValidAnagram => {
                             ui.label(RichText::new("s:").strong());
@@ -351,9 +379,7 @@ impl eframe::App for VisualizerApp {
                             ui.label(RichText::new("nums:").strong());
                             ui.add(egui::TextEdit::singleline(&mut self.topk_nums_input).desired_width(140.0));
                             ui.label(RichText::new("k:").strong());
-                            if ui.add(egui::DragValue::new(&mut self.topk_k_input).speed(1.0).range(1..=10)).changed() {
-                                self.recompute_steps();
-                            }
+                            if ui.add(egui::DragValue::new(&mut self.topk_k_input).speed(1.0).range(1..=10)).changed() { self.recompute_steps(); }
                         }
                         Problem::ProductExceptSelf => {
                             ui.label(RichText::new("nums:").strong());
@@ -365,11 +391,25 @@ impl eframe::App for VisualizerApp {
                         }
                         Problem::ValidPalindrome => {
                             ui.label(RichText::new("String s:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.palindrome_s_input).desired_width(320.0));
+                            ui.add(egui::TextEdit::singleline(&mut self.palindrome_s_input).desired_width(300.0));
+                        }
+                        Problem::BestTimeStock => {
+                            ui.label(RichText::new("prices:").strong());
+                            ui.add(egui::TextEdit::singleline(&mut self.stock_prices_input).desired_width(220.0));
                         }
                         Problem::ValidParentheses => {
                             ui.label(RichText::new("String s:").strong());
                             ui.add(egui::TextEdit::singleline(&mut self.parentheses_s_input).desired_width(200.0));
+                        }
+                        Problem::BinarySearch => {
+                            ui.label(RichText::new("nums (sorted):").strong());
+                            ui.add(egui::TextEdit::singleline(&mut self.binary_search_nums_input).desired_width(200.0));
+                            ui.label(RichText::new("target:").strong());
+                            if ui.add(egui::DragValue::new(&mut self.binary_search_target_input).speed(1.0)).changed() { self.recompute_steps(); }
+                        }
+                        Problem::ReverseLinkedList => {
+                            ui.label(RichText::new("head nodes:").strong());
+                            ui.add(egui::TextEdit::singleline(&mut self.linked_list_nodes_input).desired_width(200.0));
                         }
                     }
 
@@ -382,11 +422,9 @@ impl eframe::App for VisualizerApp {
                     match self.current_problem {
                         Problem::TwoSum => {
                             if ui.button("[2,7,11,15] t=9").clicked() { self.two_sum_nums_input = "2,7,11,15".into(); self.two_sum_target_input = 9; self.recompute_steps(); }
-                            if ui.button("[3,2,4] t=6").clicked() { self.two_sum_nums_input = "3,2,4".into(); self.two_sum_target_input = 6; self.recompute_steps(); }
                         }
                         Problem::ValidAnagram => {
                             if ui.button("anagram / nagaram").clicked() { self.valid_anagram_s_input = "anagram".into(); self.valid_anagram_t_input = "nagaram".into(); self.recompute_steps(); }
-                            if ui.button("rat / car").clicked() { self.valid_anagram_s_input = "rat".into(); self.valid_anagram_t_input = "car".into(); self.recompute_steps(); }
                         }
                         Problem::TopKFrequent => {
                             if ui.button("[1,1,1,2,2,3] k=2").clicked() { self.topk_nums_input = "1,1,1,2,2,3".into(); self.topk_k_input = 2; self.recompute_steps(); }
@@ -398,12 +436,24 @@ impl eframe::App for VisualizerApp {
                             if ui.button("[Hello, World]").clicked() { self.ed_strs_input = "Hello, World".into(); self.recompute_steps(); }
                         }
                         Problem::ValidPalindrome => {
-                            if ui.button("A man... Panama").clicked() { self.palindrome_s_input = "A man, a plan, a canal: Panama".into(); self.recompute_steps(); }
-                            if ui.button("race a car").clicked() { self.palindrome_s_input = "race a car".into(); self.recompute_steps(); }
+                            if ui.button("Was it a car...").clicked() { self.palindrome_s_input = "Was it a car or a cat I saw?".into(); self.recompute_steps(); }
+                            if ui.button("tab a cat").clicked() { self.palindrome_s_input = "tab a cat".into(); self.recompute_steps(); }
+                        }
+                        Problem::BestTimeStock => {
+                            if ui.button("[10,1,5,6,7,1]").clicked() { self.stock_prices_input = "10,1,5,6,7,1".into(); self.recompute_steps(); }
+                            if ui.button("[10,8,7,5,2]").clicked() { self.stock_prices_input = "10,8,7,5,2".into(); self.recompute_steps(); }
                         }
                         Problem::ValidParentheses => {
-                            if ui.button("()[]{}").clicked() { self.parentheses_s_input = "()[]{}".into(); self.recompute_steps(); }
-                            if ui.button("(]").clicked() { self.parentheses_s_input = "(]".into(); self.recompute_steps(); }
+                            if ui.button("([{}])").clicked() { self.parentheses_s_input = "([{}])".into(); self.recompute_steps(); }
+                            if ui.button("[(])").clicked() { self.parentheses_s_input = "[(])".into(); self.recompute_steps(); }
+                        }
+                        Problem::BinarySearch => {
+                            if ui.button("[-1,0,2,4,6,8] t=4").clicked() { self.binary_search_nums_input = "-1,0,2,4,6,8".into(); self.binary_search_target_input = 4; self.recompute_steps(); }
+                            if ui.button("[-1,0,2,4,6,8] t=3").clicked() { self.binary_search_nums_input = "-1,0,2,4,6,8".into(); self.binary_search_target_input = 3; self.recompute_steps(); }
+                        }
+                        Problem::ReverseLinkedList => {
+                            if ui.button("[0,1,2,3]").clicked() { self.linked_list_nodes_input = "0,1,2,3".into(); self.recompute_steps(); }
+                            if ui.button("[7,14,21]").clicked() { self.linked_list_nodes_input = "7,14,21".into(); self.recompute_steps(); }
                         }
                     }
                 });
@@ -440,7 +490,6 @@ impl eframe::App for VisualizerApp {
             .default_width(400.0)
             .frame(Frame::none().inner_margin(12.0).fill(SIDEBAR_BG))
             .show(ctx, |ui| {
-                // Tab Selection Header
                 ui.horizontal(|ui| {
                     if ui.selectable_label(self.right_tab == RightTab::CodeTrace, RichText::new("💻 Code Trace").strong()).clicked() {
                         self.right_tab = RightTab::CodeTrace;
@@ -571,6 +620,15 @@ impl eframe::App for VisualizerApp {
                             VisualState::Stack { chars, active_idx, stack, is_valid } => {
                                 self.render_stack(ui, chars, *active_idx, stack, *is_valid);
                             }
+                            VisualState::BestTimeStock { prices, left_buy, right_sell, current_profit, max_profit } => {
+                                self.render_stock(ui, prices, *left_buy, *right_sell, *current_profit, *max_profit);
+                            }
+                            VisualState::BinarySearch { nums, target, left, right, mid, found_idx } => {
+                                self.render_binary_search(ui, nums, *target, *left, *right, *mid, *found_idx);
+                            }
+                            VisualState::LinkedList { nodes, prev_idx, curr_idx, next_idx, reversed_so_far } => {
+                                self.render_linked_list(ui, nodes, *prev_idx, *curr_idx, *next_idx, reversed_so_far);
+                            }
                             VisualState::TopK { nums, active_nums_idx, count_map, buckets, active_bucket_idx, result } => {
                                 self.render_topk(ui, nums, *active_nums_idx, count_map, buckets, *active_bucket_idx, result);
                             }
@@ -590,6 +648,172 @@ impl eframe::App for VisualizerApp {
 // ── Visual Canvas Renderers ──
 
 impl VisualizerApp {
+    fn render_stock(&self, ui: &mut egui::Ui, prices: &[i32], left_buy: usize, right_sell: usize, current_profit: i32, max_profit: i32) {
+        ui.heading(RichText::new("Sliding Window / Buy & Sell Stock Trace").color(CYAN).size(16.0));
+        ui.add_space(8.0);
+
+        // Prices array cards
+        ui.group(|ui| {
+            ui.label(RichText::new("STOCK PRICES ARRAY (Days 0..N-1)").font(egui::FontId::monospace(11.0)).color(MUTED));
+            ui.horizontal(|ui| {
+                for (i, &price) in prices.iter().enumerate() {
+                    let is_buy = i == left_buy;
+                    let is_sell = i == right_sell;
+
+                    let fill = if is_buy && is_sell {
+                        PURPLE
+                    } else if is_buy {
+                        CYAN
+                    } else if is_sell {
+                        PINK
+                    } else {
+                        CELL_BG
+                    };
+
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, CELL_BORDER)).inner_margin(10.0).show(ui, |ui| {
+                        ui.vertical(|ui| {
+                            let label = if is_buy && is_sell {
+                                "Buy & Sell"
+                            } else if is_buy {
+                                "Buy (l)"
+                            } else if is_sell {
+                                "Sell (r)"
+                            } else {
+                                ""
+                            };
+                            ui.label(RichText::new(format!("day {} {}", i, label)).font(egui::FontId::proportional(10.0)).color(MUTED));
+                            ui.label(RichText::new(format!("${}", price)).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        });
+                    });
+                }
+            });
+        });
+
+        ui.add_space(20.0);
+
+        // Profit metrics
+        ui.horizontal(|ui| {
+            egui::Frame::none().fill(CELL_BG).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, PINK)).inner_margin(12.0).show(ui, |ui| {
+                ui.vertical(|ui| {
+                    ui.label(RichText::new("Current Profit (prices[r] - prices[l])").font(egui::FontId::proportional(11.0)).color(MUTED));
+                    ui.label(RichText::new(format!("${}", current_profit)).font(egui::FontId::monospace(18.0)).strong().color(PINK));
+                });
+            });
+
+            ui.add_space(16.0);
+
+            egui::Frame::none().fill(CELL_BG).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, EMERALD_TEXT)).inner_margin(12.0).show(ui, |ui| {
+                ui.vertical(|ui| {
+                    ui.label(RichText::new("Maximum Achieved Profit (maxP)").font(egui::FontId::proportional(11.0)).color(MUTED));
+                    ui.label(RichText::new(format!("${}", max_profit)).font(egui::FontId::monospace(18.0)).strong().color(EMERALD_TEXT));
+                });
+            });
+        });
+    }
+
+    fn render_binary_search(&self, ui: &mut egui::Ui, nums: &[i32], target: i32, left: usize, right: usize, mid: Option<usize>, found_idx: Option<usize>) {
+        ui.heading(RichText::new(format!("Binary Search bounds (l={}, r={}) | Target = {}", left, right, target)).color(CYAN).size(16.0));
+        ui.add_space(8.0);
+
+        ui.group(|ui| {
+            ui.label(RichText::new("SORTED ARRAY").font(egui::FontId::monospace(11.0)).color(MUTED));
+            ui.horizontal(|ui| {
+                for (i, &num) in nums.iter().enumerate() {
+                    let is_found = found_idx == Some(i);
+                    let is_mid = mid == Some(i);
+                    let in_range = i >= left && i <= right;
+
+                    let fill = if is_found {
+                        EMERALD
+                    } else if is_mid {
+                        AMBER
+                    } else if in_range {
+                        CELL_BG
+                    } else {
+                        DIM
+                    };
+
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, CELL_BORDER)).inner_margin(10.0).show(ui, |ui| {
+                        ui.vertical(|ui| {
+                            let mut ptr_label = String::new();
+                            if i == left { ptr_label.push_str("L "); }
+                            if is_mid { ptr_label.push_str("MID "); }
+                            if i == right { ptr_label.push_str("R"); }
+
+                            ui.label(RichText::new(format!("i={} {}", i, ptr_label)).font(egui::FontId::proportional(10.0)).color(Color32::WHITE));
+                            ui.label(RichText::new(num.to_string()).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        });
+                    });
+                }
+            });
+        });
+
+        if let Some(f) = found_idx {
+            ui.add_space(20.0);
+            ui.heading(RichText::new(format!("Target {} Found at Index {}!", target, f)).color(EMERALD_TEXT).size(18.0));
+        }
+    }
+
+    fn render_linked_list(&self, ui: &mut egui::Ui, nodes: &[i32], prev_idx: Option<usize>, curr_idx: Option<usize>, next_idx: Option<usize>, reversed_so_far: &[i32]) {
+        ui.heading(RichText::new("Singly-Linked List Pointer Reversal").color(CYAN).size(16.0));
+        ui.add_space(8.0);
+
+        // Original chain with pointers
+        ui.group(|ui| {
+            ui.label(RichText::new("ORIGINAL LINKED LIST NODES").font(egui::FontId::monospace(11.0)).color(MUTED));
+            ui.horizontal(|ui| {
+                for (i, &val) in nodes.iter().enumerate() {
+                    let is_prev = prev_idx == Some(i);
+                    let is_curr = curr_idx == Some(i);
+                    let is_nxt = next_idx == Some(i);
+
+                    let fill = if is_curr {
+                        CYAN
+                    } else if is_prev {
+                        PURPLE
+                    } else if is_nxt {
+                        PINK
+                    } else {
+                        CELL_BG
+                    };
+
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, CELL_BORDER)).inner_margin(10.0).show(ui, |ui| {
+                        ui.vertical(|ui| {
+                            let mut label = String::new();
+                            if is_prev { label.push_str("prev "); }
+                            if is_curr { label.push_str("curr "); }
+                            if is_nxt { label.push_str("nxt "); }
+
+                            ui.label(RichText::new(format!("idx {} {}", i, label)).font(egui::FontId::proportional(10.0)).color(Color32::WHITE));
+                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        });
+                    });
+                }
+                ui.label(RichText::new("None").font(egui::FontId::monospace(14.0)).color(DIM));
+            });
+        });
+
+        ui.add_space(20.0);
+
+        // Reversed list so far
+        ui.group(|ui| {
+            ui.label(RichText::new("REVERSED LINKED LIST (Constructed from head)").font(egui::FontId::monospace(11.0)).color(EMERALD_TEXT));
+            ui.horizontal(|ui| {
+                if reversed_so_far.is_empty() {
+                    ui.label(RichText::new("None").font(egui::FontId::monospace(14.0)).color(DIM));
+                } else {
+                    for (i, &val) in reversed_so_far.iter().enumerate() {
+                        let fill = if i == 0 { EMERALD } else { CELL_BG };
+                        egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, EMERALD_TEXT)).inner_margin(10.0).show(ui, |ui| {
+                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        });
+                    }
+                    ui.label(RichText::new("None").font(egui::FontId::monospace(14.0)).color(DIM));
+                }
+            });
+        });
+    }
+
     fn render_two_sum(&self, ui: &mut egui::Ui, nums: &[i32], target: i32, active_idx: Option<usize>, secondary_idx: Option<usize>, map: &std::collections::BTreeMap<i32, usize>, found: Option<(usize, usize)>) {
         ui.heading(RichText::new(format!("Target Sum: {}", target)).color(CYAN).size(16.0));
         ui.add_space(8.0);
@@ -625,7 +849,6 @@ impl VisualizerApp {
 
         ui.add_space(20.0);
 
-        // Render Hash Map only if this approach uses it (hash map approach)
         if self.selected_approach_id == 0 {
             ui.group(|ui| {
                 ui.label(RichText::new("PREVMAP {value -> index}").font(egui::FontId::monospace(11.0)).color(MUTED));

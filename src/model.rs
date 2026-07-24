@@ -129,7 +129,10 @@ pub enum Problem {
     ProductExceptSelf,
     EncodeDecode,
     ValidPalindrome,
+    BestTimeStock,
     ValidParentheses,
+    BinarySearch,
+    ReverseLinkedList,
 }
 
 impl Problem {
@@ -141,7 +144,10 @@ impl Problem {
             Problem::ProductExceptSelf,
             Problem::EncodeDecode,
             Problem::ValidPalindrome,
+            Problem::BestTimeStock,
             Problem::ValidParentheses,
+            Problem::BinarySearch,
+            Problem::ReverseLinkedList,
         ]
     }
 
@@ -362,22 +368,22 @@ impl Problem {
                 title: "Valid Palindrome",
                 difficulty: Difficulty::Easy,
                 category: Category::TwoPointers,
-                statement: "A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward.\n\nGiven a string s, return true if it is a palindrome, or false otherwise.",
+                statement: "Given a string s, return true if it is a palindrome, otherwise return false.\n\nA palindrome is a string that reads the same forward and backward. It is also case-insensitive and ignores all non-alphanumeric characters.",
                 examples: &[
                     Example {
-                        input: "s = \"A man, a plan, a canal: Panama\"",
+                        input: "s = \"Was it a car or a cat I saw?\"",
                         output: "true",
-                        explanation: "\"amanaplanacanalpanama\" is a palindrome.",
+                        explanation: "After considering only alphanumerical characters we have \"wasitacaroracatisaw\", which is a palindrome.",
                     },
                     Example {
-                        input: "s = \"race a car\"",
+                        input: "s = \"tab a cat\"",
                         output: "false",
-                        explanation: "\"raceacar\" is not a palindrome.",
+                        explanation: "\"tabacat\" is not a palindrome.",
                     },
                 ],
                 constraints: &[
-                    "1 <= s.length <= 2 * 10^5",
-                    "s consists only of printable ASCII characters.",
+                    "1 <= s.length <= 1000",
+                    "s is made up of only printable ASCII characters.",
                 ],
                 leetcode_url: "https://leetcode.com/problems/valid-palindrome/",
                 approaches: &[
@@ -397,26 +403,64 @@ impl Problem {
                     },
                 ],
             },
+            Problem::BestTimeStock => ProblemDetails {
+                id: 121,
+                title: "Best Time to Buy and Sell Stock",
+                difficulty: Difficulty::Easy,
+                category: Category::SlidingWindow,
+                statement: "You are given an integer array prices where prices[i] is the price of a given stock on the i-th day.\n\nYou want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell it.\n\nReturn the maximum profit you can achieve. If you cannot achieve any profit, return 0.",
+                examples: &[
+                    Example {
+                        input: "prices = [10, 1, 5, 6, 7, 1]",
+                        output: "6",
+                        explanation: "Buy on day 1 (price = 1) and sell on day 4 (price = 7), profit = 7 - 1 = 6.",
+                    },
+                    Example {
+                        input: "prices = [10, 8, 7, 5, 2]",
+                        output: "0",
+                        explanation: "No profitable transactions can be made, max profit = 0.",
+                    },
+                ],
+                constraints: &[
+                    "1 <= prices.length <= 100",
+                    "0 <= prices[i] <= 100",
+                ],
+                leetcode_url: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+                approaches: &[
+                    ApproachMeta {
+                        id: 0,
+                        name: "Two Pointers / Sliding Window",
+                        time_complexity: "O(N)",
+                        space_complexity: "O(1)",
+                        description: "Left pointer tracks lowest buying price day (l), right pointer tracks selling day (r). Shift l to r whenever prices[r] < prices[l].",
+                    },
+                ],
+            },
             Problem::ValidParentheses => ProblemDetails {
                 id: 20,
                 title: "Valid Parentheses",
                 difficulty: Difficulty::Easy,
                 category: Category::Stack,
-                statement: "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.\n\nAn input string is valid if open brackets are closed by the same type of brackets, and open brackets are closed in the correct order.",
+                statement: "You are given a string s consisting of the characters '(', ')', '{', '}', '[' and ']'.\n\nThe input string s is valid if and only if:\n1. Every open bracket is closed by the same type of close bracket.\n2. Open brackets are closed in the correct order.\n3. Every close bracket has a corresponding open bracket of the same type.",
                 examples: &[
                     Example {
-                        input: "s = \"()[]{}\"",
+                        input: "s = \"[]\"",
                         output: "true",
-                        explanation: "Every open bracket is closed by matching type.",
+                        explanation: "Square bracket is closed by matching type.",
                     },
                     Example {
-                        input: "s = \"(]\"",
+                        input: "s = \"([{}])\"",
+                        output: "true",
+                        explanation: "Nested brackets are closed in correct order.",
+                    },
+                    Example {
+                        input: "s = \"[(])\"",
                         output: "false",
-                        explanation: "Open '(' is closed by mismatched ']'.",
+                        explanation: "Brackets are not closed in correct order.",
                     },
                 ],
                 constraints: &[
-                    "1 <= s.length <= 10^4",
+                    "1 <= s.length <= 1000",
                     "s consists of parentheses only '()[]{}'.",
                 ],
                 leetcode_url: "https://leetcode.com/problems/valid-parentheses/",
@@ -427,6 +471,74 @@ impl Problem {
                         time_complexity: "O(N)",
                         space_complexity: "O(N)",
                         description: "Push opening brackets to stack; pop and match when encountering closing brackets.",
+                    },
+                ],
+            },
+            Problem::BinarySearch => ProblemDetails {
+                id: 704,
+                title: "Binary Search",
+                difficulty: Difficulty::Easy,
+                category: Category::BinarySearch,
+                statement: "Given an array of distinct integers nums, sorted in ascending order, and an integer target, write a function to search target in nums. If target exists, return its index. Otherwise, return -1.\n\nYou must write an algorithm with O(log n) runtime complexity.",
+                examples: &[
+                    Example {
+                        input: "nums = [-1, 0, 2, 4, 6, 8], target = 4",
+                        output: "3",
+                        explanation: "4 exists in nums and its index is 3.",
+                    },
+                    Example {
+                        input: "nums = [-1, 0, 2, 4, 6, 8], target = 3",
+                        output: "-1",
+                        explanation: "3 does not exist in nums so return -1.",
+                    },
+                ],
+                constraints: &[
+                    "1 <= nums.length <= 10000",
+                    "-10000 < nums[i], target < 10000",
+                    "All the integers in nums are unique.",
+                    "nums is sorted in ascending order.",
+                ],
+                leetcode_url: "https://leetcode.com/problems/binary-search/",
+                approaches: &[
+                    ApproachMeta {
+                        id: 0,
+                        name: "Binary Search (Iterative)",
+                        time_complexity: "O(log N)",
+                        space_complexity: "O(1)",
+                        description: "Maintain left (l) and right (r) bounds. Calculate mid = l + (r - l) // 2 and narrow search space by half.",
+                    },
+                ],
+            },
+            Problem::ReverseLinkedList => ProblemDetails {
+                id: 206,
+                title: "Reverse Linked List",
+                difficulty: Difficulty::Easy,
+                category: Category::LinkedList,
+                statement: "Given the beginning of a singly linked list head, reverse the list, and return the new beginning of the list.",
+                examples: &[
+                    Example {
+                        input: "head = [0, 1, 2, 3]",
+                        output: "[3, 2, 1, 0]",
+                        explanation: "All next pointers are reversed.",
+                    },
+                    Example {
+                        input: "head = []",
+                        output: "[]",
+                        explanation: "Empty list returns empty list.",
+                    },
+                ],
+                constraints: &[
+                    "0 <= The length of the list <= 1000",
+                    "-1000 <= Node.val <= 1000",
+                ],
+                leetcode_url: "https://leetcode.com/problems/reverse-linked-list/",
+                approaches: &[
+                    ApproachMeta {
+                        id: 0,
+                        name: "Iterative Pointers (prev, curr)",
+                        time_complexity: "O(N)",
+                        space_complexity: "O(1)",
+                        description: "Maintain prev and curr pointers. Save next node, flip curr.next = prev, then advance prev and curr.",
                     },
                 ],
             },
@@ -492,6 +604,28 @@ pub enum VisualState {
         stack: Vec<char>,
         is_valid: Option<bool>,
     },
+    BestTimeStock {
+        prices: Vec<i32>,
+        left_buy: usize,
+        right_sell: usize,
+        current_profit: i32,
+        max_profit: i32,
+    },
+    BinarySearch {
+        nums: Vec<i32>,
+        target: i32,
+        left: usize,
+        right: usize,
+        mid: Option<usize>,
+        found_idx: Option<usize>,
+    },
+    LinkedList {
+        nodes: Vec<i32>,
+        prev_idx: Option<usize>,
+        curr_idx: Option<usize>,
+        next_idx: Option<usize>,
+        reversed_so_far: Vec<i32>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -524,8 +658,7 @@ pub struct Step {
 
 pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, &'static str)> {
     match (problem, approach_id) {
-        // Two Sum
-        (Problem::TwoSum, 0) => vec![ // Hash Map One Pass
+        (Problem::TwoSum, 0) => vec![
             (1, "class Solution:"),
             (2, "    def twoSum(self, nums: List[int], target: int) -> List[int]:"),
             (3, "        prevMap = {} # val -> index"),
@@ -536,7 +669,7 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (8, "            prevMap[n] = i"),
             (9, "        return []"),
         ],
-        (Problem::TwoSum, 1) => vec![ // Brute Force O(N^2)
+        (Problem::TwoSum, 1) => vec![
             (1, "class Solution:"),
             (2, "    def twoSum(self, nums: List[int], target: int) -> List[int]:"),
             (3, "        n = len(nums)"),
@@ -547,8 +680,7 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (8, "        return []"),
         ],
 
-        // Valid Anagram
-        (Problem::ValidAnagram, 0) => vec![ // Counter Array O(N)
+        (Problem::ValidAnagram, 0) => vec![
             (1, "class Solution:"),
             (2, "    def isAnagram(self, s: str, t: str) -> bool:"),
             (3, "        if len(s) != len(t):"),
@@ -559,7 +691,7 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (8, "            countT[t[i]] = 1 + countT.get(t[i], 0)"),
             (9, "        return countS == countT"),
         ],
-        (Problem::ValidAnagram, 1) => vec![ // Sort Strings O(N log N)
+        (Problem::ValidAnagram, 1) => vec![
             (1, "class Solution:"),
             (2, "    def isAnagram(self, s: str, t: str) -> bool:"),
             (3, "        if len(s) != len(t):"),
@@ -567,9 +699,8 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (5, "        return sorted(s) == sorted(t)"),
         ],
 
-        // Top K Frequent
         (Problem::TopKFrequent, 0) => crate::model::topk_code_lines(),
-        (Problem::TopKFrequent, 1) => vec![ // Min-Heap
+        (Problem::TopKFrequent, 1) => vec![
             (1, "class Solution:"),
             (2, "    def topKFrequent(self, nums, k):"),
             (3, "        count = Counter(nums)"),
@@ -580,7 +711,7 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (8, "                heappop(heap)"),
             (9, "        return [num for freq, num in heap]"),
         ],
-        (Problem::TopKFrequent, 2) => vec![ // Sorting
+        (Problem::TopKFrequent, 2) => vec![
             (1, "class Solution:"),
             (2, "    def topKFrequent(self, nums, k):"),
             (3, "        count = Counter(nums)"),
@@ -589,14 +720,10 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (6, "        return [num for cnt, num in arr[:k]]"),
         ],
 
-        // Product Except Self
         (Problem::ProductExceptSelf, _) => crate::model::product_code_lines(),
-
-        // Encode / Decode
         (Problem::EncodeDecode, _) => crate::model::encode_decode_code_lines(),
 
-        // Valid Palindrome
-        (Problem::ValidPalindrome, 0) => vec![ // Two Pointers
+        (Problem::ValidPalindrome, 0) => vec![
             (1, "class Solution:"),
             (2, "    def isPalindrome(self, s: str) -> bool:"),
             (3, "        l, r = 0, len(s) - 1"),
@@ -610,7 +737,7 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (11, "            l, r = l + 1, r - 1"),
             (12, "        return True"),
         ],
-        (Problem::ValidPalindrome, 1) => vec![ // Reverse Filtered String
+        (Problem::ValidPalindrome, 1) => vec![
             (1, "class Solution:"),
             (2, "    def isPalindrome(self, s: str) -> bool:"),
             (3, "        newStr = \"\""),
@@ -620,7 +747,21 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (7, "        return newStr == newStr[::-1]"),
         ],
 
-        // Valid Parentheses
+        (Problem::BestTimeStock, _) => vec![
+            (1, "class Solution:"),
+            (2, "    def maxProfit(self, prices: List[int]) -> int:"),
+            (3, "        l, r = 0, 1 # buy=l, sell=r"),
+            (4, "        maxP = 0"),
+            (5, "        while r < len(prices):"),
+            (6, "            if prices[l] < prices[r]:"),
+            (7, "                profit = prices[r] - prices[l]"),
+            (8, "                maxP = max(maxP, profit)"),
+            (9, "            else:"),
+            (10, "                l = r"),
+            (11, "            r += 1"),
+            (12, "        return maxP"),
+        ],
+
         (Problem::ValidParentheses, _) => vec![
             (1, "class Solution:"),
             (2, "    def isValid(self, s: str) -> bool:"),
@@ -635,6 +776,37 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (11, "            else:"),
             (12, "                stack.append(c)"),
             (13, "        return True if not stack else False"),
+        ],
+
+        (Problem::BinarySearch, _) => vec![
+            (1, "class Solution:"),
+            (2, "    def search(self, nums: List[int], target: int) -> int:"),
+            (3, "        l, r = 0, len(nums) - 1"),
+            (4, "        while l <= r:"),
+            (5, "            m = l + ((r - l) // 2)"),
+            (6, "            if nums[m] > target:"),
+            (7, "                r = m - 1"),
+            (8, "            elif nums[m] < target:"),
+            (9, "                l = m + 1"),
+            (10, "            else:"),
+            (11, "                return m"),
+            (12, "        return -1"),
+        ],
+
+        (Problem::ReverseLinkedList, _) => vec![
+            (1, "# Definition for singly-linked list."),
+            (2, "# class ListNode:"),
+            (3, "#     def __init__(self, val=0, next=None):"),
+            (4, "#         self.val = val; self.next = next"),
+            (5, "class Solution:"),
+            (6, "    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:"),
+            (7, "        prev, curr = None, head"),
+            (8, "        while curr:"),
+            (9, "            nxt = curr.next"),
+            (10, "            curr.next = prev"),
+            (11, "            prev = curr"),
+            (12, "            curr = nxt"),
+            (13, "        return prev"),
         ],
 
         _ => vec![(1, "# Approach implementation trace")],
