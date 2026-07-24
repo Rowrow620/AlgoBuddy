@@ -1,0 +1,8 @@
+[package]
+name = "algobuddy"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+eframe = "0.28"
+open = "5.0"
