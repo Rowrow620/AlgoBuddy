@@ -12,6 +12,11 @@ use crate::algorithms::{
     best_time_stock::generate_best_time_stock_steps,
     binary_search::generate_binary_search_steps,
     reverse_linked_list::generate_reverse_linked_list_steps,
+    merge_two_lists::generate_merge_two_lists_steps,
+    linked_list_cycle::generate_linked_list_cycle_steps,
+    invert_tree::generate_invert_tree_steps,
+    max_depth_tree::generate_max_depth_tree_steps,
+    diameter_tree::generate_diameter_tree_steps,
 };
 use crate::model::*;
 
@@ -55,6 +60,13 @@ pub struct VisualizerApp {
     binary_search_target_input: i32,
     linked_list_nodes_input: String,
 
+    merge_list1_input: String,
+    merge_list2_input: String,
+    cycle_nodes_input: String,
+    cycle_index_input: i32,
+
+    tree_nodes_input: String,
+
     // Playback state
     steps: Vec<Step>,
     current_step_idx: usize,
@@ -97,6 +109,13 @@ impl Default for VisualizerApp {
             binary_search_target_input: 4,
             linked_list_nodes_input: "0, 1, 2, 3".to_string(),
 
+            merge_list1_input: "1, 2, 4".to_string(),
+            merge_list2_input: "1, 3, 5".to_string(),
+            cycle_nodes_input: "1, 2, 3, 4".to_string(),
+            cycle_index_input: 1,
+
+            tree_nodes_input: "1, 2, 3, 4, 5, 6, 7".to_string(),
+
             steps: Vec::new(),
             current_step_idx: 0,
             is_playing: false,
@@ -111,6 +130,19 @@ impl Default for VisualizerApp {
 impl VisualizerApp {
     pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         Self::default()
+    }
+
+    fn parse_tree_input(&self) -> Vec<Option<i32>> {
+        self.tree_nodes_input.split(',')
+            .map(|s| {
+                let trimmed = s.trim();
+                if trimmed.eq_ignore_ascii_case("null") || trimmed.is_empty() {
+                    None
+                } else {
+                    trimmed.parse::<i32>().ok()
+                }
+            })
+            .collect()
     }
 
     fn recompute_steps(&mut self) {
@@ -176,6 +208,27 @@ impl VisualizerApp {
                     .filter_map(|s| s.trim().parse().ok()).collect();
                 let nodes = if parsed.is_empty() { vec![0, 1, 2, 3] } else { parsed };
                 generate_reverse_linked_list_steps(&nodes)
+            }
+            Problem::MergeTwoLists => {
+                let l1: Vec<i32> = self.merge_list1_input.split(',').filter_map(|s| s.trim().parse().ok()).collect();
+                let l2: Vec<i32> = self.merge_list2_input.split(',').filter_map(|s| s.trim().parse().ok()).collect();
+                generate_merge_two_lists_steps(&l1, &l2)
+            }
+            Problem::LinkedListCycle => {
+                let nodes: Vec<i32> = self.cycle_nodes_input.split(',').filter_map(|s| s.trim().parse().ok()).collect();
+                generate_linked_list_cycle_steps(&nodes, self.cycle_index_input)
+            }
+            Problem::InvertTree => {
+                let tree = self.parse_tree_input();
+                generate_invert_tree_steps(&tree)
+            }
+            Problem::MaxDepthTree => {
+                let tree = self.parse_tree_input();
+                generate_max_depth_tree_steps(&tree)
+            }
+            Problem::DiameterTree => {
+                let tree = self.parse_tree_input();
+                generate_diameter_tree_steps(&tree)
             }
         };
         self.current_step_idx = 0;
@@ -411,6 +464,22 @@ impl eframe::App for VisualizerApp {
                             ui.label(RichText::new("head nodes:").strong());
                             ui.add(egui::TextEdit::singleline(&mut self.linked_list_nodes_input).desired_width(200.0));
                         }
+                        Problem::MergeTwoLists => {
+                            ui.label(RichText::new("list1:").strong());
+                            ui.add(egui::TextEdit::singleline(&mut self.merge_list1_input).desired_width(120.0));
+                            ui.label(RichText::new("list2:").strong());
+                            ui.add(egui::TextEdit::singleline(&mut self.merge_list2_input).desired_width(120.0));
+                        }
+                        Problem::LinkedListCycle => {
+                            ui.label(RichText::new("head nodes:").strong());
+                            ui.add(egui::TextEdit::singleline(&mut self.cycle_nodes_input).desired_width(140.0));
+                            ui.label(RichText::new("cycle index (-1=none):").strong());
+                            if ui.add(egui::DragValue::new(&mut self.cycle_index_input).speed(1.0).range(-1..=20)).changed() { self.recompute_steps(); }
+                        }
+                        Problem::InvertTree | Problem::MaxDepthTree | Problem::DiameterTree => {
+                            ui.label(RichText::new("root level-order (use 'null' for empty):").strong());
+                            ui.add(egui::TextEdit::singleline(&mut self.tree_nodes_input).desired_width(260.0));
+                        }
                     }
 
                     if ui.button(RichText::new("Apply").strong().color(Color32::WHITE)).clicked() {
@@ -437,23 +506,34 @@ impl eframe::App for VisualizerApp {
                         }
                         Problem::ValidPalindrome => {
                             if ui.button("Was it a car...").clicked() { self.palindrome_s_input = "Was it a car or a cat I saw?".into(); self.recompute_steps(); }
-                            if ui.button("tab a cat").clicked() { self.palindrome_s_input = "tab a cat".into(); self.recompute_steps(); }
                         }
                         Problem::BestTimeStock => {
                             if ui.button("[10,1,5,6,7,1]").clicked() { self.stock_prices_input = "10,1,5,6,7,1".into(); self.recompute_steps(); }
-                            if ui.button("[10,8,7,5,2]").clicked() { self.stock_prices_input = "10,8,7,5,2".into(); self.recompute_steps(); }
                         }
                         Problem::ValidParentheses => {
                             if ui.button("([{}])").clicked() { self.parentheses_s_input = "([{}])".into(); self.recompute_steps(); }
-                            if ui.button("[(])").clicked() { self.parentheses_s_input = "[(])".into(); self.recompute_steps(); }
                         }
                         Problem::BinarySearch => {
                             if ui.button("[-1,0,2,4,6,8] t=4").clicked() { self.binary_search_nums_input = "-1,0,2,4,6,8".into(); self.binary_search_target_input = 4; self.recompute_steps(); }
-                            if ui.button("[-1,0,2,4,6,8] t=3").clicked() { self.binary_search_nums_input = "-1,0,2,4,6,8".into(); self.binary_search_target_input = 3; self.recompute_steps(); }
                         }
                         Problem::ReverseLinkedList => {
                             if ui.button("[0,1,2,3]").clicked() { self.linked_list_nodes_input = "0,1,2,3".into(); self.recompute_steps(); }
-                            if ui.button("[7,14,21]").clicked() { self.linked_list_nodes_input = "7,14,21".into(); self.recompute_steps(); }
+                        }
+                        Problem::MergeTwoLists => {
+                            if ui.button("[1,2,4] & [1,3,5]").clicked() { self.merge_list1_input = "1,2,4".into(); self.merge_list2_input = "1,3,5".into(); self.recompute_steps(); }
+                        }
+                        Problem::LinkedListCycle => {
+                            if ui.button("[1,2,3,4] idx=1").clicked() { self.cycle_nodes_input = "1,2,3,4".into(); self.cycle_index_input = 1; self.recompute_steps(); }
+                            if ui.button("[1,2] idx=-1").clicked() { self.cycle_nodes_input = "1,2".into(); self.cycle_index_input = -1; self.recompute_steps(); }
+                        }
+                        Problem::InvertTree => {
+                            if ui.button("[1,2,3,4,5,6,7]").clicked() { self.tree_nodes_input = "1,2,3,4,5,6,7".into(); self.recompute_steps(); }
+                        }
+                        Problem::MaxDepthTree => {
+                            if ui.button("[1,2,3,null,null,4]").clicked() { self.tree_nodes_input = "1,2,3,null,null,4".into(); self.recompute_steps(); }
+                        }
+                        Problem::DiameterTree => {
+                            if ui.button("[1,null,2,3,4,5]").clicked() { self.tree_nodes_input = "1,null,2,3,4,5".into(); self.recompute_steps(); }
                         }
                     }
                 });
@@ -629,6 +709,15 @@ impl eframe::App for VisualizerApp {
                             VisualState::LinkedList { nodes, prev_idx, curr_idx, next_idx, reversed_so_far } => {
                                 self.render_linked_list(ui, nodes, *prev_idx, *curr_idx, *next_idx, reversed_so_far);
                             }
+                            VisualState::MergeLinkedLists { list1, list2, p1_idx, p2_idx, merged_so_far } => {
+                                self.render_merge_lists(ui, list1, list2, *p1_idx, *p2_idx, merged_so_far);
+                            }
+                            VisualState::LinkedListCycle { nodes, cycle_target_idx, slow_idx, fast_idx, has_cycle } => {
+                                self.render_list_cycle(ui, nodes, *cycle_target_idx, *slow_idx, *fast_idx, *has_cycle);
+                            }
+                            VisualState::TreeVisual { tree_nodes, active_node_idx, secondary_node_idx, depth_val, max_diameter } => {
+                                self.render_tree(ui, tree_nodes, *active_node_idx, *secondary_node_idx, *depth_val, *max_diameter);
+                            }
                             VisualState::TopK { nums, active_nums_idx, count_map, buckets, active_bucket_idx, result } => {
                                 self.render_topk(ui, nums, *active_nums_idx, count_map, buckets, *active_bucket_idx, result);
                             }
@@ -648,11 +737,183 @@ impl eframe::App for VisualizerApp {
 // ── Visual Canvas Renderers ──
 
 impl VisualizerApp {
+    fn render_merge_lists(&self, ui: &mut egui::Ui, list1: &[i32], list2: &[i32], p1_idx: Option<usize>, p2_idx: Option<usize>, merged: &[i32]) {
+        ui.heading(RichText::new("Merge Two Sorted Linked Lists").color(CYAN).size(16.0));
+        ui.add_space(8.0);
+
+        ui.horizontal(|ui| {
+            // List 1
+            ui.group(|ui| {
+                ui.label(RichText::new("LIST 1").font(egui::FontId::monospace(11.0)).color(MUTED));
+                ui.horizontal(|ui| {
+                    for (i, &val) in list1.iter().enumerate() {
+                        let fill = if p1_idx == Some(i) { CYAN } else { CELL_BG };
+                        egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, CELL_BORDER)).inner_margin(8.0).show(ui, |ui| {
+                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(14.0)).strong().color(Color32::WHITE));
+                        });
+                    }
+                    ui.label(RichText::new("None").font(egui::FontId::monospace(12.0)).color(DIM));
+                });
+            });
+
+            ui.add_space(20.0);
+
+            // List 2
+            ui.group(|ui| {
+                ui.label(RichText::new("LIST 2").font(egui::FontId::monospace(11.0)).color(MUTED));
+                ui.horizontal(|ui| {
+                    for (i, &val) in list2.iter().enumerate() {
+                        let fill = if p2_idx == Some(i) { PINK } else { CELL_BG };
+                        egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, CELL_BORDER)).inner_margin(8.0).show(ui, |ui| {
+                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(14.0)).strong().color(Color32::WHITE));
+                        });
+                    }
+                    ui.label(RichText::new("None").font(egui::FontId::monospace(12.0)).color(DIM));
+                });
+            });
+        });
+
+        ui.add_space(20.0);
+
+        // Merged output
+        ui.group(|ui| {
+            ui.label(RichText::new("MERGED SORTED LIST (TAIL ATTACHMENTS)").font(egui::FontId::monospace(11.0)).color(EMERALD_TEXT));
+            ui.horizontal(|ui| {
+                if merged.is_empty() {
+                    ui.label(RichText::new("Dummy Head -> None").font(egui::FontId::monospace(14.0)).color(DIM));
+                } else {
+                    for &val in merged {
+                        egui::Frame::none().fill(EMERALD).rounding(Rounding::same(8.0)).inner_margin(10.0).show(ui, |ui| {
+                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        });
+                    }
+                    ui.label(RichText::new("None").font(egui::FontId::monospace(14.0)).color(DIM));
+                }
+            });
+        });
+    }
+
+    fn render_list_cycle(&self, ui: &mut egui::Ui, nodes: &[i32], cycle_target: Option<usize>, slow: Option<usize>, fast: Option<usize>, has_cycle: Option<bool>) {
+        ui.heading(RichText::new("Floyd's Tortoise and Hare Cycle Detection").color(CYAN).size(16.0));
+        ui.add_space(8.0);
+
+        ui.group(|ui| {
+            ui.label(RichText::new("LINKED LIST NODES").font(egui::FontId::monospace(11.0)).color(MUTED));
+            ui.horizontal(|ui| {
+                for (i, &val) in nodes.iter().enumerate() {
+                    let is_slow = slow == Some(i);
+                    let is_fast = fast == Some(i);
+                    let is_cycle_target = cycle_target == Some(i);
+
+                    let fill = if is_slow && is_fast {
+                        PURPLE
+                    } else if is_slow {
+                        CYAN
+                    } else if is_fast {
+                        PINK
+                    } else if is_cycle_target {
+                        AMBER
+                    } else {
+                        CELL_BG
+                    };
+
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, CELL_BORDER)).inner_margin(10.0).show(ui, |ui| {
+                        ui.vertical(|ui| {
+                            let mut label = String::new();
+                            if is_slow && is_fast { label.push_str("S & F"); }
+                            else if is_slow { label.push_str("slow"); }
+                            else if is_fast { label.push_str("fast"); }
+
+                            ui.label(RichText::new(format!("idx {} {}", i, label)).font(egui::FontId::proportional(10.0)).color(Color32::WHITE));
+                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        });
+                    });
+                }
+
+                if let Some(target) = cycle_target {
+                    ui.label(RichText::new(format!("↺ [Cycle -> node idx {}]", target)).font(egui::FontId::monospace(14.0)).strong().color(AMBER));
+                } else {
+                    ui.label(RichText::new("None").font(egui::FontId::monospace(14.0)).color(DIM));
+                }
+            });
+        });
+
+        if let Some(cycle) = has_cycle {
+            ui.add_space(20.0);
+            if cycle {
+                ui.heading(RichText::new("Cycle Detected! Slow & Fast Pointers Met.").color(EMERALD_TEXT).size(18.0));
+            } else {
+                ui.heading(RichText::new("No Cycle Exists (Fast Pointer Reached End)").color(RED).size(18.0));
+            }
+        }
+    }
+
+    fn render_tree(&self, ui: &mut egui::Ui, tree_nodes: &[Option<i32>], active_idx: Option<usize>, sec_idx: Option<usize>, depth_val: Option<i32>, max_diameter: Option<i32>) {
+        ui.heading(RichText::new("Binary Tree Node Graph Hierarchy").color(CYAN).size(16.0));
+        ui.add_space(8.0);
+
+        // Level-order tree node rendering
+        ui.group(|ui| {
+            ui.label(RichText::new("BINARY TREE LEVEL-ORDER NODES").font(egui::FontId::monospace(11.0)).color(MUTED));
+            ui.horizontal_wrapped(|ui| {
+                for (i, node_opt) in tree_nodes.iter().enumerate() {
+                    let is_active = active_idx == Some(i);
+                    let is_sec = sec_idx == Some(i);
+
+                    let fill = if is_active {
+                        CYAN
+                    } else if is_sec {
+                        PINK
+                    } else if node_opt.is_some() {
+                        CELL_BG
+                    } else {
+                        DIM
+                    };
+
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, CELL_BORDER)).inner_margin(10.0).show(ui, |ui| {
+                        ui.vertical(|ui| {
+                            let label = if is_active { "Active" } else if is_sec { "Child" } else { "" };
+                            ui.label(RichText::new(format!("i={} {}", i, label)).font(egui::FontId::proportional(10.0)).color(Color32::WHITE));
+                            let val_str = match node_opt {
+                                Some(v) => format!("[ {} ]", v),
+                                None => "null".to_string(),
+                            };
+                            ui.label(RichText::new(val_str).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        });
+                    });
+                }
+            });
+        });
+
+        ui.add_space(20.0);
+
+        // Metrics
+        ui.horizontal(|ui| {
+            if let Some(d) = depth_val {
+                egui::Frame::none().fill(CELL_BG).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, CYAN)).inner_margin(12.0).show(ui, |ui| {
+                    ui.vertical(|ui| {
+                        ui.label(RichText::new("Current / Max Tree Depth").font(egui::FontId::proportional(11.0)).color(MUTED));
+                        ui.label(RichText::new(format!("Depth: {}", d)).font(egui::FontId::monospace(18.0)).strong().color(CYAN));
+                    });
+                });
+            }
+
+            if let Some(diam) = max_diameter {
+                ui.add_space(16.0);
+                egui::Frame::none().fill(CELL_BG).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, EMERALD_TEXT)).inner_margin(12.0).show(ui, |ui| {
+                    ui.vertical(|ui| {
+                        ui.label(RichText::new("Maximum Tree Diameter (Edges Path)").font(egui::FontId::proportional(11.0)).color(MUTED));
+                        ui.label(RichText::new(format!("Diameter: {}", diam)).font(egui::FontId::monospace(18.0)).strong().color(EMERALD_TEXT));
+                    });
+                });
+            }
+        });
+    }
+
     fn render_stock(&self, ui: &mut egui::Ui, prices: &[i32], left_buy: usize, right_sell: usize, current_profit: i32, max_profit: i32) {
         ui.heading(RichText::new("Sliding Window / Buy & Sell Stock Trace").color(CYAN).size(16.0));
         ui.add_space(8.0);
 
-        // Prices array cards
         ui.group(|ui| {
             ui.label(RichText::new("STOCK PRICES ARRAY (Days 0..N-1)").font(egui::FontId::monospace(11.0)).color(MUTED));
             ui.horizontal(|ui| {
@@ -691,7 +952,6 @@ impl VisualizerApp {
 
         ui.add_space(20.0);
 
-        // Profit metrics
         ui.horizontal(|ui| {
             egui::Frame::none().fill(CELL_BG).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, PINK)).inner_margin(12.0).show(ui, |ui| {
                 ui.vertical(|ui| {
@@ -758,7 +1018,6 @@ impl VisualizerApp {
         ui.heading(RichText::new("Singly-Linked List Pointer Reversal").color(CYAN).size(16.0));
         ui.add_space(8.0);
 
-        // Original chain with pointers
         ui.group(|ui| {
             ui.label(RichText::new("ORIGINAL LINKED LIST NODES").font(egui::FontId::monospace(11.0)).color(MUTED));
             ui.horizontal(|ui| {
@@ -795,7 +1054,6 @@ impl VisualizerApp {
 
         ui.add_space(20.0);
 
-        // Reversed list so far
         ui.group(|ui| {
             ui.label(RichText::new("REVERSED LINKED LIST (Constructed from head)").font(egui::FontId::monospace(11.0)).color(EMERALD_TEXT));
             ui.horizontal(|ui| {

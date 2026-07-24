@@ -10,3 +10,8 @@ pub mod valid_parentheses;
 pub mod best_time_stock;
 pub mod binary_search;
 pub mod reverse_linked_list;
+pub mod merge_two_lists;
+pub mod linked_list_cycle;
+pub mod invert_tree;
+pub mod max_depth_tree;
+pub mod diameter_tree;

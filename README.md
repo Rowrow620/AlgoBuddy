@@ -22,11 +22,12 @@ AlgoBuddy is a native desktop application built in Rust using `eframe` and `egui
 
 - **Topic Navigation & Search**: Filter problems by topic category, difficulty level (Easy, Medium, Hard), or direct keyword search.
 - **Visual Memory State Renderers**:
-  - Array and Dual-Pointer Renderers (converging pointers, character comparison indicators).
-  - Vertical Stack Renderers (push/pop operations, bracket matching verification).
+  - Binary Tree Node Graph Renderers (level-order hierarchy, active node highlight, depth and diameter metrics).
+  - Single and Dual Linked List Renderers (pointer chain, next pointer flipping, slow/fast cycle detection, sorted list merging).
   - Sliding Window Stock Renderers (buy/sell day pointer cards, running profit metrics).
   - Binary Search Renderers (sorted array bounds, midpoint marker, target match indicators).
-  - Linked List Pointer Renderers (pointer chain, next pointer flipping, reversed list construction).
+  - Array and Dual-Pointer Renderers (converging pointers, character comparison indicators).
+  - Vertical Stack Renderers (push/pop operations, bracket matching verification).
   - Hash Map & Frequency Grid Renderers (key-value mapping, character count matrices).
   - Prefix & Suffix Array Product Renderers.
   - String Protocol Renderers (`length#string` encoding/decoding traces).
@@ -34,7 +35,7 @@ AlgoBuddy is a native desktop application built in Rust using `eframe` and `egui
 
 ---
 
-## Supported Problems
+## Supported Problems (15 Problems across 7 Roadmap Categories)
 
 | Problem ID | Problem Name | Category | Supported Approaches |
 | :--- | :--- | :--- | :--- |
@@ -48,6 +49,11 @@ AlgoBuddy is a native desktop application built in Rust using `eframe` and `egui
 | **#20** | Valid Parentheses | Stack | Stack Matching O(N) |
 | **#704** | Binary Search | Binary Search | Binary Search Iterative O(log N) |
 | **#206** | Reverse Linked List | Linked List | Iterative Pointers (prev, curr, nxt) O(N) |
+| **#21** | Merge Two Sorted Linked Lists | Linked List | Two Pointers Merge O(N + M) |
+| **#141** | Linked List Cycle Detection | Linked List | Floyd's Tortoise & Hare Slow/Fast Pointers O(N) |
+| **#226** | Invert Binary Tree | Trees | Recursive DFS Subtree Swap O(N) |
+| **#104** | Maximum Depth of Binary Tree | Trees | Recursive DFS Height Calculation O(N) |
+| **#543** | Diameter of Binary Tree | Trees | Post-order DFS Path Diameter O(N) |
 
 ---
 
@@ -104,7 +110,12 @@ AlgoBuddy/
         ├── best_time_stock.rs          # Best Time to Buy/Sell Stock step generator
         ├── valid_parentheses.rs        # Valid Parentheses step generator
         ├── binary_search.rs            # Binary Search step generator
-        └── reverse_linked_list.rs      # Reverse Linked List step generator
+        ├── reverse_linked_list.rs      # Reverse Linked List step generator
+        ├── merge_two_lists.rs          # Merge Two Lists step generator
+        ├── linked_list_cycle.rs        # Linked List Cycle step generator
+        ├── invert_tree.rs              # Invert Binary Tree step generator
+        ├── max_depth_tree.rs           # Max Depth Binary Tree step generator
+        └── diameter_tree.rs            # Diameter of Binary Tree step generator
 ```
 
 ---
