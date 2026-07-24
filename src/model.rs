@@ -1,4 +1,140 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
+use eframe::egui::Color32;
+
+// ── Themes & Accessibility ──
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Theme {
+    DarkVSCode,
+    DarkCyber,
+    LightClean,
+}
+
+impl Theme {
+    pub fn label(&self) -> &'static str {
+        match self {
+            Theme::DarkVSCode => "VS Code Dark",
+            Theme::DarkCyber => "Cyber Navy (Dark)",
+            Theme::LightClean => "Clean Light",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ColorblindMode {
+    Off,
+    RedGreenSafe,
+    HighContrast,
+}
+
+impl ColorblindMode {
+    pub fn label(&self) -> &'static str {
+        match self {
+            ColorblindMode::Off => "Off (Standard)",
+            ColorblindMode::RedGreenSafe => "Protan / Deuteran (Blue-Orange)",
+            ColorblindMode::HighContrast => "High Contrast B&W",
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ThemePalette {
+    pub bg_dark: Color32,
+    pub sidebar_bg: Color32,
+    pub step_box_bg: Color32,
+    pub cell_bg: Color32,
+    pub cell_border: Color32,
+    pub text_primary: Color32,
+    pub text_muted: Color32,
+    pub text_dim: Color32,
+    pub cyan: Color32,
+    pub purple: Color32,
+    pub emerald: Color32,
+    pub emerald_text: Color32,
+    pub amber: Color32,
+    pub pink: Color32,
+    pub red: Color32,
+    pub code_active_bg: Color32,
+}
+
+impl Theme {
+    pub fn palette(&self, cb: ColorblindMode) -> ThemePalette {
+        let (base_emerald, base_emerald_text, base_red) = match cb {
+            ColorblindMode::Off => (
+                Color32::from_rgb(16, 185, 129),   // Emerald Green
+                Color32::from_rgb(52, 211, 153),  // Emerald Text
+                Color32::from_rgb(244, 63, 94),   // Ruby Red
+            ),
+            ColorblindMode::RedGreenSafe => (
+                Color32::from_rgb(37, 99, 235),   // Cobalt Blue (Valid / Success)
+                Color32::from_rgb(96, 165, 250),  // Light Cobalt Text
+                Color32::from_rgb(234, 88, 12),   // Safety Orange (Error / Duplicate)
+            ),
+            ColorblindMode::HighContrast => (
+                Color32::from_rgb(255, 255, 255), // High Contrast White
+                Color32::from_rgb(255, 255, 255),
+                Color32::from_rgb(255, 255, 0),   // Vivid Yellow
+            ),
+        };
+
+        match self {
+            Theme::DarkVSCode => ThemePalette {
+                bg_dark: Color32::from_rgb(24, 24, 24),        // VS Code #181818
+                sidebar_bg: Color32::from_rgb(30, 30, 30),     // VS Code #1e1e1e
+                step_box_bg: Color32::from_rgb(37, 37, 38),    // VS Code #252526
+                cell_bg: Color32::from_rgb(45, 45, 48),        // VS Code panel #2d2d30
+                cell_border: Color32::from_rgb(60, 60, 60),
+                text_primary: Color32::from_rgb(220, 220, 220),
+                text_muted: Color32::from_rgb(160, 160, 160),
+                text_dim: Color32::from_rgb(110, 110, 110),
+                cyan: Color32::from_rgb(86, 156, 214),        // VS Code Keyword Blue
+                purple: Color32::from_rgb(197, 134, 192),     // VS Code Pink/Purple
+                emerald: base_emerald,
+                emerald_text: base_emerald_text,
+                amber: Color32::from_rgb(206, 145, 120),       // VS Code String Orange
+                pink: Color32::from_rgb(220, 100, 170),
+                red: base_red,
+                code_active_bg: Color32::from_rgb(9, 71, 113),  // VS Code Selection Blue
+            },
+            Theme::DarkCyber => ThemePalette {
+                bg_dark: Color32::from_rgb(11, 15, 25),
+                sidebar_bg: Color32::from_rgb(15, 23, 42),
+                step_box_bg: Color32::from_rgb(30, 41, 59),
+                cell_bg: Color32::from_rgb(30, 41, 59),
+                cell_border: Color32::from_rgb(51, 65, 85),
+                text_primary: Color32::from_rgb(248, 250, 252),
+                text_muted: Color32::from_rgb(156, 163, 175),
+                text_dim: Color32::from_rgb(100, 116, 139),
+                cyan: Color32::from_rgb(56, 189, 248),
+                purple: Color32::from_rgb(168, 85, 247),
+                emerald: base_emerald,
+                emerald_text: base_emerald_text,
+                amber: Color32::from_rgb(245, 158, 11),
+                pink: Color32::from_rgb(236, 72, 153),
+                red: base_red,
+                code_active_bg: Color32::from_rgb(14, 116, 144),
+            },
+            Theme::LightClean => ThemePalette {
+                bg_dark: Color32::from_rgb(248, 250, 252),      // Slate 50
+                sidebar_bg: Color32::from_rgb(255, 255, 255),   // White panel
+                step_box_bg: Color32::from_rgb(241, 245, 249),  // Slate 100
+                cell_bg: Color32::from_rgb(241, 245, 249),
+                cell_border: Color32::from_rgb(203, 213, 225),  // Slate 300
+                text_primary: Color32::from_rgb(15, 23, 42),    // Slate 900
+                text_muted: Color32::from_rgb(71, 85, 105),     // Slate 600
+                text_dim: Color32::from_rgb(148, 163, 184),    // Slate 400
+                cyan: Color32::from_rgb(2, 132, 199),          // Sky 600
+                purple: Color32::from_rgb(147, 51, 234),       // Purple 600
+                emerald: base_emerald,
+                emerald_text: if cb == ColorblindMode::Off { Color32::from_rgb(5, 150, 105) } else { base_emerald_text },
+                amber: Color32::from_rgb(217, 119, 6),         // Amber 600
+                pink: Color32::from_rgb(219, 39, 119),         // Pink 600
+                red: base_red,
+                code_active_bg: Color32::from_rgb(186, 230, 253), // Sky 200
+            },
+        }
+    }
+}
 
 // ── Difficulty Level ──
 
@@ -123,11 +259,15 @@ pub struct ProblemDetails {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Problem {
+    ContainsDuplicate,
     TwoSum,
     ValidAnagram,
+    GroupAnagrams,
     TopKFrequent,
     ProductExceptSelf,
     EncodeDecode,
+    ValidSudoku,
+    LongestConsecutive,
     ValidPalindrome,
     BestTimeStock,
     ValidParentheses,
@@ -143,11 +283,15 @@ pub enum Problem {
 impl Problem {
     pub fn all() -> &'static [Problem] {
         &[
+            Problem::ContainsDuplicate,
             Problem::TwoSum,
             Problem::ValidAnagram,
+            Problem::GroupAnagrams,
             Problem::TopKFrequent,
             Problem::ProductExceptSelf,
             Problem::EncodeDecode,
+            Problem::ValidSudoku,
+            Problem::LongestConsecutive,
             Problem::ValidPalindrome,
             Problem::BestTimeStock,
             Problem::ValidParentheses,
@@ -179,6 +323,24 @@ impl Problem {
 
     pub fn details(&self) -> ProblemDetails {
         match self {
+            Problem::ContainsDuplicate => ProblemDetails {
+                id: 217,
+                title: "Contains Duplicate",
+                difficulty: Difficulty::Easy,
+                category: Category::ArraysAndHashing,
+                statement: "Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.",
+                examples: &[
+                    Example { input: "nums = [1, 2, 3, 1]", output: "true", explanation: "Digit 1 appears twice." },
+                    Example { input: "nums = [1, 2, 3, 4]", output: "false", explanation: "All elements are distinct." },
+                    Example { input: "nums = [1, 1, 1, 3, 3, 4, 3, 2, 4, 2]", output: "true", explanation: "Multiple duplicates exist." },
+                ],
+                constraints: &["1 <= nums.length <= 10^5", "-10^9 <= nums[i] <= 10^9"],
+                leetcode_url: "https://leetcode.com/problems/contains-duplicate/",
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Hash Set Lookup", time_complexity: "O(N)", space_complexity: "O(N)", description: "Insert into set, return true on collision." },
+                    ApproachMeta { id: 1, name: "Sorting Array", time_complexity: "O(N log N)", space_complexity: "O(1)", description: "Sort array, check adjacent elements." },
+                ],
+            },
             Problem::TwoSum => ProblemDetails {
                 id: 1,
                 title: "Two Sum",
@@ -211,6 +373,28 @@ impl Problem {
                     ApproachMeta { id: 1, name: "Sort Strings", time_complexity: "O(N log N)", space_complexity: "O(N)", description: "Compare sorted strings." },
                 ],
             },
+            Problem::GroupAnagrams => ProblemDetails {
+                id: 49,
+                title: "Group Anagrams",
+                difficulty: Difficulty::Medium,
+                category: Category::ArraysAndHashing,
+                statement: "Given an array of strings strs, group the anagrams together. You can return the answer in any order. An Anagram is a word or phrase formed by rearranging the letters of a different word using all original letters exactly once.",
+                examples: &[
+                    Example {
+                        input: "strs = [\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"]",
+                        output: "[[\"bat\"], [\"nat\", \"tan\"], [\"ate\", \"eat\", \"tea\"]]",
+                        explanation: "Anagrams mapped to identical frequency keys or sorted signatures.",
+                    },
+                    Example { input: "strs = [\"\"]", output: "[[\"\"]]", explanation: "Single empty string." },
+                    Example { input: "strs = [\"a\"]", output: "[[\"a\"]]", explanation: "Single character string." },
+                ],
+                constraints: &["1 <= strs.length <= 10^4", "0 <= strs[i].length <= 100", "strs[i] consists of lowercase English letters."],
+                leetcode_url: "https://leetcode.com/problems/group-anagrams/",
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Char Frequency Tuple Map", time_complexity: "O(N * K)", space_complexity: "O(N * K)", description: "Use 26-element character count tuple as HashMap key." },
+                    ApproachMeta { id: 1, name: "Sorted String Key Map", time_complexity: "O(N * K log K)", space_complexity: "O(N * K)", description: "Use sorted string signature as HashMap key." },
+                ],
+            },
             Problem::TopKFrequent => ProblemDetails {
                 id: 347,
                 title: "Top K Frequent Elements",
@@ -233,11 +417,12 @@ impl Problem {
                 title: "Product of Array Except Self",
                 difficulty: Difficulty::Medium,
                 category: Category::ArraysAndHashing,
-                statement: "Given an integer array nums, return an array answer such that answer[i] is equal to the product of all elements except nums[i].",
+                statement: "Given an integer array nums, return an array output where output[i] is the product of all elements of nums except nums[i]. Must run in O(n) without division.",
                 examples: &[
-                    Example { input: "nums = [1, 2, 3, 4]", output: "[24, 12, 8, 6]", explanation: "Multiply prefix and suffix products." },
+                    Example { input: "nums = [1, 2, 4, 6]", output: "[48, 24, 12, 8]", explanation: "output[0] = 2*4*6=48, output[1] = 1*4*6=24, output[2] = 1*2*6=12, output[3] = 1*2*4=8." },
+                    Example { input: "nums = [-1, 0, 1, 2, 3]", output: "[0, -6, 0, 0, 0]", explanation: "Zero element zeroes out other indices." },
                 ],
-                constraints: &["2 <= nums.length <= 10^5"],
+                constraints: &["2 <= nums.length <= 1000", "-20 <= nums[i] <= 20"],
                 leetcode_url: "https://leetcode.com/problems/product-of-array-except-self/",
                 approaches: &[
                     ApproachMeta { id: 0, name: "Prefix & Suffix Pass", time_complexity: "O(N)", space_complexity: "O(1)", description: "Prefix array and running suffix." },
@@ -248,14 +433,82 @@ impl Problem {
                 title: "Encode and Decode Strings",
                 difficulty: Difficulty::Medium,
                 category: Category::ArraysAndHashing,
-                statement: "Design an algorithm to encode a list of strings to a string, then decode it back to the original list.",
+                statement: "Design an algorithm to encode a list of strings to a string, then decode it back to the original list of strings.",
                 examples: &[
-                    Example { input: "strs = [\"Hello\", \"World\"]", output: "[\"Hello\", \"World\"]", explanation: "Encoded into 5#Hello5#World." },
+                    Example { input: "strs = [\"Hello\", \"World\"]", output: "[\"Hello\", \"World\"]", explanation: "Encoded into 5#Hello5#World, then decoded back." },
+                    Example { input: "strs = [\"\"]", output: "[\"\"]", explanation: "Encoded into 0#." },
                 ],
-                constraints: &["1 <= strs.length <= 200"],
+                constraints: &["0 <= strs.length < 100", "0 <= strs[i].length < 200"],
                 leetcode_url: "https://leetcode.com/problems/encode-and-decode-strings/",
                 approaches: &[
                     ApproachMeta { id: 0, name: "Length Prefix (# Protocol)", time_complexity: "O(N)", space_complexity: "O(N)", description: "Prefix len#string." },
+                ],
+            },
+            Problem::ValidSudoku => ProblemDetails {
+                id: 36,
+                title: "Valid Sudoku",
+                difficulty: Difficulty::Medium,
+                category: Category::ArraysAndHashing,
+                statement: "You are given a 9 x 9 Sudoku board. A Sudoku board is valid if:\n1. Each row must contain digits 1-9 without duplicates.\n2. Each column must contain digits 1-9 without duplicates.\n3. Each 3 x 3 sub-box of the grid must contain digits 1-9 without duplicates.\n\nNote: A board does not need to be full or solvable to be valid.",
+                examples: &[
+                    Example {
+                        input: "board = [[1, 2, ., ., 3, ., ., ., .], ...]",
+                        output: "true",
+                        explanation: "No duplicate digits in any row, column, or 3x3 sub-box.",
+                    },
+                    Example {
+                        input: "board = [[1, 2, ., ., 3, ., ., ., .], [4, ., ., 5, ., ., ., ., .], [., 9, 1, ., ., ., ., ., 3], ...]",
+                        output: "false",
+                        explanation: "There are two 1's in the top-left 3x3 sub-box.",
+                    },
+                ],
+                constraints: &[
+                    "board.length == 9",
+                    "board[i].length == 9",
+                    "board[i][j] is a digit 1-9 or '.'",
+                ],
+                leetcode_url: "https://leetcode.com/problems/valid-sudoku/",
+                approaches: &[
+                    ApproachMeta {
+                        id: 0,
+                        name: "HashSet Validation (Rows, Cols, 3x3 Boxes)",
+                        time_complexity: "O(1) [9x9=81 cells]",
+                        space_complexity: "O(1) [81 items]",
+                        description: "Scan every cell (r, c). Use 9 row sets, 9 column sets, and 9 box sets to detect duplicates instantly.",
+                    },
+                ],
+            },
+            Problem::LongestConsecutive => ProblemDetails {
+                id: 128,
+                title: "Longest Consecutive Sequence",
+                difficulty: Difficulty::Medium,
+                category: Category::ArraysAndHashing,
+                statement: "Given an array of integers nums, return the length of the longest consecutive sequence of elements that can be formed. A consecutive sequence is a sequence in which each element is exactly 1 greater than the previous. Must run in O(n) time.",
+                examples: &[
+                    Example {
+                        input: "nums = [2, 20, 4, 10, 3, 4, 5]",
+                        output: "4",
+                        explanation: "The longest consecutive sequence is [2, 3, 4, 5].",
+                    },
+                    Example {
+                        input: "nums = [0, 3, 2, 5, 4, 6, 1, 1]",
+                        output: "7",
+                        explanation: "The longest consecutive sequence is [0, 1, 2, 3, 4, 5, 6].",
+                    },
+                ],
+                constraints: &[
+                    "0 <= nums.length <= 1000",
+                    "-10^9 <= nums[i] <= 10^9",
+                ],
+                leetcode_url: "https://leetcode.com/problems/longest-consecutive-sequence/",
+                approaches: &[
+                    ApproachMeta {
+                        id: 0,
+                        name: "HashSet Sequence Start Expansion",
+                        time_complexity: "O(N)",
+                        space_complexity: "O(N)",
+                        description: "Convert array to HashSet. Only start expanding a streak if (n - 1) is not in the set.",
+                    },
                 ],
             },
             Problem::ValidPalindrome => ProblemDetails {
@@ -263,7 +516,7 @@ impl Problem {
                 title: "Valid Palindrome",
                 difficulty: Difficulty::Easy,
                 category: Category::TwoPointers,
-                statement: "Given a string s, return true if it is a palindrome, otherwise return false.\n\nA palindrome reads the same forward and backward, case-insensitive, ignoring non-alphanumeric characters.",
+                statement: "Given a string s, return true if it is a palindrome, otherwise return false.",
                 examples: &[
                     Example { input: "s = \"Was it a car or a cat I saw?\"", output: "true", explanation: "After filtering: \"wasitacaroracatisaw\" is a palindrome." },
                     Example { input: "s = \"tab a cat\"", output: "false", explanation: "\"tabacat\" is not a palindrome." },
@@ -428,6 +681,19 @@ impl Problem {
 
 #[derive(Debug, Clone)]
 pub enum VisualState {
+    ContainsDuplicate {
+        nums: Vec<i32>,
+        active_idx: Option<usize>,
+        seen_set: BTreeSet<i32>,
+        duplicate_val: Option<i32>,
+        has_duplicate: Option<bool>,
+    },
+    GroupAnagrams {
+        input_strs: Vec<String>,
+        active_idx: Option<usize>,
+        key_fmt: String,
+        groups: BTreeMap<String, Vec<String>>,
+    },
     TopK {
         nums: Vec<i32>,
         active_nums_idx: Option<usize>,
@@ -451,6 +717,21 @@ pub enum VisualState {
         prefix_val: i64,
         suffix_val: i64,
         phase: ProductPhase,
+    },
+    ValidSudoku {
+        board: [[char; 9]; 9],
+        active_r: Option<usize>,
+        active_c: Option<usize>,
+        duplicate_pos: Option<(usize, usize)>,
+        is_valid: Option<bool>,
+    },
+    LongestConsecutive {
+        nums: Vec<i32>,
+        num_set: BTreeSet<i32>,
+        current_num: Option<i32>,
+        current_seq: Vec<i32>,
+        max_length: usize,
+        is_seq_start: Option<bool>,
     },
     TwoSum {
         nums: Vec<i32>,
@@ -557,6 +838,26 @@ pub struct Step {
 
 pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, &'static str)> {
     match (problem, approach_id) {
+        (Problem::ContainsDuplicate, 0) => vec![
+            (1, "class Solution:"),
+            (2, "    def containsDuplicate(self, nums: List[int]) -> bool:"),
+            (3, "        seen = set()"),
+            (4, "        for n in nums:"),
+            (5, "            if n in seen:"),
+            (6, "                return True"),
+            (7, "            seen.add(n)"),
+            (8, "        return False"),
+        ],
+        (Problem::ContainsDuplicate, 1) => vec![
+            (1, "class Solution:"),
+            (2, "    def containsDuplicate(self, nums: List[int]) -> bool:"),
+            (3, "        nums.sort()"),
+            (4, "        for i in range(1, len(nums)):"),
+            (5, "            if nums[i] == nums[i - 1]:"),
+            (6, "                return True"),
+            (7, "        return False"),
+        ],
+
         (Problem::TwoSum, 0) => vec![
             (1, "class Solution:"),
             (2, "    def twoSum(self, nums: List[int], target: int) -> List[int]:"),
@@ -598,6 +899,27 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (5, "        return sorted(s) == sorted(t)"),
         ],
 
+        (Problem::GroupAnagrams, 0) => vec![
+            (1, "class Solution:"),
+            (2, "    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:"),
+            (3, "        res = defaultdict(list)"),
+            (4, "        for s in strs:"),
+            (5, "            count = [0] * 26"),
+            (6, "            for c in s:"),
+            (7, "                count[ord(c) - ord('a')] += 1"),
+            (8, "            res[tuple(count)].append(s)"),
+            (9, "        return list(res.values())"),
+        ],
+        (Problem::GroupAnagrams, 1) => vec![
+            (1, "class Solution:"),
+            (2, "    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:"),
+            (3, "        res = defaultdict(list)"),
+            (4, "        for s in strs:"),
+            (5, "            key = \"\".join(sorted(s))"),
+            (6, "            res[key].append(s)"),
+            (7, "        return list(res.values())"),
+        ],
+
         (Problem::TopKFrequent, 0) => crate::model::topk_code_lines(),
         (Problem::TopKFrequent, 1) => vec![
             (1, "class Solution:"),
@@ -621,6 +943,37 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
 
         (Problem::ProductExceptSelf, _) => crate::model::product_code_lines(),
         (Problem::EncodeDecode, _) => crate::model::encode_decode_code_lines(),
+
+        (Problem::ValidSudoku, _) => vec![
+            (1, "class Solution:"),
+            (2, "    def isValidSudoku(self, board: List[List[str]]) -> bool:"),
+            (3, "        cols = defaultdict(set)"),
+            (4, "        rows = defaultdict(set)"),
+            (5, "        squares = defaultdict(set) # key = (r//3, c//3)"),
+            (6, "        for r in range(9):"),
+            (7, "            for c in range(9):"),
+            (8, "                if board[r][c] == \".\": continue"),
+            (9, "                val = board[r][c]"),
+            (10, "                if (val in rows[r] or val in cols[c] or val in squares[(r//3, c//3)]):"),
+            (11, "                    return False"),
+            (12, "                rows[r].add(val); cols[c].add(val); squares[(r//3, c//3)].add(val)"),
+            (13, "        return True"),
+        ],
+
+        (Problem::LongestConsecutive, _) => vec![
+            (1, "class Solution:"),
+            (2, "    def longestConsecutive(self, nums: List[int]) -> int:"),
+            (3, "        numSet = set(nums)"),
+            (4, "        longest = 0"),
+            (5, "        for n in numSet:"),
+            (6, "            # check if it is the start of a sequence"),
+            (7, "            if (n - 1) not in numSet:"),
+            (8, "                length = 1"),
+            (9, "                while (n + length) in numSet:"),
+            (10, "                    length += 1"),
+            (11, "                longest = max(longest, length)"),
+            (12, "        return longest"),
+        ],
 
         (Problem::ValidPalindrome, 0) => vec![
             (1, "class Solution:"),

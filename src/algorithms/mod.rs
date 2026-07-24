@@ -15,3 +15,7 @@ pub mod linked_list_cycle;
 pub mod invert_tree;
 pub mod max_depth_tree;
 pub mod diameter_tree;
+pub mod valid_sudoku;
+pub mod longest_consecutive;
+pub mod contains_duplicate;
+pub mod group_anagrams;
