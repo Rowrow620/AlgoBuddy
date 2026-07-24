@@ -1,38 +1,71 @@
-# AlgoBuddy 🦀
+# AlgoBuddy
 
-A high-performance native desktop application written in Rust using `eframe` / `egui` to interactively visualize LeetCode algorithm solutions step by step, organized by the **NeetCode 150 Roadmap**.
+[![Rust](https://img.shields.io/badge/Rust-2021-orange.svg)](https://www.rust-lang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GUI: eframe/egui](https://img.shields.io/badge/GUI-eframe%2Fegui-blueviolet)](https://github.com/emilk/egui)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)]()
 
----
-
-## 🌟 Key Features
-
-* **NeetCode 150 Roadmap Navigation**:
-  * Organized into all **18 topic categories** (Arrays & Hashing, Two Pointers, Stack, Sliding Window, Binary Search, Linked List, Trees, Tries, Backtracking, Heap, Graphs, 1D/2D DP, Bit Manipulation, Math & Geometry).
-  * Real-time search bar to filter problems by name or number.
-* **Difficulty Filter**:
-  * Filter problems by **All**, **Easy** (Green), **Medium** (Amber), and **Hard** (Red).
-* **Multi-Approach Algorithm Support**:
-  * Compare multiple valid approaches per problem (e.g. **Hash Map $O(N)$** vs **Brute Force $O(N^2)$**, or **Bucket Sort $O(N)$** vs **Min-Heap $O(N \log k)$**).
-  * Dynamically updates time & space complexity badges, code line highlighting, and animation cards.
-* **Integrated Problem Statement Reference Panel**:
-  * Full problem narrative, example input/output cards, constraints list, and direct **"Open on LeetCode.com ↗"** button.
-* **Full Playback Engine**:
-  * **Play / Pause** auto-stepping with delay slider (100ms - 1500ms).
-  * **Step Previous / Step Next / Reset** buttons + interactive timeline scrubbing.
+AlgoBuddy is a native desktop application built in Rust using `eframe` and `egui` that provides interactive, step-by-step algorithm visualizations formatted according to the NeetCode 150 learning roadmap.
 
 ---
 
-## 🚀 How to Run
+## Architectural Highlights
 
-### Option 1: Cargo Command (Recommended)
-Open a terminal in the project directory and run:
+- **NeetCode 150 Category Taxonomy**: Navigation structured into 18 algorithmic topic categories including Arrays & Hashing, Two Pointers, Stack, Binary Search, Sliding Window, Linked List, Trees, Tries, Backtracking, Heap / Priority Queue, Graphs, Dynamic Programming, Bit Manipulation, and Math & Geometry.
+- **Multi-Approach Evaluation Engine**: Compare multiple valid solutions per problem (e.g., Hash Map vs. Brute Force or Bucket Sort vs. Min-Heap vs. Array Sorting) with live execution updates.
+- **Deterministic State Engine**: Models algorithm steps as discrete state snapshots, enabling forward and backward timeline scrubbing, variable auto-stepping delay (100ms - 1500ms), and synchronized source line highlighting.
+- **Integrated Problem Specifications**: View problem statements, examples with input/output cases, operational constraints, and direct links to official LeetCode problems within the application context.
+
+---
+
+## Core Features
+
+- **Topic Navigation & Search**: Filter problems by topic category, difficulty level (Easy, Medium, Hard), or direct keyword search.
+- **Visual Memory State Renderers**:
+  - Array and Dual-Pointer Renderers (converging pointers, character comparison indicators).
+  - Vertical Stack Renderers (push/pop operations, bracket matching verification).
+  - Hash Map & Frequency Grid Renderers (key-value mapping, character count matrices).
+  - Prefix & Suffix Array Product Renderers.
+  - String Protocol Renderers (`length#string` encoding/decoding traces).
+- **Synchronized Source Trace**: Python solution implementation with active line highlighting tied to visual state transitions.
+
+---
+
+## Supported Problems
+
+| Problem ID | Problem Name | Category | Supported Approaches |
+| :--- | :--- | :--- | :--- |
+| **#1** | Two Sum | Arrays & Hashing | Hash Map O(N), Brute Force O(N²) |
+| **#242** | Valid Anagram | Arrays & Hashing | Frequency Counter Array O(N), Sort Strings O(N log N) |
+| **#347** | Top K Frequent Elements | Arrays & Hashing | Bucket Sort O(N), Min-Heap O(N log k), Sorting Pairs O(N log N) |
+| **#238** | Product of Array Except Self | Arrays & Hashing | Prefix & Suffix Pass O(N) |
+| **#271** | Encode and Decode Strings | Arrays & Hashing | Length Prefix (# Protocol) O(N) |
+| **#125** | Valid Palindrome | Two Pointers | Two Pointers In-Place O(N), Reverse Filtered String O(N) |
+| **#20** | Valid Parentheses | Stack | Stack Matching O(N) |
+
+---
+
+## System Requirements
+
+- Rust Toolchain (`rustc 1.97` or newer with Cargo)
+
+---
+
+## Installation & Execution
+
+### Build from Source
+
+Clone the repository and build using Cargo:
 
 ```powershell
+git clone https://github.com/Rowrow620/AlgoBuddy.git
+cd AlgoBuddy
 cargo run
 ```
 
-### Option 2: Pre-compiled Executable
-Directly run the compiled native binary:
+### Pre-compiled Binary
+
+Run the compiled executable directly from the target directory:
 
 ```powershell
 .\target\debug\algobuddy.exe
@@ -40,35 +73,33 @@ Directly run the compiled native binary:
 
 ---
 
-## 📂 Project Structure
+## Directory Structure
 
 ```text
-algobuddy/
-├── Cargo.toml                          # Project manifest with eframe/egui & open dependencies
-├── README.md                           # Project documentation
+AlgoBuddy/
+├── Cargo.toml                          # Project manifest and dependencies
+├── README.md                           # Documentation
 ├── LICENSE                             # MIT License
-├── .gitignore                          # Git exclude rules
+├── .gitignore                          # Version control exclusions
 └── src/
-    ├── main.rs                         # Native desktop window launcher
-    ├── app.rs                          # GUI layout, roadmap sidebar, canvas renderers
-    ├── model.rs                        # Problem registry metadata, approach models, visual states
-    └── algorithms/                     # Step Generators
+    ├── main.rs                         # Native window entry point
+    ├── app.rs                          # Application layout, navigation, and visual renderers
+    ├── model.rs                        # Domain models, visual states, and problem specifications
+    └── algorithms/                     # Step generator modules
         ├── mod.rs
-        ├── two_sum.rs                  # #1 Two Sum (Hash Map O(N) vs Brute Force O(N^2))
-        ├── valid_anagram.rs            # #242 Valid Anagram (Counter O(N) vs Sorting O(N log N))
-        ├── bucket_sort.rs              # #347 Top K Frequent: Bucket Sort O(N)
-        ├── min_heap.rs                 # #347 Top K Frequent: Min-Heap O(N log k)
-        ├── sorting.rs                  # #347 Top K Frequent: Sorting O(N log N)
-        ├── product_except_self.rs      # #238 Product of Array Except Self
-        ├── encode_decode.rs            # #271 Encode and Decode Strings
-        ├── valid_palindrome.rs         # #125 Valid Palindrome (Two Pointers O(1) vs Reverse O(N))
-        └── valid_parentheses.rs        # #20 Valid Parentheses (Stack O(N))
+        ├── two_sum.rs                  # Two Sum step generators
+        ├── valid_anagram.rs            # Valid Anagram step generators
+        ├── bucket_sort.rs              # Bucket Sort step generator
+        ├── min_heap.rs                 # Min-Heap step generator
+        ├── sorting.rs                  # Sorting step generator
+        ├── product_except_self.rs      # Product Except Self step generator
+        ├── encode_decode.rs            # Encode/Decode Strings step generator
+        ├── valid_palindrome.rs         # Valid Palindrome step generators
+        └── valid_parentheses.rs        # Valid Parentheses step generator
 ```
 
 ---
 
-## 🛠️ Built With
+## License
 
-* **Rust** — Memory safety & performance
-* **eframe / egui** — GPU-accelerated immediate-mode GUI framework
-* **open** — Native web browser opening
+Distributed under the MIT License. See [LICENSE](LICENSE) for details.
