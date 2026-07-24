@@ -21,6 +21,21 @@ use crate::algorithms::{
     longest_consecutive::generate_longest_consecutive_steps,
     contains_duplicate::generate_contains_duplicate_steps,
     group_anagrams::generate_group_anagrams_steps,
+    balanced_tree::generate_balanced_tree_steps,
+    same_tree::generate_same_tree_steps,
+    subtree::generate_subtree_steps,
+    climbing_stairs::generate_climbing_stairs_steps,
+    min_cost_stairs::generate_min_cost_stairs_steps,
+    kth_largest_stream::generate_kth_largest_stream_steps,
+    last_stone::generate_last_stone_steps,
+    meeting_rooms::generate_meeting_rooms_steps,
+    happy_number::generate_happy_number_steps,
+    plus_one::generate_plus_one_steps,
+    single_number::generate_single_number_steps,
+    count_bits::generate_count_bits_steps,
+    counting_bits::generate_counting_bits_array_steps,
+    reverse_bits::generate_reverse_bits_steps,
+    missing_number::generate_missing_number_steps,
 };
 use crate::model::*;
 
@@ -315,6 +330,30 @@ impl VisualizerApp {
                 let tree = self.parse_tree_input();
                 generate_diameter_tree_steps(&tree)
             }
+            Problem::BalancedTree => {
+                let tree = self.parse_tree_input();
+                generate_balanced_tree_steps(&tree)
+            }
+            Problem::SameTree => {
+                let tree = self.parse_tree_input();
+                generate_same_tree_steps(&tree, &tree)
+            }
+            Problem::Subtree => {
+                let tree = self.parse_tree_input();
+                generate_subtree_steps(&tree, &vec![tree.get(1).cloned().flatten()])
+            }
+            Problem::ClimbingStairs => generate_climbing_stairs_steps(5),
+            Problem::MinCostStairs => generate_min_cost_stairs_steps(&[10, 15, 20]),
+            Problem::KthLargestStream => generate_kth_largest_stream_steps(3, &[4, 5, 8, 2], 3),
+            Problem::LastStone => generate_last_stone_steps(&[2, 7, 4, 1, 8, 1]),
+            Problem::MeetingRooms => generate_meeting_rooms_steps(&[(0, 30), (5, 10), (15, 20)]),
+            Problem::HappyNumber => generate_happy_number_steps(19),
+            Problem::PlusOne => generate_plus_one_steps(&[1, 2, 3]),
+            Problem::SingleNumber => generate_single_number_steps(&[4, 1, 2, 1, 2]),
+            Problem::CountBits => generate_count_bits_steps(11),
+            Problem::CountingBits => generate_counting_bits_array_steps(5),
+            Problem::ReverseBits => generate_reverse_bits_steps(43261596),
+            Problem::MissingNumber => generate_missing_number_steps(&[3, 0, 1]),
         };
         self.current_step_idx = 0;
         self.is_playing = false;
@@ -681,10 +720,11 @@ impl eframe::App for VisualizerApp {
                             ui.label(RichText::new("cycle index (-1=none):").strong());
                             if ui.add(egui::DragValue::new(&mut self.cycle_index_input).speed(1.0).range(-1..=20)).changed() { self.recompute_steps(); }
                         }
-                        Problem::InvertTree | Problem::MaxDepthTree | Problem::DiameterTree => {
+                        Problem::InvertTree | Problem::MaxDepthTree | Problem::DiameterTree | Problem::BalancedTree | Problem::SameTree | Problem::Subtree => {
                             ui.label(RichText::new("root level-order (use 'null' for empty):").strong());
                             ui.add(egui::TextEdit::singleline(&mut self.tree_nodes_input).desired_width(260.0));
                         }
+                        _ => {}
                     }
 
                     if ui.button(RichText::new("Apply").strong().color(p.text_primary)).clicked() {
@@ -747,15 +787,10 @@ impl eframe::App for VisualizerApp {
                         Problem::LinkedListCycle => {
                             if ui.button("[1,2,3,4] idx=1").clicked() { self.cycle_nodes_input = "1,2,3,4".into(); self.cycle_index_input = 1; self.recompute_steps(); }
                         }
-                        Problem::InvertTree => {
+                        Problem::InvertTree | Problem::MaxDepthTree | Problem::DiameterTree | Problem::BalancedTree | Problem::SameTree | Problem::Subtree => {
                             if ui.button("[1,2,3,4,5,6,7]").clicked() { self.tree_nodes_input = "1,2,3,4,5,6,7".into(); self.recompute_steps(); }
                         }
-                        Problem::MaxDepthTree => {
-                            if ui.button("[1,2,3,null,null,4]").clicked() { self.tree_nodes_input = "1,2,3,null,null,4".into(); self.recompute_steps(); }
-                        }
-                        Problem::DiameterTree => {
-                            if ui.button("[1,null,2,3,4,5]").clicked() { self.tree_nodes_input = "1,null,2,3,4,5".into(); self.recompute_steps(); }
-                        }
+                        _ => {}
                     }
                 });
 

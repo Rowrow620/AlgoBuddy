@@ -12,10 +12,13 @@ AlgoBuddy is a native desktop application built in Rust using `eframe` and `egui
 ## Architectural Highlights
 
 - **NeetCode 150 Category Taxonomy**: Navigation structured into 18 algorithmic topic categories including Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Tries, Backtracking, Heap / Priority Queue, Graphs, Dynamic Programming, Bit Manipulation, and Math & Geometry.
-- **Multi-Approach Evaluation Engine**: Compare multiple valid solutions per problem (e.g., Hash Map vs. Brute Force or Bucket Sort vs. Min-Heap vs. Array Sorting) with live execution updates.
+- **100% Completion Milestones**:
+  - 🎉 **Arrays & Hashing Category (9/9)**: 100% Complete!
+  - 🏆 **All 27 Easy Problems Across NeetCode 150**: 100% Complete!
+- **Theme & Colorblind Accessibility System**: Live switcher supporting **VS Code Midnight Dark**, **Cyber Navy**, **Clean Light**, and **Protan/Deuteran Red-Green Colorblind Safe** palettes.
+- **Multi-Approach Evaluation Engine**: Compare multiple valid solutions per problem with live execution updates.
 - **Deterministic State Engine**: Models algorithm steps as discrete state snapshots, enabling forward and backward timeline scrubbing, variable auto-stepping delay (100ms - 1500ms), and synchronized source line highlighting.
 - **Integrated Problem Specifications**: View problem statements, examples with input/output cases, operational constraints, and direct links to official LeetCode problems within the application context.
-- **Collapsible UI Panels**: Toggle left roadmap sidebar and right code/details panels to maximize canvas space.
 
 ---
 
@@ -25,52 +28,54 @@ AlgoBuddy is a native desktop application built in Rust using `eframe` and `egui
 - **Visual Memory State Renderers**:
   - Group Anagrams Signature Bucketed Map (tuple/sorted key transformers, category cards).
   - Contains Duplicate HashSet Scan & Duplicate Collision Renderer.
-  - Longest Consecutive Sequence Set & Streak Expansion Visualizer (HashSet tracking, streak chain cards, running max length metrics).
-  - 9x9 Sudoku Board Validation Grid (3x3 sub-box boundaries, row/col highlights, red duplicate alert detection).
-  - Binary Tree Node Graph Renderers (level-order hierarchy, active node highlight, depth and diameter metrics).
+  - Longest Consecutive Sequence Set & Streak Expansion Visualizer.
+  - 9x9 Sudoku Board Validation Grid (3x3 sub-box boundaries, row/col highlights).
+  - Binary Tree Node Graph Renderers (level-order hierarchy, balance checks, depth and diameter metrics).
   - Single and Dual Linked List Renderers (pointer chain, next pointer flipping, slow/fast cycle detection, sorted list merging).
-  - Sliding Window Stock Renderers (buy/sell day pointer cards, running profit metrics).
-  - Binary Search Renderers (sorted array bounds, midpoint marker, target match indicators).
-  - Array and Dual-Pointer Renderers (converging pointers, character comparison indicators).
-  - Vertical Stack Renderers (push/pop operations, bracket matching verification).
-  - Hash Map & Frequency Grid Renderers (key-value mapping, character count matrices).
-  - Prefix & Suffix Array Product Renderers.
-  - String Protocol Renderers (`length#string` encoding/decoding traces).
+  - Bitwise Manipulation Renderers (XOR cancellation, Brian Kernighan set bit clear, bit shift reverse).
+  - Dynamic Programming Stairs Renderers (Fibonacci stepping, min cost pass).
 - **Synchronized Source Trace**: Python solution implementation with active line highlighting tied to visual state transitions.
 
 ---
 
-## Supported Problems (19 Problems across 7 Roadmap Categories)
+## Supported Problems (34 Problems Total)
 
-> **Category Milestone**: 🎉 **Arrays & Hashing Category (9/9) is 100% COMPLETE!**
-
-| Problem ID | Problem Name | Category | Supported Approaches |
+| Problem ID | Problem Name | Category | Difficulty |
 | :--- | :--- | :--- | :--- |
-| **#217** | Contains Duplicate | Arrays & Hashing (100%) | HashSet Lookup O(N), Sorting Array O(N log N) |
-| **#1** | Two Sum | Arrays & Hashing (100%) | Hash Map O(N), Brute Force O(N²) |
-| **#242** | Valid Anagram | Arrays & Hashing (100%) | Frequency Counter Array O(N), Sort Strings O(N log N) |
-| **#49** | Group Anagrams | Arrays & Hashing (100%) | Char Frequency Tuple Map O(N * K), Sorted String Key O(N * K log K) |
-| **#347** | Top K Frequent Elements | Arrays & Hashing (100%) | Bucket Sort O(N), Min-Heap O(N log k), Sorting Pairs O(N log N) |
-| **#238** | Product of Array Except Self | Arrays & Hashing (100%) | Prefix & Suffix Pass O(N) |
-| **#271** | Encode and Decode Strings | Arrays & Hashing (100%) | Length Prefix (# Protocol) O(N) |
-| **#36** | Valid Sudoku | Arrays & Hashing (100%) | HashSet Validation (Rows, Cols, 3x3 Boxes) O(1) |
-| **#128** | Longest Consecutive Sequence | Arrays & Hashing (100%) | HashSet Sequence Start Expansion O(N) |
-| **#125** | Valid Palindrome | Two Pointers | Two Pointers In-Place O(N), Reverse Filtered String O(N) |
-| **#121** | Best Time to Buy and Sell Stock | Sliding Window | Two Pointers / Sliding Window O(N) |
-| **#20** | Valid Parentheses | Stack | Stack Matching O(N) |
-| **#704** | Binary Search | Binary Search | Binary Search Iterative O(log N) |
-| **#206** | Reverse Linked List | Linked List | Iterative Pointers (prev, curr, nxt) O(N) |
-| **#21** | Merge Two Sorted Linked Lists | Linked List | Two Pointers Merge O(N + M) |
-| **#141** | Linked List Cycle Detection | Linked List | Floyd's Tortoise & Hare Slow/Fast Pointers O(N) |
-| **#226** | Invert Binary Tree | Trees | Recursive DFS Subtree Swap O(N) |
-| **#104** | Maximum Depth of Binary Tree | Trees | Recursive DFS Height Calculation O(N) |
-| **#543** | Diameter of Binary Tree | Trees | Post-order DFS Path Diameter O(N) |
-
----
-
-## System Requirements
-
-- Rust Toolchain (`rustc 1.97` or newer with Cargo)
+| **#217** | Contains Duplicate | Arrays & Hashing | Easy (100%) |
+| **#1** | Two Sum | Arrays & Hashing | Easy (100%) |
+| **#242** | Valid Anagram | Arrays & Hashing | Easy (100%) |
+| **#49** | Group Anagrams | Arrays & Hashing | Medium |
+| **#347** | Top K Frequent Elements | Arrays & Hashing | Medium |
+| **#238** | Product of Array Except Self | Arrays & Hashing | Medium |
+| **#271** | Encode and Decode Strings | Arrays & Hashing | Medium |
+| **#36** | Valid Sudoku | Arrays & Hashing | Medium |
+| **#128** | Longest Consecutive Sequence | Arrays & Hashing | Medium |
+| **#125** | Valid Palindrome | Two Pointers | Easy (100%) |
+| **#121** | Best Time to Buy and Sell Stock | Sliding Window | Easy (100%) |
+| **#20** | Valid Parentheses | Stack | Easy (100%) |
+| **#704** | Binary Search | Binary Search | Easy (100%) |
+| **#206** | Reverse Linked List | Linked List | Easy (100%) |
+| **#21** | Merge Two Sorted Linked Lists | Linked List | Easy (100%) |
+| **#141** | Linked List Cycle Detection | Linked List | Easy (100%) |
+| **#226** | Invert Binary Tree | Trees | Easy (100%) |
+| **#104** | Maximum Depth of Binary Tree | Trees | Easy (100%) |
+| **#543** | Diameter of Binary Tree | Trees | Easy (100%) |
+| **#110** | Balanced Binary Tree | Trees | Easy (100%) |
+| **#100** | Same Tree | Trees | Easy (100%) |
+| **#572** | Subtree of Another Tree | Trees | Easy (100%) |
+| **#70** | Climbing Stairs | 1-D DP | Easy (100%) |
+| **#746** | Min Cost Climbing Stairs | 1-D DP | Easy (100%) |
+| **#703** | Kth Largest Element in a Stream | Heap / Priority Queue | Easy (100%) |
+| **#1046** | Last Stone Weight | Heap / Priority Queue | Easy (100%) |
+| **#252** | Meeting Rooms | Intervals | Easy (100%) |
+| **#202** | Happy Number | Math & Geometry | Easy (100%) |
+| **#66** | Plus One | Math & Geometry | Easy (100%) |
+| **#136** | Single Number | Bit Manipulation | Easy (100%) |
+| **#191** | Number of 1 Bits | Bit Manipulation | Easy (100%) |
+| **#338** | Counting Bits | Bit Manipulation | Easy (100%) |
+| **#190** | Reverse Bits | Bit Manipulation | Easy (100%) |
+| **#268** | Missing Number | Bit Manipulation | Easy (100%) |
 
 ---
 
@@ -84,53 +89,6 @@ Clone the repository and build using Cargo:
 git clone https://github.com/Rowrow620/AlgoBuddy.git
 cd AlgoBuddy
 cargo run
-```
-
-### Pre-compiled Binary
-
-Run the compiled executable directly from the target directory:
-
-```powershell
-.\target\debug\algobuddy.exe
-```
-
----
-
-## Directory Structure
-
-```text
-AlgoBuddy/
-├── Cargo.toml                          # Project manifest and dependencies
-├── README.md                           # Documentation
-├── LICENSE                             # MIT License
-├── .gitignore                          # Version control exclusions
-└── src/
-    ├── main.rs                         # Native window entry point
-    ├── app.rs                          # Application layout, navigation, and visual renderers
-    ├── model.rs                        # Domain models, visual states, and problem specifications
-    └── algorithms/                     # Step generator modules
-        ├── mod.rs
-        ├── contains_duplicate.rs       # Contains Duplicate step generator
-        ├── two_sum.rs                  # Two Sum step generators
-        ├── valid_anagram.rs            # Valid Anagram step generators
-        ├── group_anagrams.rs           # Group Anagrams step generator
-        ├── bucket_sort.rs              # Bucket Sort step generator
-        ├── min_heap.rs                 # Min-Heap step generator
-        ├── sorting.rs                  # Sorting step generator
-        ├── product_except_self.rs      # Product Except Self step generator
-        ├── encode_decode.rs            # Encode/Decode Strings step generator
-        ├── valid_sudoku.rs             # Valid Sudoku step generator
-        ├── longest_consecutive.rs      # Longest Consecutive Sequence step generator
-        ├── valid_palindrome.rs         # Valid Palindrome step generators
-        ├── best_time_stock.rs          # Best Time to Buy/Sell Stock step generator
-        ├── valid_parentheses.rs        # Valid Parentheses step generator
-        ├── binary_search.rs            # Binary Search step generator
-        ├── reverse_linked_list.rs      # Reverse Linked List step generator
-        ├── merge_two_lists.rs          # Merge Two Lists step generator
-        ├── linked_list_cycle.rs        # Linked List Cycle step generator
-        ├── invert_tree.rs              # Invert Binary Tree step generator
-        ├── max_depth_tree.rs           # Max Depth Binary Tree step generator
-        └── diameter_tree.rs            # Diameter of Binary Tree step generator
 ```
 
 ---
