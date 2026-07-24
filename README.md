@@ -12,9 +12,9 @@ AlgoBuddy is a native desktop application built in Rust using `eframe` and `egui
 ## Architectural Highlights
 
 - **NeetCode 150 Category Taxonomy**: Navigation structured into 18 algorithmic topic categories including Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Tries, Backtracking, Heap / Priority Queue, Graphs, Dynamic Programming, Bit Manipulation, and Math & Geometry.
-- **100% Completion Milestones**:
-  - 🎉 **Arrays & Hashing Category (9/9)**: 100% Complete!
-  - 🏆 **All 27 Easy Problems Across NeetCode 150**: 100% Complete!
+- **Completion Milestones**:
+  - **Arrays & Hashing Category (9/9)**: 100% Complete
+  - **All Easy Problems Across NeetCode 150 (27/27)**: 100% Complete
 - **Theme & Colorblind Accessibility System**: Live switcher supporting **VS Code Midnight Dark**, **Cyber Navy**, **Clean Light**, and **Protan/Deuteran Red-Green Colorblind Safe** palettes.
 - **Multi-Approach Evaluation Engine**: Compare multiple valid solutions per problem with live execution updates.
 - **Deterministic State Engine**: Models algorithm steps as discrete state snapshots, enabling forward and backward timeline scrubbing, variable auto-stepping delay (100ms - 1500ms), and synchronized source line highlighting.
