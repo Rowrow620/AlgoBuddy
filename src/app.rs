@@ -207,8 +207,17 @@ impl Default for VisualizerApp {
 
 impl VisualizerApp {
     pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+        #[cfg(target_arch = "wasm32")]
+        if let Some(loading) = web_sys::window()
+            .and_then(|w| w.document())
+            .and_then(|d| d.get_element_by_id("loading_text"))
+        {
+            loading.remove();
+        }
+
         Self::default()
     }
+
 
     fn current_palette(&self) -> ThemePalette {
         self.theme.palette(self.colorblind_mode)

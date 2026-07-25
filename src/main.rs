@@ -25,31 +25,22 @@ fn main() -> eframe::Result<()> {
 // ── WebAssembly (WASM) Entry Point ──
 #[cfg(target_arch = "wasm32")]
 fn main() {
-    // Redirect panics to browser console
     console_error_panic_hook::set_once();
 
     let web_options = eframe::WebOptions::default();
 
     wasm_bindgen_futures::spawn_local(async {
-        let start_result = eframe::WebRunner::new()
+        let runner = eframe::WebRunner::new();
+        let _ = runner
             .start(
                 "the_canvas_id",
                 web_options,
                 Box::new(|cc| Ok(Box::new(VisualizerApp::new(cc)))),
             )
             .await;
-
-        // Remove loading overlay once WebGL canvas is running
-        if let Some(loading) = web_sys::window()
-            .and_then(|w| w.document())
-            .and_then(|d| d.get_element_by_id("loading_text"))
-        {
-            loading.remove();
-        }
-
-        let _ = start_result;
     });
 }
+
 
 
 
