@@ -39,7 +39,17 @@ fn main() {
             )
             .await;
 
+        // Remove loading overlay once WebGL canvas is running
+        if let Some(loading) = web_sys::window()
+            .and_then(|w| w.document())
+            .and_then(|d| d.get_element_by_id("loading_text"))
+        {
+            loading.remove();
+        }
+
         let _ = start_result;
     });
 }
+
+
 
