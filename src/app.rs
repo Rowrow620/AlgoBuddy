@@ -1227,14 +1227,23 @@ impl VisualizerApp {
                     let is_active = active_idx == Some(i);
                     let is_dup = dup_val == Some(val) && is_active;
                     let fill = if is_dup { p.red } else if is_active { p.amber } else { p.cell_bg };
+                    let (label_color, val_color) = if is_dup || is_active {
+                        (Color32::from_rgb(30, 35, 45), Color32::from_rgb(30, 35, 45))
+                    } else {
+                        (p.text_muted, Color32::WHITE)
+                    };
+
+
+
 
                     egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(margin).show(ui, |ui| {
                         ui.vertical(|ui| {
-                            ui.label(RichText::new(format!("i={}", i)).font(egui::FontId::proportional(label_sz)).color(p.text_muted));
-                            ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(font_sz)).strong().color(Color32::WHITE));
+                            ui.label(RichText::new(format!("i={}", i)).font(egui::FontId::proportional(label_sz)).color(label_color));
+                            ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(font_sz)).strong().color(val_color));
                         });
                     });
                 }
+
             });
         });
 
@@ -1828,13 +1837,23 @@ impl VisualizerApp {
                         p.cell_bg
                     };
 
+                    let (label_color, val_color) = if is_found || is_primary || is_sec {
+                        (Color32::from_rgb(30, 35, 45), Color32::from_rgb(30, 35, 45))
+                    } else {
+                        (p.text_muted, Color32::WHITE)
+                    };
+
+
+
+
                     egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(margin).show(ui, |ui| {
                         ui.vertical(|ui| {
                             let label = if is_primary { "i" } else if is_sec { "j" } else { "" };
-                            ui.label(RichText::new(format!("i={} {}", i, label)).font(egui::FontId::proportional(if is_wide { 11.0 } else { 9.0 })).color(p.text_muted));
-                            ui.label(RichText::new(num.to_string()).font(egui::FontId::monospace(font_sz)).strong().color(Color32::WHITE));
+                            ui.label(RichText::new(format!("i={} {}", i, label)).font(egui::FontId::proportional(if is_wide { 11.0 } else { 9.0 })).color(label_color));
+                            ui.label(RichText::new(num.to_string()).font(egui::FontId::monospace(font_sz)).strong().color(val_color));
                         });
                     });
+
                 }
             });
         });
