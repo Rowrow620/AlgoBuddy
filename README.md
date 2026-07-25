@@ -7,7 +7,10 @@
 
 AlgoBuddy is a native desktop application built in Rust using `eframe` and `egui` that provides interactive, step-by-step algorithm visualizations formatted according to the NeetCode 150 learning roadmap.
 
+![AlgoBuddy Demo](assets/demo.gif)
+
 ---
+
 
 ## Architectural Highlights
 
