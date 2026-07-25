@@ -53,7 +53,12 @@ use crate::algorithms::{
     permutation_in_string::generate_permutation_in_string_steps,
     min_window_substring::generate_min_window_substring_steps,
     sliding_window_max::generate_sliding_window_max_steps,
+    search_rotated_array::generate_search_rotated_array_steps,
+    find_min_rotated::generate_find_min_rotated_steps,
+    time_key_value_store::generate_time_key_value_store_steps,
+    find_median_sorted_arrays::generate_find_median_sorted_arrays_steps,
 };
+
 use crate::model::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -442,7 +447,22 @@ impl VisualizerApp {
             Problem::PermutationInString => generate_permutation_in_string_steps("ab", "eidbaooo"),
             Problem::MinWindowSubstring => generate_min_window_substring_steps("ADOBECODEBANC", "ABC"),
             Problem::SlidingWindowMax => generate_sliding_window_max_steps(&[1, 3, -1, -3, 5, 3, 6, 7], 3),
+            Problem::SearchRotatedArray => {
+                let parsed: Vec<i32> = self.binary_search_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![4, 5, 6, 7, 0, 1, 2] } else { parsed };
+                generate_search_rotated_array_steps(&nums, self.binary_search_target_input)
+            }
+            Problem::FindMinRotated => {
+                let parsed: Vec<i32> = self.binary_search_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![3, 4, 5, 1, 2] } else { parsed };
+                generate_find_min_rotated_steps(&nums)
+            }
+            Problem::TimeKeyValueStore => generate_time_key_value_store_steps(),
+            Problem::FindMedianSortedArrays => generate_find_median_sorted_arrays_steps(&[1, 3], &[2, 4]),
         };
+
         self.current_step_idx = 0;
         self.is_playing = false;
     }

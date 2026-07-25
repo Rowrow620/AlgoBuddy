@@ -310,6 +310,10 @@ pub enum Problem {
     PermutationInString,
     MinWindowSubstring,
     SlidingWindowMax,
+    SearchRotatedArray,
+    FindMinRotated,
+    TimeKeyValueStore,
+    FindMedianSortedArrays,
 }
 
 impl Problem {
@@ -366,8 +370,13 @@ impl Problem {
             Problem::PermutationInString,
             Problem::MinWindowSubstring,
             Problem::SlidingWindowMax,
+            Problem::SearchRotatedArray,
+            Problem::FindMinRotated,
+            Problem::TimeKeyValueStore,
+            Problem::FindMedianSortedArrays,
         ]
     }
+
 
     pub fn id(&self) -> u32 {
         self.details().id
@@ -744,9 +753,38 @@ impl Problem {
                 constraints: &["1 <= nums.length <= 10^5", "1 <= k <= nums.length"], leetcode_url: "https://leetcode.com/problems/sliding-window-maximum/",
                 approaches: &[ApproachMeta { id: 0, name: "Monotonic Decreasing Deque", time_complexity: "O(N)", space_complexity: "O(k)", description: "Maintain deque of indices with strictly decreasing values." }],
             },
+            Problem::SearchRotatedArray => ProblemDetails {
+                id: 33, title: "Search in Rotated Sorted Array", difficulty: Difficulty::Medium, category: Category::BinarySearch,
+                statement: "Given the array nums after the possible rotation and an integer target, return the index of target if it is in nums, or -1 if it is not in nums.",
+                examples: &[Example { input: "nums = [4,5,6,7,0,1,2], target = 0", output: "4", explanation: "Binary search comparing mid with boundary values." }],
+                constraints: &["1 <= nums.length <= 5000", "-10^4 <= nums[i] <= 10^4"], leetcode_url: "https://leetcode.com/problems/search-in-rotated-sorted-array/",
+                approaches: &[ApproachMeta { id: 0, name: "Rotated Binary Search", time_complexity: "O(log N)", space_complexity: "O(1)", description: "Determine which half is sorted, check if target lies in that range." }],
+            },
+            Problem::FindMinRotated => ProblemDetails {
+                id: 153, title: "Find Minimum in Rotated Sorted Array", difficulty: Difficulty::Medium, category: Category::BinarySearch,
+                statement: "Suppose an array of length n sorted in ascending order is rotated between 1 and n times. Given the sorted rotated array nums of unique elements, return the minimum element of this array.",
+                examples: &[Example { input: "nums = [3,4,5,1,2]", output: "1", explanation: "The original array was [1,2,3,4,5] rotated 3 times." }],
+                constraints: &["1 <= n <= 5000", "-5000 <= nums[i] <= 5000"], leetcode_url: "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/",
+                approaches: &[ApproachMeta { id: 0, name: "Binary Search Right Boundary Comparison", time_complexity: "O(log N)", space_complexity: "O(1)", description: "Compare nums[mid] with nums[right] to halve search space." }],
+            },
+            Problem::TimeKeyValueStore => ProblemDetails {
+                id: 981, title: "Time Based Key-Value Store", difficulty: Difficulty::Medium, category: Category::BinarySearch,
+                statement: "Design a time-based key-value data structure that can store multiple values for the same key at different time stamps and retrieve the key's value at a certain timestamp.",
+                examples: &[Example { input: "set(\"foo\", \"bar\", 1), get(\"foo\", 1), get(\"foo\", 3)", output: "\"bar\", \"bar\"", explanation: "Binary search list of (timestamp, value) pairs." }],
+                constraints: &["1 <= key.length, value.length <= 100", "1 <= timestamp <= 10^7"], leetcode_url: "https://leetcode.com/problems/time-based-key-value-store/",
+                approaches: &[ApproachMeta { id: 0, name: "HashMap + Binary Search Timestamps", time_complexity: "O(log N) get", space_complexity: "O(N)", description: "HashMap maps key to sorted list of (time, val), binary search for upper bound." }],
+            },
+            Problem::FindMedianSortedArrays => ProblemDetails {
+                id: 4, title: "Median of Two Sorted Arrays", difficulty: Difficulty::Hard, category: Category::BinarySearch,
+                statement: "Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.",
+                examples: &[Example { input: "nums1 = [1,3], nums2 = [2,4]", output: "2.5", explanation: "merged array = [1,2,3,4] and median is (2 + 3) / 2 = 2.5." }],
+                constraints: &["nums1.length == m", "nums2.length == n", "0 <= m, n <= 1000"], leetcode_url: "https://leetcode.com/problems/median-of-two-sorted-arrays/",
+                approaches: &[ApproachMeta { id: 0, name: "Binary Search Partition on Smaller Array", time_complexity: "O(log(min(M, N)))", space_complexity: "O(1)", description: "Binary search partition index i in A such that A[i-1] <= B[j] and B[j-1] <= A[i]." }],
+            },
         }
     }
 }
+
 
 // ── Visual State Variants per Problem Type ──
 
@@ -1414,6 +1452,65 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (9, "            r += 1"),
             (10, "        return output"),
         ],
+        (Problem::SearchRotatedArray, _) => vec![
+            (1, "class Solution:"),
+            (2, "    def search(self, nums: List[int], target: int) -> int:"),
+            (3, "        l, r = 0, len(nums) - 1"),
+            (4, "        while l <= r:"),
+            (5, "            mid = (l + r) // 2"),
+            (6, "            if target == nums[mid]: return mid"),
+            (7, "            if nums[l] <= nums[mid]:"),
+            (8, "                if nums[l] <= target < nums[mid]: r = mid - 1"),
+            (9, "                else: l = mid + 1"),
+            (10, "            else:"),
+            (11, "                if nums[mid] < target <= nums[r]: l = mid + 1"),
+            (12, "                else: r = mid - 1"),
+            (13, "        return -1"),
+        ],
+        (Problem::FindMinRotated, _) => vec![
+            (1, "class Solution:"),
+            (2, "    def findMin(self, nums: List[int]) -> int:"),
+            (3, "        l, r = 0, len(nums) - 1"),
+            (4, "        while l < r:"),
+            (5, "            mid = (l + r) // 2"),
+            (6, "            if nums[mid] > nums[r]: l = mid + 1"),
+            (7, "            else: r = mid"),
+            (8, "        return nums[l]"),
+        ],
+        (Problem::TimeKeyValueStore, _) => vec![
+            (1, "class TimeMap:"),
+            (2, "    def __init__(self): self.store = {}"),
+            (3, "    def set(self, key: str, value: str, timestamp: int) -> None:"),
+            (4, "        if key not in self.store: self.store[key] = []"),
+            (5, "        self.store[key].append([value, timestamp])"),
+            (6, "    def get(self, key: str, timestamp: int) -> str:"),
+            (7, "        res, values = \"\", self.store.get(key, [])"),
+            (8, "        l, r = 0, len(values) - 1"),
+            (9, "        while l <= r:"),
+            (10, "            m = (l + r) // 2"),
+            (11, "            if values[m][1] <= timestamp: res = values[m][0]; l = m + 1"),
+            (12, "            else: r = m - 1"),
+            (13, "        return res"),
+        ],
+        (Problem::FindMedianSortedArrays, _) => vec![
+            (1, "class Solution:"),
+            (2, "    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:"),
+            (3, "        A, B = nums1, nums2; total = len(A) + len(B); half = total // 2"),
+            (4, "        if len(B) < len(A): A, B = B, A"),
+            (5, "        l, r = 0, len(A) - 1"),
+            (6, "        while True:"),
+            (7, "            i = (l + r) // 2; j = half - i - 2"),
+            (8, "            Aleft = A[i] if i >= 0 else float(\"-inf\")"),
+            (9, "            Aright = A[i + 1] if (i + 1) < len(A) else float(\"inf\")"),
+            (10, "            Bleft = B[j] if j >= 0 else float(\"-inf\")"),
+            (11, "            Bright = B[j + 1] if (j + 1) < len(B) else float(\"inf\")"),
+            (12, "            if Aleft <= Bright and Bleft <= Aright:"),
+            (13, "                if total % 2: return min(Aright, Bright)"),
+            (14, "                return (max(Aleft, Bleft) + min(Aright, Bright)) / 2"),
+            (15, "            elif Aleft > Bright: r = i - 1"),
+            (16, "            else: l = i + 1"),
+        ],
+
         _ => vec![(1, "# Approach implementation trace")],
     }
 }

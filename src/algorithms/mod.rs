@@ -51,3 +51,8 @@ pub mod character_replacement;
 pub mod permutation_in_string;
 pub mod min_window_substring;
 pub mod sliding_window_max;
+pub mod search_rotated_array;
+pub mod find_min_rotated;
+pub mod time_key_value_store;
+pub mod find_median_sorted_arrays;
+
