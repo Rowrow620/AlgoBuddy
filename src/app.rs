@@ -130,7 +130,10 @@ pub struct VisualizerApp {
     is_playing: bool,
     playback_speed_ms: u64,
     last_step_time: std::time::Instant,
+
+    canvas_zoom: f32,
 }
+
 
 impl Default for VisualizerApp {
     fn default() -> Self {
@@ -193,7 +196,10 @@ impl Default for VisualizerApp {
             is_playing: false,
             playback_speed_ms: 600,
             last_step_time: std::time::Instant::now(),
+
+            canvas_zoom: 1.0,
         };
+
         app.recompute_steps();
         app
     }
@@ -1077,7 +1083,47 @@ impl eframe::App for VisualizerApp {
         egui::CentralPanel::default()
             .frame(Frame::none().inner_margin(16.0).fill(p.bg_dark))
             .show(ctx, |ui| {
+                // Ctrl + Mouse Wheel Zoom Listener
+                if ui.rect_contains_pointer(ui.max_rect()) {
+                    let scroll_delta = ctx.input(|i| i.raw_scroll_delta.y);
+                    let ctrl_down = ctx.input(|i| i.modifiers.ctrl);
+                    if ctrl_down && scroll_delta != 0.0 {
+                        let factor = if scroll_delta > 0.0 { 1.08 } else { 0.92 };
+                        self.canvas_zoom = (self.canvas_zoom * factor).clamp(0.7, 2.2);
+                    }
+                }
+
                 if let Some(step) = self.steps.get(self.current_step_idx) {
+                    // Live State Inspector Banner with Zoom Controls
+                    egui::Frame::none()
+                        .fill(p.sidebar_bg)
+                        .rounding(Rounding::same(8.0))
+                        .stroke(Stroke::new(1.0_f32, p.cyan))
+                        .inner_margin(egui::Margin::symmetric(14.0, 10.0))
+                        .show(ui, |ui| {
+                            ui.horizontal(|ui| {
+                                ui.label(RichText::new("📊 Live State Inspector").font(egui::FontId::proportional(12.0)).color(p.cyan).strong());
+                                ui.separator();
+                                ui.label(RichText::new(&step.description).font(egui::FontId::proportional(13.0)).color(p.text_primary));
+
+                                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                    let zoom_pct = (self.canvas_zoom * 100.0).round() as u32;
+                                    if ui.button(RichText::new("Reset").font(egui::FontId::proportional(10.0)).color(p.text_muted)).clicked() {
+                                        self.canvas_zoom = 1.0;
+                                    }
+                                    if ui.button(RichText::new("+").font(egui::FontId::monospace(12.0)).strong().color(p.cyan)).clicked() {
+                                        self.canvas_zoom = (self.canvas_zoom * 1.15).min(2.2);
+                                    }
+                                    if ui.button(RichText::new("−").font(egui::FontId::monospace(12.0)).strong().color(p.cyan)).clicked() {
+                                        self.canvas_zoom = (self.canvas_zoom / 1.15).max(0.7);
+                                    }
+                                    ui.label(RichText::new(format!("🔍 {}%", zoom_pct)).font(egui::FontId::monospace(11.0)).color(p.cyan).strong());
+                                });
+                            });
+                        });
+                    ui.add_space(14.0);
+
+
                     egui::ScrollArea::vertical().show(ui, |ui| {
                         match &step.visual {
                             VisualState::ContainsDuplicate { nums, active_idx, seen_set, duplicate_val, has_duplicate } => {
@@ -1133,8 +1179,10 @@ impl eframe::App for VisualizerApp {
                             }
                         }
                     });
+
                 }
             });
+
     }
 }
 
@@ -1142,32 +1190,36 @@ impl eframe::App for VisualizerApp {
 
 impl VisualizerApp {
     fn render_contains_duplicate(&self, ui: &mut egui::Ui, p: &ThemePalette, nums: &[i32], active_idx: Option<usize>, seen_set: &std::collections::BTreeSet<i32>, dup_val: Option<i32>, has_dup: Option<bool>) {
-        ui.heading(RichText::new("Contains Duplicate Detection (HashSet O(N))").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_sz = 16.0 * z;
+        let label_sz = (10.0 * z).max(8.0);
+        let margin = (10.0 * z).max(6.0);
+
+        ui.heading(RichText::new("Contains Duplicate Detection (HashSet O(N))").color(p.cyan).size(16.0 * z));
+        ui.add_space(8.0 * z);
 
         ui.group(|ui| {
-            ui.label(RichText::new("INPUT NUMS ARRAY").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+            ui.label(RichText::new("INPUT NUMS ARRAY").font(egui::FontId::monospace(11.0 * z)).color(p.text_muted));
             ui.horizontal(|ui| {
                 for (i, &val) in nums.iter().enumerate() {
                     let is_active = active_idx == Some(i);
                     let is_dup = dup_val == Some(val) && is_active;
-
                     let fill = if is_dup { p.red } else if is_active { p.amber } else { p.cell_bg };
 
-                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(10.0).show(ui, |ui| {
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(margin).show(ui, |ui| {
                         ui.vertical(|ui| {
-                            ui.label(RichText::new(format!("i={}", i)).font(egui::FontId::proportional(10.0)).color(p.text_muted));
-                            ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                            ui.label(RichText::new(format!("i={}", i)).font(egui::FontId::proportional(label_sz)).color(p.text_muted));
+                            ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(font_sz)).strong().color(Color32::WHITE));
                         });
                     });
                 }
             });
         });
 
-        ui.add_space(20.0);
+        ui.add_space(20.0 * z);
 
         ui.group(|ui| {
-            ui.label(RichText::new("HASHSET `SEEN`").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+            ui.label(RichText::new("HASHSET `SEEN`").font(egui::FontId::monospace(11.0 * z)).color(p.text_muted));
             ui.horizontal_wrapped(|ui| {
                 if seen_set.is_empty() {
                     ui.label(RichText::new("Set is empty {}").italics().color(p.text_dim));
@@ -1175,13 +1227,17 @@ impl VisualizerApp {
                     for &val in seen_set {
                         let is_dup = dup_val == Some(val);
                         let fill = if is_dup { p.red } else { p.cell_bg };
-                        egui::Frame::none().fill(fill).rounding(Rounding::same(6.0)).stroke(Stroke::new(1.0_f32, p.purple)).inner_margin(8.0).show(ui, |ui| {
-                            ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(14.0)).strong().color(Color32::WHITE));
+                        egui::Frame::none().fill(fill).rounding(Rounding::same(6.0 * z)).stroke(Stroke::new(1.0_f32, p.purple)).inner_margin(margin).show(ui, |ui| {
+                            ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(font_sz)).strong().color(Color32::WHITE));
                         });
                     }
                 }
             });
         });
+
+
+
+
 
         if let Some(dup) = has_dup {
             ui.add_space(20.0);
@@ -1618,8 +1674,12 @@ impl VisualizerApp {
     }
 
     fn render_binary_search(&self, ui: &mut egui::Ui, p: &ThemePalette, nums: &[i32], target: i32, left: usize, right: usize, mid: Option<usize>, found_idx: Option<usize>) {
-        ui.heading(RichText::new(format!("Binary Search bounds (l={}, r={}) | Target = {}", left, right, target)).color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let is_wide = ui.available_width() > 600.0;
+        let margin = if is_wide { 14.0 } else { 9.0 };
+        let font_sz = if is_wide { 20.0 } else { 15.0 };
+
+        ui.heading(RichText::new(format!("Binary Search bounds (l={}, r={}) | Target = {}", left, right, target)).color(p.cyan).size(if is_wide { 18.0 } else { 15.0 }));
+        ui.add_space(10.0);
 
         ui.group(|ui| {
             ui.label(RichText::new("SORTED ARRAY").font(egui::FontId::monospace(11.0)).color(p.text_muted));
@@ -1639,20 +1699,21 @@ impl VisualizerApp {
                         p.text_dim
                     };
 
-                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(10.0).show(ui, |ui| {
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(margin).show(ui, |ui| {
                         ui.vertical(|ui| {
                             let mut ptr_label = String::new();
                             if i == left { ptr_label.push_str("L "); }
                             if is_mid { ptr_label.push_str("MID "); }
                             if i == right { ptr_label.push_str("R"); }
 
-                            ui.label(RichText::new(format!("i={} {}", i, ptr_label)).font(egui::FontId::proportional(10.0)).color(Color32::WHITE));
-                            ui.label(RichText::new(num.to_string()).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                            ui.label(RichText::new(format!("i={} {}", i, ptr_label)).font(egui::FontId::proportional(if is_wide { 11.0 } else { 9.0 })).color(Color32::WHITE));
+                            ui.label(RichText::new(num.to_string()).font(egui::FontId::monospace(font_sz)).strong().color(Color32::WHITE));
                         });
                     });
                 }
             });
         });
+
 
         if let Some(f) = found_idx {
             ui.add_space(20.0);
@@ -1719,12 +1780,17 @@ impl VisualizerApp {
     }
 
     fn render_two_sum(&self, ui: &mut egui::Ui, p: &ThemePalette, nums: &[i32], target: i32, active_idx: Option<usize>, secondary_idx: Option<usize>, map: &std::collections::BTreeMap<i32, usize>, found: Option<(usize, usize)>) {
-        ui.heading(RichText::new(format!("Target Sum: {}", target)).color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let is_wide = ui.available_width() > 600.0;
+        let margin = if is_wide { 14.0 } else { 9.0 };
+        let font_sz = if is_wide { 20.0 } else { 15.0 };
+
+        ui.heading(RichText::new(format!("Target Sum: {}", target)).color(p.cyan).size(if is_wide { 18.0 } else { 15.0 }));
+        ui.add_space(10.0);
 
         ui.group(|ui| {
             ui.label(RichText::new("NUMS ARRAY").font(egui::FontId::monospace(11.0)).color(p.text_muted));
-            ui.horizontal(|ui| {
+            ui.add_space(4.0);
+            ui.with_layout(egui::Layout::left_to_right(egui::Align::Center).with_main_align(egui::Align::Center), |ui| {
                 for (i, &num) in nums.iter().enumerate() {
                     let is_found = found.map_or(false, |(a, b)| a == i || b == i);
                     let is_primary = active_idx == Some(i);
@@ -1740,11 +1806,11 @@ impl VisualizerApp {
                         p.cell_bg
                     };
 
-                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(10.0).show(ui, |ui| {
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(margin).show(ui, |ui| {
                         ui.vertical(|ui| {
                             let label = if is_primary { "i" } else if is_sec { "j" } else { "" };
-                            ui.label(RichText::new(format!("i={} {}", i, label)).font(egui::FontId::proportional(10.0)).color(p.text_muted));
-                            ui.label(RichText::new(num.to_string()).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                            ui.label(RichText::new(format!("i={} {}", i, label)).font(egui::FontId::proportional(if is_wide { 11.0 } else { 9.0 })).color(p.text_muted));
+                            ui.label(RichText::new(num.to_string()).font(egui::FontId::monospace(font_sz)).strong().color(Color32::WHITE));
                         });
                     });
                 }
@@ -1756,15 +1822,16 @@ impl VisualizerApp {
         if self.selected_approach_id == 0 {
             ui.group(|ui| {
                 ui.label(RichText::new("PREVMAP {value -> index}").font(egui::FontId::monospace(11.0)).color(p.text_muted));
-                ui.horizontal(|ui| {
+                ui.add_space(4.0);
+                ui.with_layout(egui::Layout::left_to_right(egui::Align::Center).with_main_align(egui::Align::Center), |ui| {
                     if map.is_empty() {
                         ui.label(RichText::new("Empty {}").italics().color(p.text_dim));
                     } else {
                         for (&val, &idx) in map {
-                            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.purple)).inner_margin(8.0).show(ui, |ui| {
+                            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.purple)).inner_margin(margin).show(ui, |ui| {
                                 ui.vertical(|ui| {
-                                    ui.label(RichText::new(format!("val: {}", val)).font(egui::FontId::proportional(12.0)).color(p.text_primary));
-                                    ui.label(RichText::new(format!("idx: {}", idx)).font(egui::FontId::monospace(14.0)).strong().color(p.purple));
+                                    ui.label(RichText::new(format!("val={}", val)).font(egui::FontId::monospace(if is_wide { 14.0 } else { 12.0 })).strong().color(p.cyan));
+                                    ui.label(RichText::new(format!("idx={}", idx)).font(egui::FontId::monospace(if is_wide { 12.0 } else { 10.0 })).color(p.text_muted));
                                 });
                             });
                         }
