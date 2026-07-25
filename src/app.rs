@@ -1070,9 +1070,31 @@ impl eframe::App for VisualizerApp {
                                 }
 
                                 ui.add_space(14.0);
+                                ui.label(RichText::new("Solution Approaches").strong().color(p.text_primary));
+                                ui.add_space(4.0);
+                                for app_meta in details.approaches {
+                                    let is_selected = app_meta.id == self.selected_approach_id;
+                                    let bg = if is_selected { p.code_active_bg } else { p.step_box_bg };
+                                    egui::Frame::group(ui.style())
+                                        .fill(bg)
+                                        .rounding(Rounding::same(8.0))
+                                        .inner_margin(10.0)
+                                        .show(ui, |ui| {
+                                            ui.label(RichText::new(format!("Approach {}: {}", app_meta.id + 1, app_meta.name)).strong().color(if is_selected { p.cyan } else { p.text_primary }));
+                                            ui.label(RichText::new(format!("Time: {} | Space: {}", app_meta.time_complexity, app_meta.space_complexity)).font(egui::FontId::monospace(11.0)).color(p.text_muted));
+                                            if !app_meta.description.is_empty() {
+                                                ui.add_space(4.0);
+                                                ui.label(RichText::new(app_meta.description).font(egui::FontId::proportional(12.0)).color(p.text_primary));
+                                            }
+                                        });
+                                    ui.add_space(6.0);
+                                }
+
+                                ui.add_space(14.0);
                                 if ui.button(RichText::new("🌐 Open on LeetCode.com ↗").strong().color(p.cyan)).clicked() {
                                     let _ = open::that(details.leetcode_url);
                                 }
+
                             });
                         }
                     }
