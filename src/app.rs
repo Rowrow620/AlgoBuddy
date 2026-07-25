@@ -650,21 +650,18 @@ impl eframe::App for VisualizerApp {
                                                 let badge_width = 46.0;
                                                 let avail_w = (ui.available_width() - badge_width - 8.0).max(100.0);
 
-                                                let label_text = format!("#{} {}", prob.id(), prob.title());
-                                                let mut btn_text = RichText::new(&label_text).font(egui::FontId::proportional(12.0));
-                                                if is_selected {
-                                                    btn_text = btn_text.color(p.cyan).strong();
+                                                let btn_rt = RichText::new(format!("#{} {}", prob.id(), prob.title()))
+                                                    .font(egui::FontId::proportional(12.0));
+                                                let btn_text = if is_selected {
+                                                    btn_rt.color(p.cyan).strong()
                                                 } else {
-                                                    btn_text = btn_text.color(p.text_primary);
-                                                }
+                                                    btn_rt.color(p.text_primary)
+                                                };
 
-                                                let btn = egui::Button::new(btn_text)
-                                                    .frame(is_selected)
-                                                    .truncate();
-
-                                                if ui.add_sized([avail_w, 20.0], btn).clicked() {
+                                                if ui.add_sized([avail_w, 20.0], egui::SelectableLabel::new(is_selected, btn_text)).clicked() {
                                                     self.select_problem(prob);
                                                 }
+
 
                                                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                                                     ui.label(RichText::new(prob.difficulty().label()).font(egui::FontId::monospace(10.0)).color(diff_color));
