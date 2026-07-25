@@ -36,6 +36,10 @@ use crate::algorithms::{
     counting_bits::generate_counting_bits_array_steps,
     reverse_bits::generate_reverse_bits_steps,
     missing_number::generate_missing_number_steps,
+    two_sum_ii::generate_two_sum_ii_steps,
+    three_sum::generate_three_sum_steps,
+    container_water::generate_container_water_steps,
+    trapping_rain::generate_trapping_rain_steps,
 };
 use crate::model::*;
 
@@ -99,6 +103,9 @@ pub struct VisualizerApp {
     sudoku_preset_valid: bool,
     longest_consecutive_nums_input: String,
 
+    two_pointer_nums_input: String,
+    two_pointer_target_input: i32,
+
     // Playback state
     steps: Vec<Step>,
     current_step_idx: usize,
@@ -159,6 +166,9 @@ impl Default for VisualizerApp {
             tree_nodes_input: "1, 2, 3, 4, 5, 6, 7".to_string(),
             sudoku_preset_valid: true,
             longest_consecutive_nums_input: "2, 20, 4, 10, 3, 4, 5".to_string(),
+
+            two_pointer_nums_input: "2, 7, 11, 15".to_string(),
+            two_pointer_target_input: 9,
 
             steps: Vec::new(),
             current_step_idx: 0,
@@ -354,6 +364,30 @@ impl VisualizerApp {
             Problem::CountingBits => generate_counting_bits_array_steps(5),
             Problem::ReverseBits => generate_reverse_bits_steps(43261596),
             Problem::MissingNumber => generate_missing_number_steps(&[3, 0, 1]),
+            Problem::TwoSumII => {
+                let parsed: Vec<i32> = self.two_pointer_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![2, 7, 11, 15] } else { parsed };
+                generate_two_sum_ii_steps(&nums, self.two_pointer_target_input)
+            }
+            Problem::ThreeSum => {
+                let parsed: Vec<i32> = self.two_pointer_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![-1, 0, 1, 2, -1, -4] } else { parsed };
+                generate_three_sum_steps(&nums)
+            }
+            Problem::ContainerWater => {
+                let parsed: Vec<i32> = self.two_pointer_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![1, 8, 6, 2, 5, 4, 8, 3, 7] } else { parsed };
+                generate_container_water_steps(&nums)
+            }
+            Problem::TrappingRain => {
+                let parsed: Vec<i32> = self.two_pointer_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1] } else { parsed };
+                generate_trapping_rain_steps(&nums)
+            }
         };
         self.current_step_idx = 0;
         self.is_playing = false;
@@ -724,6 +758,16 @@ impl eframe::App for VisualizerApp {
                             ui.label(RichText::new("root level-order (use 'null' for empty):").strong());
                             ui.add(egui::TextEdit::singleline(&mut self.tree_nodes_input).desired_width(260.0));
                         }
+                        Problem::TwoSumII => {
+                            ui.label(RichText::new("nums (sorted):").strong());
+                            ui.add(egui::TextEdit::singleline(&mut self.two_pointer_nums_input).desired_width(180.0));
+                            ui.label(RichText::new("target:").strong());
+                            if ui.add(egui::DragValue::new(&mut self.two_pointer_target_input).speed(1.0)).changed() { self.recompute_steps(); }
+                        }
+                        Problem::ThreeSum | Problem::ContainerWater | Problem::TrappingRain => {
+                            ui.label(RichText::new("nums:").strong());
+                            ui.add(egui::TextEdit::singleline(&mut self.two_pointer_nums_input).desired_width(280.0));
+                        }
                         _ => {}
                     }
 
@@ -789,6 +833,19 @@ impl eframe::App for VisualizerApp {
                         }
                         Problem::InvertTree | Problem::MaxDepthTree | Problem::DiameterTree | Problem::BalancedTree | Problem::SameTree | Problem::Subtree => {
                             if ui.button("[1,2,3,4,5,6,7]").clicked() { self.tree_nodes_input = "1,2,3,4,5,6,7".into(); self.recompute_steps(); }
+                        }
+                        Problem::TwoSumII => {
+                            if ui.button("[2,7,11,15] t=9").clicked() { self.two_pointer_nums_input = "2,7,11,15".into(); self.two_pointer_target_input = 9; self.recompute_steps(); }
+                            if ui.button("[2,3,4] t=6").clicked() { self.two_pointer_nums_input = "2,3,4".into(); self.two_pointer_target_input = 6; self.recompute_steps(); }
+                        }
+                        Problem::ThreeSum => {
+                            if ui.button("[-1,0,1,2,-1,-4]").clicked() { self.two_pointer_nums_input = "-1,0,1,2,-1,-4".into(); self.recompute_steps(); }
+                        }
+                        Problem::ContainerWater => {
+                            if ui.button("[1,8,6,2,5,4,8,3,7]").clicked() { self.two_pointer_nums_input = "1,8,6,2,5,4,8,3,7".into(); self.recompute_steps(); }
+                        }
+                        Problem::TrappingRain => {
+                            if ui.button("[0,1,0,2,1,0,1,3,2,1,2,1]").clicked() { self.two_pointer_nums_input = "0,1,0,2,1,0,1,3,2,1,2,1".into(); self.recompute_steps(); }
                         }
                         _ => {}
                     }

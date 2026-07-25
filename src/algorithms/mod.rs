@@ -34,3 +34,7 @@ pub mod count_bits;
 pub mod counting_bits;
 pub mod reverse_bits;
 pub mod missing_number;
+pub mod two_sum_ii;
+pub mod three_sum;
+pub mod container_water;
+pub mod trapping_rain;
