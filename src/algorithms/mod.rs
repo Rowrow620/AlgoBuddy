@@ -47,3 +47,7 @@ pub mod generate_parentheses;
 pub mod daily_temperatures;
 pub mod car_fleet;
 pub mod largest_rectangle;
+pub mod character_replacement;
+pub mod permutation_in_string;
+pub mod min_window_substring;
+pub mod sliding_window_max;

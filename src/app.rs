@@ -49,6 +49,10 @@ use crate::algorithms::{
     daily_temperatures::generate_daily_temperatures_steps,
     car_fleet::generate_car_fleet_steps,
     largest_rectangle::generate_largest_rectangle_steps,
+    character_replacement::generate_character_replacement_steps,
+    permutation_in_string::generate_permutation_in_string_steps,
+    min_window_substring::generate_min_window_substring_steps,
+    sliding_window_max::generate_sliding_window_max_steps,
 };
 use crate::model::*;
 
@@ -434,6 +438,10 @@ impl VisualizerApp {
             Problem::DailyTemperatures => generate_daily_temperatures_steps(&[73, 74, 75, 71, 69, 72, 76, 73]),
             Problem::CarFleet => generate_car_fleet_steps(12, &[10, 8, 0, 5, 3], &[2, 4, 1, 1, 3]),
             Problem::LargestRectangle => generate_largest_rectangle_steps(&[2, 1, 5, 6, 2, 3]),
+            Problem::CharacterReplacement => generate_character_replacement_steps("ABAB", 2),
+            Problem::PermutationInString => generate_permutation_in_string_steps("ab", "eidbaooo"),
+            Problem::MinWindowSubstring => generate_min_window_substring_steps("ADOBECODEBANC", "ABC"),
+            Problem::SlidingWindowMax => generate_sliding_window_max_steps(&[1, 3, -1, -3, 5, 3, 6, 7], 3),
         };
         self.current_step_idx = 0;
         self.is_playing = false;
@@ -1891,6 +1899,26 @@ impl VisualizerApp {
                 }
                 Problem::LongestSubstring => {
                     ui.heading(RichText::new("Longest Substring Without Repeating Characters Found!").color(p.emerald_text).size(18.0));
+                }
+                Problem::CharacterReplacement => {
+                    ui.heading(RichText::new("Longest Repeating Character Replacement Window Found!").color(p.emerald_text).size(18.0));
+                }
+                Problem::PermutationInString => {
+                    if valid {
+                        ui.heading(RichText::new("Permutation of s1 Found in s2!").color(p.emerald_text).size(18.0));
+                    } else {
+                        ui.heading(RichText::new("No Permutation of s1 Found in s2").color(p.red).size(18.0));
+                    }
+                }
+                Problem::MinWindowSubstring => {
+                    if valid {
+                        ui.heading(RichText::new("Minimum Window Substring Found!").color(p.emerald_text).size(18.0));
+                    } else {
+                        ui.heading(RichText::new("No Valid Window Substring Found").color(p.red).size(18.0));
+                    }
+                }
+                Problem::SlidingWindowMax => {
+                    ui.heading(RichText::new("Sliding Window Maximum Evaluation Complete!").color(p.emerald_text).size(18.0));
                 }
                 _ => {}
             }
