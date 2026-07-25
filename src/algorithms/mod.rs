@@ -38,3 +38,8 @@ pub mod two_sum_ii;
 pub mod three_sum;
 pub mod container_water;
 pub mod trapping_rain;
+pub mod min_stack;
+pub mod eval_rpn;
+pub mod length_of_longest_substring;
+pub mod search_2d_matrix;
+pub mod house_robber;

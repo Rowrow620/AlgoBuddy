@@ -40,6 +40,11 @@ use crate::algorithms::{
     three_sum::generate_three_sum_steps,
     container_water::generate_container_water_steps,
     trapping_rain::generate_trapping_rain_steps,
+    min_stack::generate_min_stack_steps,
+    eval_rpn::generate_eval_rpn_steps,
+    length_of_longest_substring::generate_longest_substring_steps,
+    search_2d_matrix::generate_search_2d_matrix_steps,
+    house_robber::generate_house_robber_steps,
 };
 use crate::model::*;
 
@@ -387,6 +392,39 @@ impl VisualizerApp {
                     .filter_map(|s| s.trim().parse().ok()).collect();
                 let nums = if parsed.is_empty() { vec![0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1] } else { parsed };
                 generate_trapping_rain_steps(&nums)
+            }
+            Problem::MinStack => {
+                generate_min_stack_steps(&[
+                    ("push", Some(-2)),
+                    ("push", Some(0)),
+                    ("push", Some(-3)),
+                    ("getMin", None),
+                    ("pop", None),
+                    ("top", None),
+                    ("getMin", None),
+                ])
+            }
+            Problem::EvalRPN => {
+                let tokens = vec!["2".to_string(), "1".to_string(), "+".to_string(), "3".to_string(), "*".to_string()];
+                generate_eval_rpn_steps(&tokens)
+            }
+            Problem::LongestSubstring => {
+                let s = if self.palindrome_s_input.is_empty() { "abcabcbb" } else { &self.palindrome_s_input };
+                generate_longest_substring_steps(s)
+            }
+            Problem::Search2DMatrix => {
+                let matrix = vec![
+                    vec![1, 3, 5, 7],
+                    vec![10, 11, 16, 20],
+                    vec![23, 30, 34, 60],
+                ];
+                generate_search_2d_matrix_steps(&matrix, 3)
+            }
+            Problem::HouseRobber => {
+                let parsed: Vec<i32> = self.two_pointer_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![1, 2, 3, 1] } else { parsed };
+                generate_house_robber_steps(&nums)
             }
         };
         self.current_step_idx = 0;
@@ -1842,6 +1880,9 @@ impl VisualizerApp {
                 }
                 Problem::TrappingRain => {
                     ui.heading(RichText::new("Trapped Rain Water Traversal Complete!").color(p.emerald_text).size(18.0));
+                }
+                Problem::LongestSubstring => {
+                    ui.heading(RichText::new("Longest Substring Without Repeating Characters Found!").color(p.emerald_text).size(18.0));
                 }
                 _ => {}
             }
