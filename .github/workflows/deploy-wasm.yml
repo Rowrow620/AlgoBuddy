@@ -34,7 +34,7 @@ jobs:
 
       - name: Build WebAssembly Release Bundle
         run: |
-          trunk build --release --public-url "/AlgoBuddy/"
+          trunk build --release --public-url "/AlgoBuddy/" --no-wasm-opt
 
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
