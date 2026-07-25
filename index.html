@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>AlgoBuddy — NeetCode Roadmap Visualizer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive 60 FPS NeetCode 150 & LeetCode Roadmap Algorithm Visualizer built with Rust and egui.">
+    <link rel="rust" data-trunk rel="wasm" href="Cargo.toml"/>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #181818;
+            color: #dcdcdc;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        #the_canvas_id {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .loading-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border-left-color: #569cd6;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="the_canvas_id"></canvas>
+    <div id="loading_text" class="loading-container">
+        <div class="spinner"></div>
+        <h2 style="margin: 0; font-size: 20px; color: #569cd6;">Loading AlgoBuddy...</h2>
+        <p style="margin-top: 8px; font-size: 14px; color: #a0a0a0;">Initial WebAssembly engine load</p>
+    </div>
+</body>
+</html>

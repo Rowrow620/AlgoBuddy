@@ -5,6 +5,16 @@ edition = "2021"
 
 [dependencies]
 eframe = "0.28"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 open = "5.0"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen-futures = "0.4"
+console_error_panic_hook = "0.1"
+log = "0.4"
+web-sys = { version = "0.3", features = ["Window"] }
+
+
 
 

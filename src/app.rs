@@ -1092,7 +1092,12 @@ impl eframe::App for VisualizerApp {
 
                                 ui.add_space(14.0);
                                 if ui.button(RichText::new("🌐 Open on LeetCode.com ↗").strong().color(p.cyan)).clicked() {
+                                    #[cfg(not(target_arch = "wasm32"))]
                                     let _ = open::that(details.leetcode_url);
+                                    #[cfg(target_arch = "wasm32")]
+                                    if let Some(win) = web_sys::window() {
+                                        let _ = win.open_with_url_and_target(details.leetcode_url, "_blank");
+                                    }
                                 }
 
                             });
