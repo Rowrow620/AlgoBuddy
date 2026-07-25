@@ -580,7 +580,7 @@ impl eframe::App for VisualizerApp {
                 .frame(Frame::none().inner_margin(12.0).fill(p.sidebar_bg))
                 .show(ctx, |ui| {
                     ui.horizontal(|ui| {
-                        ui.heading(RichText::new("LeetCode Roadmap").color(p.cyan).strong().size(18.0));
+                        ui.heading(RichText::new("NeetCode Roadmap").color(p.cyan).strong().size(18.0));
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                             if ui.button(RichText::new("◀ Hide").font(egui::FontId::proportional(11.0)).color(p.text_muted)).clicked() {
                                 self.show_roadmap_sidebar = false;
