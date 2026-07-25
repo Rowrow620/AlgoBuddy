@@ -1,5 +1,10 @@
+# Build outputs
 /target
-Cargo.lock
-**/*.rs.bk
+releases/
 *.exe
+
+# Rust backups
+**/*.rs.bk
+
+# OS files
 .DS_Store
