@@ -1815,10 +1815,35 @@ impl VisualizerApp {
 
         if let Some(valid) = is_valid {
             ui.add_space(20.0);
-            if valid {
-                ui.heading(RichText::new("Valid Palindrome!").color(p.emerald_text).size(18.0));
-            } else {
-                ui.heading(RichText::new("Invalid Palindrome Mismatch").color(p.red).size(18.0));
+            match self.current_problem {
+                Problem::ValidPalindrome => {
+                    if valid {
+                        ui.heading(RichText::new("Valid Palindrome!").color(p.emerald_text).size(18.0));
+                    } else {
+                        ui.heading(RichText::new("Invalid Palindrome Mismatch").color(p.red).size(18.0));
+                    }
+                }
+                Problem::TwoSumII => {
+                    if valid {
+                        ui.heading(RichText::new("Target Sum Pair Found!").color(p.emerald_text).size(18.0));
+                    } else {
+                        ui.heading(RichText::new("No Pair Sum Equals Target").color(p.red).size(18.0));
+                    }
+                }
+                Problem::ThreeSum => {
+                    if valid {
+                        ui.heading(RichText::new("3Sum Triplets Search Complete!").color(p.emerald_text).size(18.0));
+                    } else {
+                        ui.heading(RichText::new("No Triplets Sum to 0").color(p.red).size(18.0));
+                    }
+                }
+                Problem::ContainerWater => {
+                    ui.heading(RichText::new("Maximum Water Container Area Computed!").color(p.emerald_text).size(18.0));
+                }
+                Problem::TrappingRain => {
+                    ui.heading(RichText::new("Trapped Rain Water Traversal Complete!").color(p.emerald_text).size(18.0));
+                }
+                _ => {}
             }
         }
     }
