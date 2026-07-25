@@ -647,26 +647,25 @@ impl eframe::App for VisualizerApp {
                                             let diff_color = difficulty_color(prob.difficulty(), &p);
 
                                             ui.horizontal(|ui| {
-                                                let badge_width = 46.0;
-                                                let avail_w = (ui.available_width() - badge_width - 8.0).max(100.0);
-
-                                                let btn_rt = RichText::new(format!("#{} {}", prob.id(), prob.title()))
-                                                    .font(egui::FontId::proportional(12.0));
-                                                let btn_text = if is_selected {
-                                                    btn_rt.color(p.cyan).strong()
-                                                } else {
-                                                    btn_rt.color(p.text_primary)
-                                                };
-
-                                                if ui.add_sized([avail_w, 20.0], egui::SelectableLabel::new(is_selected, btn_text)).clicked() {
-                                                    self.select_problem(prob);
-                                                }
-
-
                                                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                                                     ui.label(RichText::new(prob.difficulty().label()).font(egui::FontId::monospace(10.0)).color(diff_color));
+
+                                                    ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                                                        let btn_rt = RichText::new(format!("#{} {}", prob.id(), prob.title()))
+                                                            .font(egui::FontId::proportional(12.0));
+                                                        let btn_text = if is_selected {
+                                                            btn_rt.color(p.cyan).strong()
+                                                        } else {
+                                                            btn_rt.color(p.text_primary)
+                                                        };
+
+                                                        if ui.selectable_label(is_selected, btn_text).clicked() {
+                                                            self.select_problem(prob);
+                                                        }
+                                                    });
                                                 });
                                             });
+
                                         }
                                     }
                                 });
