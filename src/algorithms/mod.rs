@@ -43,3 +43,7 @@ pub mod eval_rpn;
 pub mod length_of_longest_substring;
 pub mod search_2d_matrix;
 pub mod house_robber;
+pub mod generate_parentheses;
+pub mod daily_temperatures;
+pub mod car_fleet;
+pub mod largest_rectangle;

@@ -45,6 +45,10 @@ use crate::algorithms::{
     length_of_longest_substring::generate_longest_substring_steps,
     search_2d_matrix::generate_search_2d_matrix_steps,
     house_robber::generate_house_robber_steps,
+    generate_parentheses::generate_parentheses_combinations_steps,
+    daily_temperatures::generate_daily_temperatures_steps,
+    car_fleet::generate_car_fleet_steps,
+    largest_rectangle::generate_largest_rectangle_steps,
 };
 use crate::model::*;
 
@@ -426,6 +430,10 @@ impl VisualizerApp {
                 let nums = if parsed.is_empty() { vec![1, 2, 3, 1] } else { parsed };
                 generate_house_robber_steps(&nums)
             }
+            Problem::GenerateParentheses => generate_parentheses_combinations_steps(3),
+            Problem::DailyTemperatures => generate_daily_temperatures_steps(&[73, 74, 75, 71, 69, 72, 76, 73]),
+            Problem::CarFleet => generate_car_fleet_steps(12, &[10, 8, 0, 5, 3], &[2, 4, 1, 1, 3]),
+            Problem::LargestRectangle => generate_largest_rectangle_steps(&[2, 1, 5, 6, 2, 3]),
         };
         self.current_step_idx = 0;
         self.is_playing = false;
