@@ -27,14 +27,15 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
-      - name: Install Trunk
+      - name: Install Binaryen (wasm-opt) & Trunk
         run: |
+          sudo apt-get update && sudo apt-get install -y binaryen
           wget -qO- https://github.com/trunk-rs/trunk/releases/download/v0.21.5/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf - -C /usr/local/bin
           trunk --version
 
       - name: Build WebAssembly Release Bundle
         run: |
-          trunk build --release --public-url "/AlgoBuddy/" --no-wasm-opt
+          trunk build --release --public-url "/AlgoBuddy/"
 
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
