@@ -1,4 +1,6 @@
 use eframe::egui::{self, Color32, Frame, RichText, Rounding, Stroke};
+use web_time::Instant;
+
 use crate::algorithms::{
     bucket_sort::generate_bucket_sort_steps,
     min_heap::generate_min_heap_steps,
@@ -129,7 +131,8 @@ pub struct VisualizerApp {
     current_step_idx: usize,
     is_playing: bool,
     playback_speed_ms: u64,
-    last_step_time: std::time::Instant,
+    last_step_time: Instant,
+
 
     canvas_zoom: f32,
 }
@@ -195,7 +198,8 @@ impl Default for VisualizerApp {
             current_step_idx: 0,
             is_playing: false,
             playback_speed_ms: 600,
-            last_step_time: std::time::Instant::now(),
+            last_step_time: Instant::now(),
+
 
             canvas_zoom: 1.0,
         };
@@ -577,7 +581,8 @@ impl eframe::App for VisualizerApp {
                 } else {
                     self.is_playing = false;
                 }
-                self.last_step_time = std::time::Instant::now();
+                self.last_step_time = Instant::now();
+
             }
             ctx.request_repaint();
         }
@@ -946,7 +951,8 @@ impl eframe::App for VisualizerApp {
                             self.current_step_idx = 0;
                         }
                         self.is_playing = !self.is_playing;
-                        self.last_step_time = std::time::Instant::now();
+                        self.last_step_time = Instant::now();
+
                     }
                     if ui.button("Prev").clicked() { self.is_playing = false; self.current_step_idx = self.current_step_idx.saturating_sub(1); }
                     if ui.button("Next").clicked() { self.is_playing = false; if self.current_step_idx < self.steps.len().saturating_sub(1) { self.current_step_idx += 1; } }

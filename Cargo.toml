@@ -5,6 +5,8 @@ edition = "2021"
 
 [dependencies]
 eframe = "0.28"
+web-time = "1.1"
+
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 open = "5.0"
