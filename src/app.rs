@@ -537,7 +537,29 @@ impl VisualizerApp {
                 }
                 if ui.selectable_label(self.colorblind_mode == ColorblindMode::HighContrast, "High Contrast B&W").clicked() {
                     self.colorblind_mode = ColorblindMode::HighContrast;
-                }
+                }                ui.add_space(14.0);
+                ui.separator();
+                ui.add_space(8.0);
+
+                ui.heading(RichText::new("Keyboard Shortcuts").color(p.cyan).strong().size(15.0));
+                ui.add_space(6.0);
+                egui::Grid::new("keyboard_shortcuts_grid").num_columns(2).spacing([16.0, 6.0]).show(ui, |ui| {
+                    ui.label(RichText::new("Spacebar").strong().color(p.text_primary));
+                    ui.label("Play / Pause Timeline Animation");
+                    ui.end_row();
+
+                    ui.label(RichText::new("← / → Arrows").strong().color(p.text_primary));
+                    ui.label("Previous / Next Step");
+                    ui.end_row();
+
+                    ui.label(RichText::new("R Key").strong().color(p.text_primary));
+                    ui.label("Reset Timeline to Step 1");
+                    ui.end_row();
+
+                    ui.label(RichText::new("↑ / ↓ Arrows").strong().color(p.text_primary));
+                    ui.label("Speed Up / Slow Down Playback");
+                    ui.end_row();
+                });
 
                 ui.add_space(14.0);
                 ui.separator();
@@ -574,6 +596,40 @@ fn difficulty_color(d: Difficulty, p: &ThemePalette) -> Color32 {
 
 impl eframe::App for VisualizerApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // ── Keyboard Shortcuts (Only active when not typing in text fields) ──
+        if !ctx.wants_keyboard_input() {
+            ctx.input(|i| {
+                if i.key_pressed(egui::Key::Space) {
+                    if self.current_step_idx >= self.steps.len().saturating_sub(1) {
+                        self.current_step_idx = 0;
+                    }
+                    self.is_playing = !self.is_playing;
+                    self.last_step_time = Instant::now();
+                }
+                if i.key_pressed(egui::Key::ArrowLeft) {
+                    self.is_playing = false;
+                    self.current_step_idx = self.current_step_idx.saturating_sub(1);
+                }
+                if i.key_pressed(egui::Key::ArrowRight) {
+                    self.is_playing = false;
+                    if self.current_step_idx < self.steps.len().saturating_sub(1) {
+                        self.current_step_idx += 1;
+                    }
+                }
+                if i.key_pressed(egui::Key::R) {
+                    self.is_playing = false;
+                    self.current_step_idx = 0;
+                }
+                if i.key_pressed(egui::Key::ArrowUp) || i.key_pressed(egui::Key::Plus) || i.key_pressed(egui::Key::Equals) {
+
+                    self.playback_speed_ms = self.playback_speed_ms.saturating_sub(100).max(100);
+                }
+                if i.key_pressed(egui::Key::ArrowDown) || i.key_pressed(egui::Key::Minus) {
+                    self.playback_speed_ms = (self.playback_speed_ms + 100).min(1500);
+                }
+            });
+        }
+
         if self.is_playing {
             if self.last_step_time.elapsed().as_millis() as u64 >= self.playback_speed_ms {
                 if self.current_step_idx < self.steps.len().saturating_sub(1) {
@@ -582,12 +638,12 @@ impl eframe::App for VisualizerApp {
                     self.is_playing = false;
                 }
                 self.last_step_time = Instant::now();
-
             }
             ctx.request_repaint();
         }
 
         let p = self.current_palette();
+
 
         self.render_settings_modal(ctx);
 
