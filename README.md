@@ -21,12 +21,14 @@ AlgoBuddy is a high-performance cross-platform application built in Rust using `
 
 - **NeetCode 150 Category Taxonomy**: Navigation structured into 18 algorithmic topic categories including Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Tries, Backtracking, Heap / Priority Queue, Graphs, Dynamic Programming, Bit Manipulation, and Math & Geometry.
 - **Completion Milestones**:
-  - **Progress**: 55 / 150 Problems Implemented (36.7% Roadmap Progress)
-  - **100% Completed Categories (5/18)**: Arrays & Hashing (9/9), Two Pointers (5/5), Stack (6/6), Sliding Window (6/6), Binary Search (7/7)
+  - **Progress**: 62 / 150 Problems Implemented (41.3% Roadmap Progress)
+  - **100% Completed Categories (8/18)**: Arrays & Hashing (9/9), Two Pointers (5/5), Stack (7/7), Sliding Window (6/6), Binary Search (7/7), Linked List (11/11), Trees (14/14), Tries (3/3)
   - **All Easy Problems (28/28)**: 100% Complete
+- **Full-Screen NeetCode 150 Mastery Dashboard**: Interactive category progress breakdown with custom problem completion checkmarks, reset controls, and automatic cross-session state persistence.
+- **Dedicated Heap & Backtracking Visualizers**: Dual Tree & Array Heap View for priority queue operations and Recursion Decision Tree View for backtracking state branches.
 - **Theme & Colorblind Accessibility System**: Live switcher supporting **VS Code Midnight Dark**, **Cyber Navy**, **Clean Light**, and **Protan/Deuteran Red-Green Colorblind Safe** palettes.
 - **Multi-Approach Evaluation Engine**: Compare multiple valid solutions per problem with live execution updates.
-- **Deterministic State Engine**: Models algorithm steps as discrete state snapshots, enabling forward and backward timeline scrubbing, variable auto-stepping delay (100ms - 1500ms), and synchronized source line highlighting.
+- **Deterministic State Engine**: Models algorithm steps as discrete state snapshots, enabling forward and backward timeline scrubbing, variable speed multipliers (0.25x - 4.00x), and synchronized source line highlighting.
 - **Integrated Problem Specifications**: View problem statements, examples with input/output cases, operational constraints, and direct links to official LeetCode problems within the application context.
 
 ---
@@ -38,7 +40,7 @@ AlgoBuddy is a high-performance cross-platform application built in Rust using `
   ![AlgoBuddy Demo](assets/demo.gif)
 
 - **Visual Memory State Renderers**:
-  - Interactive Array, Matrix Grid, Stack, Deque, HashSet, and Binary Tree renderers.
+  - Interactive Array, Matrix Grid, Stack, Deque, HashSet, Trie Prefix Tree, Dual Heap Tree & Array, and Binary Tree renderers.
   - Two Pointers, Sliding Window, and Binary Search range & mid highlights.
 - **Synchronized Source Trace**: Python solution implementation with active line highlighting tied to visual state transitions.
 
