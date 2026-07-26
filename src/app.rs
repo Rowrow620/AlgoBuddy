@@ -1222,22 +1222,26 @@ impl eframe::App for VisualizerApp {
                         .inner_margin(egui::Margin::symmetric(14.0, 10.0))
                         .show(ui, |ui| {
                             ui.horizontal(|ui| {
-                                ui.label(RichText::new("📊 Live State Inspector").font(egui::FontId::proportional(12.0)).color(p.cyan).strong());
-                                ui.separator();
-                                ui.label(RichText::new(&step.description).font(egui::FontId::proportional(13.0)).color(p.text_primary));
-
                                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                                     let zoom_pct = (self.canvas_zoom * 100.0).round() as u32;
-                                    if ui.button(RichText::new("Reset").font(egui::FontId::proportional(10.0)).color(p.text_muted)).clicked() {
+                                    if ui.button("Reset").clicked() {
                                         self.canvas_zoom = 1.0;
                                     }
-                                    if ui.button(RichText::new("+").font(egui::FontId::monospace(12.0)).strong().color(p.cyan)).clicked() {
-                                        self.canvas_zoom = (self.canvas_zoom * 1.15).min(2.2);
+                                    if ui.button("+").clicked() {
+                                        self.canvas_zoom = (self.canvas_zoom + 0.1).min(2.2);
                                     }
-                                    if ui.button(RichText::new("−").font(egui::FontId::monospace(12.0)).strong().color(p.cyan)).clicked() {
-                                        self.canvas_zoom = (self.canvas_zoom / 1.15).max(0.7);
+                                    if ui.button("−").clicked() {
+                                        self.canvas_zoom = (self.canvas_zoom - 0.1).max(0.7);
                                     }
-                                    ui.label(RichText::new(format!("🔍 {}%", zoom_pct)).font(egui::FontId::monospace(11.0)).color(p.cyan).strong());
+                                    ui.label(RichText::new(format!("🔍 {}%", zoom_pct)).font(egui::FontId::monospace(11.0)).color(p.cyan));
+
+                                    ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                                        ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Truncate);
+                                        ui.label(RichText::new("📊 Live State Inspector").font(egui::FontId::proportional(12.0)).color(p.cyan).strong());
+                                        ui.separator();
+                                        let step_lbl = ui.label(RichText::new(&step.description).font(egui::FontId::proportional(13.0)).color(p.text_primary));
+                                        step_lbl.on_hover_text(&step.description);
+                                    });
                                 });
                             });
                         });
