@@ -60,6 +60,8 @@ use crate::algorithms::{
     time_key_value_store::generate_time_key_value_store_steps,
     find_median_sorted_arrays::generate_find_median_sorted_arrays_steps,
     trie::*,
+    heap::*,
+    backtracking::*,
 };
 
 
@@ -71,11 +73,19 @@ pub enum RightTab {
     ProblemDetails,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ViewMode {
+    Visualizer,
+    RoadmapDashboard,
+}
+
 pub struct VisualizerApp {
     // Theme & Settings
     theme: Theme,
     colorblind_mode: ColorblindMode,
     show_settings_modal: bool,
+    view_mode: ViewMode,
+    completed_problems: std::collections::HashSet<u32>,
 
     // Navigation state & Sidebar Visibility
     show_roadmap_sidebar: bool,
@@ -154,6 +164,8 @@ impl Default for VisualizerApp {
             theme: Theme::DarkVSCode, // Default to user's favorite VS Code Dark style!
             colorblind_mode: ColorblindMode::Off,
             show_settings_modal: false,
+            view_mode: ViewMode::Visualizer,
+            completed_problems: Problem::all().iter().map(|p| p.id()).collect(),
 
             show_roadmap_sidebar: true,
             show_right_sidebar: true,
@@ -228,7 +240,7 @@ impl Default for VisualizerApp {
 }
 
 impl VisualizerApp {
-    pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         #[cfg(target_arch = "wasm32")]
         if let Some(loading) = web_sys::window()
             .and_then(|w| w.document())
@@ -237,7 +249,13 @@ impl VisualizerApp {
             loading.remove();
         }
 
-        Self::default()
+        let mut app = Self::default();
+        if let Some(storage) = cc.storage {
+            if let Some(saved_completed) = eframe::get_value::<std::collections::HashSet<u32>>(storage, "algobuddy_completed_problems") {
+                app.completed_problems = saved_completed;
+            }
+        }
+        app
     }
 
 
@@ -410,7 +428,7 @@ impl VisualizerApp {
             Problem::ClimbingStairs => generate_climbing_stairs_steps(5),
             Problem::MinCostStairs => generate_min_cost_stairs_steps(&[10, 15, 20]),
             Problem::KthLargestStream => generate_kth_largest_stream_steps(3, &[4, 5, 8, 2], 3),
-            Problem::LastStone => generate_last_stone_steps(&[2, 7, 4, 1, 8, 1]),
+            Problem::LastStone => generate_last_stone_weight_steps(&[2, 7, 4, 1, 8, 1]),
             Problem::MeetingRooms => generate_meeting_rooms_steps(&[(0, 30), (5, 10), (15, 20)]),
             Problem::HappyNumber => generate_happy_number_steps(19),
             Problem::PlusOne => generate_plus_one_steps(&[1, 2, 3]),
@@ -513,6 +531,20 @@ impl VisualizerApp {
                     .map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect();
                 generate_word_search_ii_steps(&words)
             }
+            Problem::Subsets => {
+                let parsed: Vec<i32> = self.contains_dup_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![1, 2, 3] } else { parsed };
+                generate_subsets_steps(&nums)
+            }
+            Problem::Permutations => {
+                let parsed: Vec<i32> = self.contains_dup_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![1, 2, 3] } else { parsed };
+                generate_permutations_steps(&nums)
+            }
+            Problem::KClosestPoints => generate_k_closest_points_steps(&[(1, 3), (-2, 2), (5, 8)], 1),
+            Problem::TaskScheduler => generate_task_scheduler_steps(&['A', 'A', 'A', 'B', 'B', 'B'], 2),
         };
 
 
@@ -610,12 +642,115 @@ impl VisualizerApp {
 
                 ui.add_space(12.0);
                 if ui.button(RichText::new("Close Settings").strong()).clicked() {
-                    // Window will close when X or Close is clicked
+                    self.show_settings_modal = false;
                 }
             });
 
         if !is_open {
             self.show_settings_modal = false;
+        }
+    }
+
+    fn render_fullscreen_roadmap_dashboard(&mut self, ctx: &egui::Context, p: &ThemePalette) {
+        let mut prob_to_select = None;
+        let total_solved = self.completed_problems.len();
+        let overall_pct = (total_solved as f32 / 150.0) * 100.0;
+
+        egui::CentralPanel::default()
+            .frame(Frame::none().fill(p.sidebar_bg).inner_margin(24.0))
+            .show(ctx, |ui| {
+                // Top Navigation & Action Bar
+                ui.horizontal(|ui| {
+                    if ui.button(RichText::new("◀ Back to Visualizer").strong().color(p.cyan).size(14.0)).clicked() {
+                        self.view_mode = ViewMode::Visualizer;
+                    }
+                    ui.add_space(16.0);
+                    ui.heading(RichText::new("🏆 NeetCode 150 Mastery Dashboard").color(p.amber).strong().size(20.0));
+
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        if ui.button(RichText::new("Reset All Progress").strong().color(p.red)).clicked() {
+                            self.completed_problems.clear();
+                        }
+
+                        ui.add_space(12.0);
+                        egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(6.0)).inner_margin(8.0).show(ui, |ui| {
+                            ui.label(RichText::new(format!("Overall Progress: {} / 150 Solved ({:.1}%)", total_solved, overall_pct)).font(egui::FontId::monospace(13.0)).color(p.emerald_text).strong());
+                        });
+                    });
+                });
+
+                ui.add_space(16.0);
+                ui.separator();
+                ui.add_space(16.0);
+
+                // 2-Column Dashboard Layout
+                ui.columns(2, |cols| {
+                    // Left Column: Category Progress List
+                    cols[0].heading(RichText::new("Category Completion Breakdown").color(p.cyan).size(15.0));
+                    cols[0].add_space(10.0);
+
+                    egui::ScrollArea::vertical().id_source("cat_scroll").show(&mut cols[0], |ui| {
+                        for &category in Category::all() {
+                            let total_in_cat = Problem::all().iter().filter(|p| p.category() == category).count().max(1);
+                            let solved_in_cat = Problem::all().iter().filter(|p| p.category() == category && self.completed_problems.contains(&p.id())).count();
+                            let pct = (solved_in_cat as f32 / total_in_cat as f32) * 100.0;
+                            let col = if solved_in_cat == total_in_cat && solved_in_cat > 0 { p.emerald_text } else if solved_in_cat > 0 { p.amber } else { p.text_dim };
+
+                            egui::Frame::group(ui.style())
+                                .fill(p.step_box_bg)
+                                .rounding(Rounding::same(6.0))
+                                .inner_margin(8.0)
+                                .show(ui, |ui| {
+                                    ui.horizontal(|ui| {
+                                        ui.label(RichText::new(category.name()).strong().color(p.text_primary));
+                                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                            ui.label(RichText::new(format!("{}/{} ({:.0}%)", solved_in_cat, total_in_cat, pct)).font(egui::FontId::monospace(12.0)).color(col).strong());
+                                        });
+                                    });
+                                    ui.add_space(4.0);
+                                    ui.add(egui::ProgressBar::new(solved_in_cat as f32 / total_in_cat as f32).text(""));
+                                });
+                            ui.add_space(6.0);
+                        }
+                    });
+
+                    // Right Column: Problem Completion & Launcher Grid
+                    cols[1].heading(RichText::new("Implemented Problems & Checkmarks").color(p.amber).size(15.0));
+                    cols[1].add_space(10.0);
+
+                    egui::ScrollArea::vertical().id_source("prob_scroll").show(&mut cols[1], |ui| {
+                        egui::Grid::new("fullscreen_roadmap_grid")
+                            .striped(true)
+                            .spacing([12.0, 8.0])
+                            .show(ui, |ui| {
+                                for prob in Problem::all() {
+                                    let details = prob.details();
+                                    let d_color = difficulty_color(details.difficulty, p);
+                                    let mut is_completed = self.completed_problems.contains(&details.id);
+
+                                    if ui.checkbox(&mut is_completed, "").changed() {
+                                        if is_completed {
+                                            self.completed_problems.insert(details.id);
+                                        } else {
+                                            self.completed_problems.remove(&details.id);
+                                        }
+                                    }
+
+                                    if ui.button(RichText::new(format!("#{} {}", details.id, details.title)).color(if is_completed { p.emerald_text } else { p.cyan }).strong()).clicked() {
+                                        prob_to_select = Some(*prob);
+                                    }
+                                    ui.label(RichText::new(details.difficulty.label()).color(d_color).strong());
+                                    ui.label(RichText::new(details.category.name()).color(p.text_muted));
+                                    ui.end_row();
+                                }
+                            });
+                    });
+                });
+            });
+
+        if let Some(prob) = prob_to_select {
+            self.select_problem(prob);
+            self.view_mode = ViewMode::Visualizer;
         }
     }
 }
@@ -629,6 +764,10 @@ fn difficulty_color(d: Difficulty, p: &ThemePalette) -> Color32 {
 }
 
 impl eframe::App for VisualizerApp {
+    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        eframe::set_value(storage, "algobuddy_completed_problems", &self.completed_problems);
+    }
+
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // ── Keyboard Shortcuts (Only active when not typing in text fields) ──
         if !ctx.wants_keyboard_input() {
@@ -680,6 +819,11 @@ impl eframe::App for VisualizerApp {
 
 
         self.render_settings_modal(ctx);
+
+        if self.view_mode == ViewMode::RoadmapDashboard {
+            self.render_fullscreen_roadmap_dashboard(ctx, &p);
+            return;
+        }
 
         if self.show_roadmap_sidebar {
             egui::SidePanel::left("roadmap_sidebar")
@@ -845,6 +989,13 @@ impl eframe::App for VisualizerApp {
 
                         if ui.button(RichText::new("⚙ Settings").strong().color(p.cyan)).clicked() {
                             self.show_settings_modal = true;
+                        }
+
+                        ui.add_space(8.0);
+                        let solved_count = self.completed_problems.len();
+                        let pct = (solved_count as f32 / 150.0) * 100.0;
+                        if ui.button(RichText::new(format!("🏆 {} / 150 Solved ({:.1}%)", solved_count, pct)).strong().color(p.amber)).clicked() {
+                            self.view_mode = ViewMode::RoadmapDashboard;
                         }
 
                         ui.add_space(8.0);
@@ -1182,6 +1333,12 @@ impl eframe::App for VisualizerApp {
                             VisualState::Trie { .. } => {
                                 self.render_trie(ui, &p);
                             }
+                            VisualState::HeapVisual { heap_elements, active_idx, swapped_pair, heap_type_label } => {
+                                self.render_heap_visualizer(ui, &p, heap_elements, *active_idx, *swapped_pair, heap_type_label);
+                            }
+                            VisualState::DecisionTreeVisual { current_path, active_choice, completed_results } => {
+                                self.render_decision_tree_visualizer(ui, &p, current_path, active_choice.as_deref(), completed_results);
+                            }
                         }
 
                     });
@@ -1196,6 +1353,104 @@ impl eframe::App for VisualizerApp {
 // ── Visual Canvas Renderers ──
 
 impl VisualizerApp {
+    fn render_heap_visualizer(&self, ui: &mut egui::Ui, p: &ThemePalette, heap: &[i32], active_idx: Option<usize>, swapped: Option<(usize, usize)>, label: &str) {
+        let z = self.canvas_zoom;
+        ui.heading(RichText::new(format!("Dual Tree & Array Heap View: {}", label)).color(p.amber).size(16.0 * z));
+        ui.add_space(12.0 * z);
+
+        // 1. Array Representation with 2*i+1 and 2*i+2 formulas
+        ui.group(|ui| {
+            ui.label(RichText::new("UNDERLYING HEAP ARRAY [Index: 2*i + 1, 2*i + 2]").font(egui::FontId::monospace(11.0 * z)).color(p.cyan));
+            ui.add_space(6.0 * z);
+            ui.horizontal(|ui| {
+                if heap.is_empty() {
+                    ui.label(RichText::new("(Heap is Empty)").italics().color(p.text_dim));
+                }
+                for (i, &val) in heap.iter().enumerate() {
+                    let is_act = active_idx == Some(i);
+                    let is_swp = swapped.map_or(false, |(a, b)| a == i || b == i);
+                    let bg = if is_swp { p.red } else if is_act { p.amber } else { p.cell_bg };
+
+                    egui::Frame::none().fill(bg).rounding(Rounding::same(6.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.purple)).inner_margin((10.0 * z).max(6.0)).show(ui, |ui| {
+                        ui.vertical(|ui| {
+                            ui.label(RichText::new(format!("i={}", i)).font(egui::FontId::monospace((10.0 * z).max(7.0))).color(p.text_muted));
+                            ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace((16.0 * z).max(10.0))).strong().color(Color32::WHITE));
+                        });
+                    });
+                }
+            });
+        });
+
+        ui.add_space(16.0 * z);
+
+        // 2. Binary Tree Node Layout
+        ui.group(|ui| {
+            ui.label(RichText::new("BINARY TREE STRUCTURAL VIEW").font(egui::FontId::monospace(11.0 * z)).color(p.emerald_text));
+            ui.add_space(6.0 * z);
+
+            ui.horizontal(|ui| {
+                for (i, &val) in heap.iter().enumerate() {
+                    let is_act = active_idx == Some(i);
+                    let bg = if is_act { p.amber } else { p.emerald };
+
+                    egui::Frame::none().fill(bg).rounding(Rounding::same(20.0 * z)).inner_margin((10.0 * z).max(6.0)).show(ui, |ui| {
+                        ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace((14.0 * z).max(9.0))).strong().color(Color32::WHITE));
+                    });
+                    if i + 1 < heap.len() {
+                        ui.label(RichText::new("•").color(p.text_dim));
+                    }
+                }
+            });
+        });
+    }
+
+    fn render_decision_tree_visualizer(&self, ui: &mut egui::Ui, p: &ThemePalette, current_path: &[i32], active_choice: Option<&str>, completed_results: &[Vec<i32>]) {
+        let z = self.canvas_zoom;
+        ui.heading(RichText::new("Backtracking & Recursion Decision Tree Visualizer").color(p.cyan).size(16.0 * z));
+        ui.add_space(12.0 * z);
+
+        ui.horizontal(|ui| {
+            // Current Active Recursive Branch Path
+            ui.group(|ui| {
+                ui.label(RichText::new("ACTIVE DECISION BRANCH PATH").font(egui::FontId::monospace(11.0 * z)).color(p.amber));
+                ui.add_space(6.0 * z);
+                ui.horizontal(|ui| {
+                    if current_path.is_empty() {
+                        ui.label(RichText::new("[] (Root Level)").font(egui::FontId::monospace((14.0 * z).max(9.0))).color(p.text_dim));
+                    } else {
+                        for (i, &val) in current_path.iter().enumerate() {
+                            egui::Frame::none().fill(p.cyan).rounding(Rounding::same(6.0 * z)).inner_margin((8.0 * z).max(4.0)).show(ui, |ui| {
+                                ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace((16.0 * z).max(10.0))).strong().color(Color32::WHITE));
+                            });
+                            if i + 1 < current_path.len() {
+                                ui.label(RichText::new("➔").color(p.amber));
+                            }
+                        }
+                    }
+                });
+                if let Some(choice) = active_choice {
+                    ui.add_space(6.0 * z);
+                    ui.label(RichText::new(format!("Current Decision: {}", choice)).font(egui::FontId::proportional(12.0 * z)).color(p.emerald_text).strong());
+                }
+            });
+
+            ui.add_space(16.0 * z);
+
+            // Completed Subsets / Permutations Grid
+            ui.group(|ui| {
+                ui.label(RichText::new(format!("GENERATED SOLUTIONS ({})", completed_results.len())).font(egui::FontId::monospace(11.0 * z)).color(p.emerald_text));
+                ui.add_space(6.0 * z);
+                ui.horizontal_wrapped(|ui| {
+                    for res in completed_results {
+                        egui::Frame::none().fill(p.step_box_bg).rounding(Rounding::same(4.0 * z)).inner_margin((6.0 * z).max(3.0)).show(ui, |ui| {
+                            ui.label(RichText::new(format!("{:?}", res)).font(egui::FontId::monospace((12.0 * z).max(8.0))).color(p.text_primary));
+                        });
+                    }
+                });
+            });
+        });
+    }
+
     fn render_contains_duplicate(&self, ui: &mut egui::Ui, p: &ThemePalette, nums: &[i32], active_idx: Option<usize>, seen_set: &std::collections::BTreeSet<i32>, dup_val: Option<i32>, has_dup: Option<bool>) {
         let z = self.canvas_zoom;
         let font_sz = 16.0 * z;

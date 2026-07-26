@@ -56,5 +56,7 @@ pub mod find_min_rotated;
 pub mod time_key_value_store;
 pub mod find_median_sorted_arrays;
 pub mod trie;
+pub mod heap;
+pub mod backtracking;
 
 

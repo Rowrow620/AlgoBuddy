@@ -318,6 +318,10 @@ pub enum Problem {
     ImplementTrie,
     WordDictionary,
     WordSearchII,
+    Subsets,
+    Permutations,
+    KClosestPoints,
+    TaskScheduler,
 }
 
 impl Problem {
@@ -348,6 +352,10 @@ impl Problem {
             Problem::ImplementTrie,
             Problem::WordDictionary,
             Problem::WordSearchII,
+            Problem::Subsets,
+            Problem::Permutations,
+            Problem::KClosestPoints,
+            Problem::TaskScheduler,
             Problem::ClimbingStairs,
 
             Problem::MinCostStairs,
@@ -810,6 +818,34 @@ impl Problem {
                 constraints: &["nums1.length == m", "nums2.length == n", "0 <= m, n <= 1000"], leetcode_url: "https://leetcode.com/problems/median-of-two-sorted-arrays/",
                 approaches: &[ApproachMeta { id: 0, name: "Binary Search Partition on Smaller Array", time_complexity: "O(log(min(M, N)))", space_complexity: "O(1)", rationale: "Binary searching partition index on the smaller array balances left and right halves in O(log(min(M, N))) time.", description: "Binary search partition index i in A such that A[i-1] <= B[j] and B[j-1] <= A[i]." }],
             },
+            Problem::Subsets => ProblemDetails {
+                id: 78, title: "Subsets", difficulty: Difficulty::Medium, category: Category::Backtracking,
+                statement: "Given an integer array nums of unique elements, return all possible subsets (the power set). The solution set must not contain duplicate subsets. Return the solution in any order.",
+                examples: &[Example { input: "nums = [1,2,3]", output: "[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]", explanation: "Generate all 2^N combinations using binary choice decision tree." }],
+                constraints: &["1 <= nums.length <= 10", "-10 <= nums[i] <= 10"], leetcode_url: "https://leetcode.com/problems/subsets/",
+                approaches: &[ApproachMeta { id: 0, name: "Cascading Backtracking Decision Tree", time_complexity: "O(N * 2^N)", space_complexity: "O(N)", rationale: "At each element, make a binary choice to include or exclude, producing 2^N subsets with O(N) recursion stack space.", description: "Recurse choosing to include or exclude each element." }],
+            },
+            Problem::Permutations => ProblemDetails {
+                id: 46, title: "Permutations", difficulty: Difficulty::Medium, category: Category::Backtracking,
+                statement: "Given an array nums of distinct integers, return all the possible permutations. You can return the answer in any order.",
+                examples: &[Example { input: "nums = [1,2,3]", output: "[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]", explanation: "Explore all N! ordering branches." }],
+                constraints: &["1 <= nums.length <= 6", "-10 <= nums[i] <= 10"], leetcode_url: "https://leetcode.com/problems/permutations/",
+                approaches: &[ApproachMeta { id: 0, name: "Backtracking with Used Flag Array", time_complexity: "O(N * N!)", space_complexity: "O(N)", rationale: "Exploring all N! permutations with a boolean used array takes O(N * N!) time and O(N) stack space.", description: "Track used elements and construct all distinct position orderings." }],
+            },
+            Problem::KClosestPoints => ProblemDetails {
+                id: 973, title: "K Closest Points to Origin", difficulty: Difficulty::Medium, category: Category::HeapPriorityQueue,
+                statement: "Given an array of points where points[i] = [xi, yi] and an integer k, return the k closest points to the origin (0, 0).",
+                examples: &[Example { input: "points = [[1,3],[-2,2]], k = 1", output: "[[-2,2]]", explanation: "Distance of [1,3] is 10, distance of [-2,2] is 8. [-2,2] is closer." }],
+                constraints: &["1 <= k <= points.length <= 10^4", "-10^4 <= xi, yi <= 10^4"], leetcode_url: "https://leetcode.com/problems/k-closest-points-to-origin/",
+                approaches: &[ApproachMeta { id: 0, name: "Max-Heap of Size K", time_complexity: "O(N log K)", space_complexity: "O(K)", rationale: "Maintaining a max-heap of size K stores the smallest K distances seen so far in O(N log K) time.", description: "Push distances into max-heap of size K." }],
+            },
+            Problem::TaskScheduler => ProblemDetails {
+                id: 621, title: "Task Scheduler", difficulty: Difficulty::Medium, category: Category::HeapPriorityQueue,
+                statement: "Given a characters array tasks, representing the tasks a CPU needs to do, where each letter represents a different task. Tasks could be done in any order. Each task is done in one unit of time. For each unit of time, the CPU could have done a task or be idle. However, there is a non-negative integer n that represents the cooldown period between two same tasks.",
+                examples: &[Example { input: "tasks = [\"A\",\"A\",\"A\",\"B\",\"B\",\"B\"], n = 2", output: "8", explanation: "A -> B -> idle -> A -> B -> idle -> A -> B." }],
+                constraints: &["1 <= tasks.length <= 10^4", "0 <= n <= 100"], leetcode_url: "https://leetcode.com/problems/task-scheduler/",
+                approaches: &[ApproachMeta { id: 0, name: "Max-Heap Frequency Priority Queue", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Always scheduling the highest frequency task via a Max-Heap minimizes CPU idle cooling cycles in O(N) time.", description: "Use Max-Heap of task counts to greedily schedule most frequent tasks." }],
+            },
         }
     }
 }
@@ -949,6 +985,17 @@ pub enum VisualState {
         secondary_node_idx: Option<usize>,
         depth_val: Option<i32>,
         max_diameter: Option<i32>,
+    },
+    HeapVisual {
+        heap_elements: Vec<i32>,
+        active_idx: Option<usize>,
+        swapped_pair: Option<(usize, usize)>,
+        heap_type_label: String,
+    },
+    DecisionTreeVisual {
+        current_path: Vec<i32>,
+        active_choice: Option<String>,
+        completed_results: Vec<Vec<i32>>,
     },
 }
 
@@ -1140,6 +1187,28 @@ impl VisualState {
                 vars.push(("word", current_word.clone()));
                 if let Some(c) = active_char_idx { vars.push(("char_idx", c.to_string())); }
                 vars.push(("trie_words_count", words.len().to_string()));
+                vars
+            }
+            VisualState::HeapVisual { heap_elements, active_idx, heap_type_label, .. } => {
+                let mut vars = Vec::new();
+                vars.push(("heap_type", heap_type_label.clone()));
+                vars.push(("heap_size", heap_elements.len().to_string()));
+                if let Some(i) = active_idx {
+                    vars.push(("active_index", i.to_string()));
+                    if let Some(val) = heap_elements.get(*i) {
+                        vars.push(("heap[i]", val.to_string()));
+                    }
+                }
+                vars.push(("heap_array", format!("{:?}", heap_elements)));
+                vars
+            }
+            VisualState::DecisionTreeVisual { current_path, active_choice, completed_results } => {
+                let mut vars = Vec::new();
+                vars.push(("current_branch", format!("{:?}", current_path)));
+                if let Some(c) = active_choice {
+                    vars.push(("choice", c.clone()));
+                }
+                vars.push(("total_results", completed_results.len().to_string()));
                 vars
             }
         }
@@ -1742,8 +1811,89 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
         (Problem::ImplementTrie, _) => implement_trie_code_lines(),
         (Problem::WordDictionary, _) => word_dictionary_code_lines(),
         (Problem::WordSearchII, _) => word_search_ii_code_lines(),
+        (Problem::Subsets, _) => subsets_code_lines(),
+        (Problem::Permutations, _) => permutations_code_lines(),
+        (Problem::KClosestPoints, _) => k_closest_points_code_lines(),
+        (Problem::TaskScheduler, _) => task_scheduler_code_lines(),
         _ => vec![(1, "# Approach implementation trace")],
     }
+}
+
+pub fn subsets_code_lines() -> Vec<(usize, &'static str)> {
+    vec![
+        (1, "class Solution:"),
+        (2, "    def subsets(self, nums: List[int]) -> List[List[int]]:"),
+        (3, "        res = []"),
+        (4, "        subset = []"),
+        (5, "        def dfs(i):"),
+        (6, "            if i >= len(nums):"),
+        (7, "                res.append(subset.copy())"),
+        (8, "                return"),
+        (9, "            subset.append(nums[i])"),
+        (10, "            dfs(i + 1)"),
+        (11, "            subset.pop()"),
+        (12, "            dfs(i + 1)"),
+        (13, "        dfs(0)"),
+        (14, "        return res"),
+    ]
+}
+
+pub fn permutations_code_lines() -> Vec<(usize, &'static str)> {
+    vec![
+        (1, "class Solution:"),
+        (2, "    def permute(self, nums: List[int]) -> List[List[int]]:"),
+        (3, "        res = []"),
+        (4, "        def backtrack(curr, used):"),
+        (5, "            if len(curr) == len(nums):"),
+        (6, "                res.append(curr.copy())"),
+        (7, "                return"),
+        (8, "            for i in range(len(nums)):"),
+        (9, "                if not used[i]:"),
+        (10, "                    used[i] = True"),
+        (11, "                    curr.append(nums[i])"),
+        (12, "                    backtrack(curr, used)"),
+        (13, "                    curr.pop()"),
+        (14, "                    used[i] = False"),
+        (15, "        backtrack([], [False] * len(nums))"),
+        (16, "        return res"),
+    ]
+}
+
+pub fn k_closest_points_code_lines() -> Vec<(usize, &'static str)> {
+    vec![
+        (1, "class Solution:"),
+        (2, "    def kClosest(self, points: List[List[int]], k: int) -> List[List[int]]:"),
+        (3, "        minHeap = []"),
+        (4, "        for x, y in points:"),
+        (5, "            dist = (x ** 2) + (y ** 2)"),
+        (6, "            minHeap.append([dist, x, y])"),
+        (7, "        heapq.heapify(minHeap)"),
+        (8, "        res = []"),
+        (9, "        for _ in range(k):"),
+        (10, "            dist, x, y = heapq.heappop(minHeap)"),
+        (11, "            res.append([x, y])"),
+        (12, "        return res"),
+    ]
+}
+
+pub fn task_scheduler_code_lines() -> Vec<(usize, &'static str)> {
+    vec![
+        (1, "class Solution:"),
+        (2, "    def leastInterval(self, tasks: List[str], n: int) -> int:"),
+        (3, "        count = Counter(tasks)"),
+        (4, "        maxHeap = [-cnt for cnt in count.values()]"),
+        (5, "        heapq.heapify(maxHeap)"),
+        (6, "        time = 0"),
+        (7, "        q = deque()"),
+        (8, "        while maxHeap or q:"),
+        (9, "            time += 1"),
+        (10, "            if maxHeap:"),
+        (11, "                cnt = 1 + heapq.heappop(maxHeap)"),
+        (12, "                if cnt: q.append([cnt, time + n])"),
+        (13, "            if q and q[0][1] == time:"),
+        (14, "                heapq.heappush(maxHeap, q.popleft()[0])"),
+        (15, "        return time"),
+    ]
 }
 
 pub fn topk_code_lines() -> Vec<(usize, &'static str)> {
