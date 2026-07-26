@@ -1,5 +1,6 @@
 use crate::model::{Step, VisualState};
 
+#[allow(dead_code)]
 pub fn generate_last_stone_steps(stones: &[i32]) -> Vec<Step> {
     let mut steps = Vec::new();
     let mut s = stones.to_vec();

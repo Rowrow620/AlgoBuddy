@@ -1,6 +1,7 @@
-﻿use crate::model::{Step, VisualState};
+use crate::model::{Step, VisualState};
 use std::collections::BTreeMap;
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct TrieVisualNode {
     pub id: usize,
@@ -11,6 +12,7 @@ pub struct TrieVisualNode {
     pub matched: bool,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct TrieData {
     pub nodes: Vec<TrieVisualNode>,

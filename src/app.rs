@@ -29,7 +29,6 @@ use crate::algorithms::{
     climbing_stairs::generate_climbing_stairs_steps,
     min_cost_stairs::generate_min_cost_stairs_steps,
     kth_largest_stream::generate_kth_largest_stream_steps,
-    last_stone::generate_last_stone_steps,
     meeting_rooms::generate_meeting_rooms_steps,
     happy_number::generate_happy_number_steps,
     plus_one::generate_plus_one_steps,
@@ -62,6 +61,12 @@ use crate::algorithms::{
     trie::*,
     heap::*,
     backtracking::*,
+    dp1d::*,
+    bit_math::*,
+    greedy_intervals::*,
+    graphs::*,
+    dp2d::*,
+    advanced_graphs::*,
 };
 
 
@@ -155,6 +160,8 @@ pub struct VisualizerApp {
 
 
     canvas_zoom: f32,
+    last_focused_step_idx: Option<usize>,
+    is_fullscreen: bool,
 }
 
 
@@ -232,6 +239,8 @@ impl Default for VisualizerApp {
 
 
             canvas_zoom: 1.0,
+            last_focused_step_idx: None,
+            is_fullscreen: false,
         };
 
         app.recompute_steps();
@@ -545,10 +554,130 @@ impl VisualizerApp {
             }
             Problem::KClosestPoints => generate_k_closest_points_steps(&[(1, 3), (-2, 2), (5, 8)], 1),
             Problem::TaskScheduler => generate_task_scheduler_steps(&['A', 'A', 'A', 'B', 'B', 'B'], 2),
+            Problem::FindMedianDataStream => {
+                let parsed: Vec<i32> = self.contains_dup_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![1, 2, 5, 10, 3] } else { parsed };
+                generate_find_median_steps(&nums)
+            }
+            Problem::CombinationSum => generate_combination_sum_steps(&[2, 3, 6, 7], 7),
+            Problem::SubsetsII => {
+                let parsed: Vec<i32> = self.contains_dup_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![1, 2, 2] } else { parsed };
+                generate_subsets_ii_steps(&nums)
+            }
+            Problem::CombinationSumII => generate_combination_sum_ii_steps(&[10, 1, 2, 7, 6, 1, 5], 8),
+            Problem::WordSearch => generate_word_search_steps(&[vec!['A','B','C','E'], vec!['S','F','C','S'], vec!['A','D','E','E']], "ABCCED"),
+            Problem::NQueens => generate_n_queens_steps(4),
+            Problem::KthLargestArray => generate_kth_largest_array_steps(&[3, 2, 1, 5, 6, 4], 2),
+            Problem::DesignTwitter => generate_design_twitter_steps(),
+            Problem::PalindromePartitioning => generate_palindrome_partitioning_steps("aab"),
+            Problem::LetterCombinations => generate_letter_combinations_steps("23"),
+            Problem::HouseRobberII => {
+                let parsed: Vec<i32> = self.contains_dup_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![2, 3, 2] } else { parsed };
+                generate_house_robber_ii_steps(&nums)
+            }
+            Problem::LongestPalindromicSubstring => generate_longest_palindromic_substring_steps("babad"),
+            Problem::PalindromicSubstrings => generate_palindromic_substrings_steps("aaa"),
+            Problem::DecodeWays => generate_decode_ways_steps("226"),
+            Problem::CoinChange => generate_coin_change_steps(&[1, 2, 5], 11),
+            Problem::MaxProductSubarray => {
+                let parsed: Vec<i32> = self.contains_dup_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![2, 3, -2, 4] } else { parsed };
+                generate_max_product_subarray_steps(&nums)
+            }
+            Problem::WordBreak => {
+                let words: Vec<String> = vec!["leet".to_string(), "code".to_string()];
+                generate_word_break_steps("leetcode", &words)
+            }
+            Problem::LongestIncreasingSubsequence => {
+                let parsed: Vec<i32> = self.contains_dup_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![10, 9, 2, 5, 3, 7, 101, 18] } else { parsed };
+                generate_longest_increasing_subsequence_steps(&nums)
+            }
+            Problem::PartitionEqualSubsetSum => {
+                let parsed: Vec<i32> = self.contains_dup_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![1, 5, 11, 5] } else { parsed };
+                generate_partition_equal_subset_sum_steps(&nums)
+            }
+            Problem::Number1Bits => generate_number_1_bits_steps(11),
+            Problem::SumTwoIntegers => generate_sum_two_integers_steps(1, 2),
+            Problem::ReverseInteger => generate_reverse_integer_steps(123),
+            Problem::RotateImage => generate_rotate_image_steps(&[vec![1,2,3], vec![4,5,6], vec![7,8,9]]),
+            Problem::SpiralMatrix => generate_spiral_matrix_steps(&[vec![1,2,3], vec![4,5,6], vec![7,8,9]]),
+            Problem::SetMatrixZeroes => generate_set_matrix_zeroes_steps(&[vec![1,1,1], vec![1,0,1], vec![1,1,1]]),
+            Problem::PowXN => generate_pow_xn_steps(2.0, 10),
+            Problem::MultiplyStrings => generate_multiply_strings_steps("2", "3"),
+            Problem::DetectSquares => generate_detect_squares_steps(),
+            Problem::MaximumSubarray => {
+                let parsed: Vec<i32> = self.contains_dup_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![-2, 1, -3, 4, -1, 2, 1, -5, 4] } else { parsed };
+                generate_maximum_subarray_steps(&nums)
+            }
+            Problem::JumpGame => {
+                let parsed: Vec<i32> = self.contains_dup_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![2, 3, 1, 1, 4] } else { parsed };
+                generate_jump_game_steps(&nums)
+            }
+            Problem::JumpGameII => {
+                let parsed: Vec<i32> = self.contains_dup_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let nums = if parsed.is_empty() { vec![2, 3, 1, 1, 4] } else { parsed };
+                generate_jump_game_ii_steps(&nums)
+            }
+            Problem::GasStation => generate_gas_station_steps(&[1, 2, 3, 4, 5], &[3, 4, 5, 1, 2]),
+            Problem::HandOfStraights => generate_hand_of_straights_steps(&[1, 2, 3, 6, 2, 3, 4, 7, 8], 3),
+            Problem::MergeTriplets => generate_merge_triplets_steps(),
+            Problem::PartitionLabels => generate_partition_labels_steps("ababcbacadefegdehijhklij"),
+            Problem::ValidParenthesisString => generate_valid_parenthesis_string_steps("(*)"),
+            Problem::InsertInterval => generate_insert_interval_steps(),
+            Problem::MergeIntervals => generate_merge_intervals_steps(),
+            Problem::NonOverlappingIntervals => generate_non_overlapping_intervals_steps(),
+            Problem::MeetingRoomsII => generate_meeting_rooms_ii_steps(),
+            Problem::MinIntervalQuery => generate_min_interval_query_steps(),
+            Problem::NumberIslands => generate_number_islands_steps(&[vec!['1','1','1','1','0'], vec!['1','1','0','1','0'], vec!['1','1','0','0','0'], vec!['0','0','0','0','0']]),
+            Problem::MaxAreaIsland => generate_max_area_island_steps(),
+            Problem::CloneGraph => generate_clone_graph_steps(),
+            Problem::WallsAndGates => generate_walls_and_gates_steps(),
+            Problem::RottingOranges => generate_rotting_oranges_steps(),
+            Problem::PacificAtlantic => generate_pacific_atlantic_steps(),
+            Problem::SurroundedRegions => generate_surrounded_regions_steps(),
+            Problem::CourseSchedule => generate_course_schedule_steps(2, &[[1, 0]]),
+            Problem::CourseScheduleII => generate_course_schedule_ii_steps(2, &[[1, 0]]),
+            Problem::GraphValidTree => generate_graph_valid_tree_steps(5, &[[0, 1], [0, 2], [0, 3], [1, 4]]),
+            Problem::ConnectedComponents => generate_connected_components_steps(5, &[[0, 1], [1, 2], [3, 4]]),
+            Problem::RedundantConnection => generate_redundant_connection_steps(&[[1, 2], [1, 3], [2, 3]]),
+            Problem::WordLadder => generate_word_ladder_steps("hit", "cog", &["hot", "dot", "dog", "lot", "log", "cog"]),
+            Problem::UniquePaths => generate_unique_paths_steps(3, 7),
+            Problem::LongestCommonSubsequence => generate_lcs_steps("abcde", "ace"),
+            Problem::BestTimeStockCooldown => generate_stock_cooldown_steps(&[1, 2, 3, 0, 2]),
+            Problem::CoinChangeII => generate_coin_change_ii_steps(5, &[1, 2, 5]),
+            Problem::TargetSum => generate_target_sum_steps(&[1, 1, 1, 1, 1], 3),
+            Problem::InterleavingString => generate_interleaving_string_steps("aabcc", "dbbca", "aadbbcbcac"),
+            Problem::LongestIncreasingPath => generate_lip_steps(),
+            Problem::DistinctSubsequences => generate_distinct_subsequences_steps("rabbbit", "rabbit"),
+            Problem::EditDistance => generate_edit_distance_steps("horse", "ros"),
+            Problem::BurstBalloons => generate_burst_balloons_steps(),
+            Problem::RegularExpressionMatching => generate_regex_matching_steps(),
+            Problem::ReconstructItinerary => generate_reconstruct_itinerary_steps(),
+            Problem::MinCostConnectPoints => generate_min_cost_points_steps(),
+            Problem::NetworkDelayTime => generate_network_delay_steps(),
+            Problem::SwimInRisingWater => generate_swim_rising_water_steps(),
+            Problem::AlienDictionary => generate_alien_dictionary_steps(),
+            Problem::CheapestFlights => generate_cheapest_flights_steps(),
         };
 
 
         self.current_step_idx = 0;
+        self.last_focused_step_idx = None;
         self.is_playing = false;
     }
 
@@ -770,6 +899,7 @@ impl eframe::App for VisualizerApp {
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // ── Keyboard Shortcuts (Only active when not typing in text fields) ──
+        let mut toggle_fs = false;
         if !ctx.wants_keyboard_input() {
             ctx.input(|i| {
                 if i.key_pressed(egui::Key::Space) {
@@ -800,7 +930,17 @@ impl eframe::App for VisualizerApp {
                 if i.key_pressed(egui::Key::ArrowDown) || i.key_pressed(egui::Key::Minus) {
                     self.playback_speed_ms = (self.playback_speed_ms + 100).min(1500);
                 }
+                #[cfg(not(target_arch = "wasm32"))]
+                if i.key_pressed(egui::Key::F11) {
+                    toggle_fs = true;
+                }
             });
+        }
+
+        #[cfg(not(target_arch = "wasm32"))]
+        if toggle_fs {
+            self.is_fullscreen = !self.is_fullscreen;
+            ctx.send_viewport_cmd(egui::ViewportCommand::Fullscreen(self.is_fullscreen));
         }
 
         if self.is_playing {
@@ -826,10 +966,13 @@ impl eframe::App for VisualizerApp {
         }
 
         if self.show_roadmap_sidebar {
+            let max_left_w = (ctx.screen_rect().width() * 0.30).clamp(240.0, 400.0);
+            let default_left_w = (ctx.screen_rect().width() * 0.22).clamp(250.0, 320.0);
+
             egui::SidePanel::left("roadmap_sidebar")
-                .min_width(280.0)
-                .max_width(450.0)
-                .default_width(320.0)
+                .min_width(200.0)
+                .max_width(max_left_w)
+                .default_width(default_left_w)
                 .frame(Frame::none().inner_margin(12.0).fill(p.sidebar_bg))
                 .show(ctx, |ui| {
                     ui.horizontal(|ui| {
@@ -991,6 +1134,16 @@ impl eframe::App for VisualizerApp {
                             self.show_settings_modal = true;
                         }
 
+                        #[cfg(not(target_arch = "wasm32"))]
+                        {
+                            ui.add_space(8.0);
+                            let fs_label = if self.is_fullscreen { "🗗 Windowed" } else { "⛶ Fullscreen" };
+                            if ui.button(RichText::new(fs_label).strong().color(p.cyan)).clicked() {
+                                self.is_fullscreen = !self.is_fullscreen;
+                                ctx.send_viewport_cmd(egui::ViewportCommand::Fullscreen(self.is_fullscreen));
+                            }
+                        }
+
                         ui.add_space(8.0);
                         let solved_count = self.completed_problems.len();
                         let pct = (solved_count as f32 / 150.0) * 100.0;
@@ -1018,7 +1171,17 @@ impl eframe::App for VisualizerApp {
                     for approach in details.approaches {
                         let is_sel = self.selected_approach_id == approach.id;
                         let btn_label = format!("{} ({})", approach.name, approach.time_complexity);
-                        if ui.selectable_label(is_sel, RichText::new(btn_label).color(if is_sel { p.cyan } else { p.text_primary }).strong()).clicked() {
+
+                        let bg_fill = if is_sel { p.cell_bg } else { Color32::TRANSPARENT };
+                        let stroke = if is_sel { Stroke::new(1.5_f32, p.amber) } else { Stroke::new(1.0_f32, p.text_dim.gamma_multiply(0.3_f32)) };
+                        let text_color = if is_sel { p.amber } else { p.text_muted };
+
+                        let btn = egui::Button::new(RichText::new(&btn_label).font(egui::FontId::monospace(12.0)).color(text_color).strong())
+                            .fill(bg_fill)
+                            .stroke(stroke)
+                            .rounding(Rounding::same(6.0));
+
+                        if ui.add(btn).clicked() {
                             self.selected_approach_id = approach.id;
                             self.recompute_steps();
                         }
@@ -1062,10 +1225,13 @@ impl eframe::App for VisualizerApp {
 
         // ── Right Sidebar: Tabbed Code Trace & Problem Details ──
         if self.show_right_sidebar {
+            let max_right_w = (ctx.screen_rect().width() * 0.42).clamp(280.0, 550.0);
+            let default_right_w = (ctx.screen_rect().width() * 0.35).clamp(300.0, 420.0);
+
             egui::SidePanel::right("right_sidebar")
-                .min_width(300.0)
-                .max_width(600.0)
-                .default_width(400.0)
+                .min_width(240.0)
+                .max_width(max_right_w)
+                .default_width(default_right_w)
                 .frame(Frame::none().inner_margin(12.0).fill(p.sidebar_bg))
                 .show(ctx, |ui| {
                     ui.horizontal(|ui| {
@@ -1088,57 +1254,78 @@ impl eframe::App for VisualizerApp {
                     match self.right_tab {
                         RightTab::CodeTrace => {
                             if let Some(step) = self.steps.get(self.current_step_idx) {
-                                egui::Frame::group(ui.style())
-                                    .fill(p.step_box_bg)
-                                    .rounding(Rounding::same(8.0))
-                                    .inner_margin(10.0)
+                                // ── 1. FIXED STICKY TOP BANNER (Step Description + Variable Chips) ──
+                                egui::Frame::none()
+                                    .fill(p.sidebar_bg)
+                                    .inner_margin(0.0)
                                     .show(ui, |ui| {
-                                        ui.label(
-                                            RichText::new(format!("STEP {} / {}", self.current_step_idx + 1, self.steps.len()))
-                                                .font(egui::FontId::monospace(11.0))
-                                                .color(p.cyan).strong(),
-                                        );
-                                        ui.add_space(4.0);
-                                        ui.label(RichText::new(&step.description).font(egui::FontId::proportional(13.0)).color(p.text_primary));
+                                        // Step Box
+                                        egui::Frame::group(ui.style())
+                                            .fill(p.step_box_bg)
+                                            .rounding(Rounding::same(8.0))
+                                            .inner_margin(10.0)
+                                            .show(ui, |ui| {
+                                                ui.label(
+                                                    RichText::new(format!("STEP {} / {}", self.current_step_idx + 1, self.steps.len()))
+                                                        .font(egui::FontId::monospace(11.0))
+                                                        .color(p.cyan).strong(),
+                                                );
+                                                ui.add_space(4.0);
+                                                ui.label(RichText::new(&step.description).font(egui::FontId::proportional(13.0)).color(p.text_primary));
+                                            });
+
+                                        ui.add_space(6.0);
+                                        // Horizontal Variable Scope Chips
+                                        render_variable_scope_chips(ui, step, &p);
                                     });
 
-                                ui.add_space(8.0);
-                                
-                                // Algorithm Complexity Card
-                                if let Some(app_meta) = self.current_problem.details().approaches.get(self.selected_approach_id) {
-                                    render_complexity_card(ui, app_meta, &p);
-                                }
-
-                                ui.add_space(8.0);
-                                // Variable Scope Table
-                                render_variable_scope_table(ui, step, &p);
-
-                                ui.add_space(10.0);
-                                ui.label(RichText::new("Python Implementation").strong().color(p.text_muted));
+                                ui.add_space(6.0);
+                                ui.separator();
                                 ui.add_space(6.0);
 
-                                let code_lines = approach_code_lines(self.current_problem, self.selected_approach_id);
+                                // ── 2. SCROLLABLE LOWER CONTENT (Complexity Card + Python Code) ──
+                                egui::ScrollArea::vertical()
+                                    .id_source("right_code_trace_lower_scroll")
+                                    .show(ui, |ui| {
+                                        ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Wrap);
 
-                                egui::ScrollArea::vertical().show(ui, |ui| {
-                                    for (line_num, line_text) in &code_lines {
-                                        let is_active = step.code_line == *line_num;
-                                        let text_color = if is_active { p.text_primary } else { p.text_muted };
-                                        let bg = if is_active { p.code_active_bg } else { Color32::TRANSPARENT };
+                                        // Algorithm Complexity Card
+                                        if let Some(app_meta) = self.current_problem.details().approaches.get(self.selected_approach_id) {
+                                            render_complexity_card(ui, app_meta, &p);
+                                        }
 
-                                        egui::Frame::none()
-                                            .fill(bg)
-                                            .rounding(Rounding::same(4.0))
-                                            .inner_margin(3.0)
-                                            .show(ui, |ui| {
-                                                ui.horizontal(|ui| {
-                                                    ui.label(RichText::new(format!("{:2} | ", line_num)).font(egui::FontId::monospace(11.0)).color(p.text_dim));
-                                                    let mut rt = RichText::new(*line_text).font(egui::FontId::monospace(12.0)).color(text_color);
-                                                    if is_active { rt = rt.strong(); }
-                                                    ui.label(rt);
+                                        ui.add_space(10.0);
+                                        ui.label(RichText::new("Python Implementation").strong().color(p.text_muted));
+                                        ui.add_space(6.0);
+
+                                        let code_lines = approach_code_lines(self.current_problem, self.selected_approach_id);
+                                        let should_auto_focus = self.last_focused_step_idx != Some(self.current_step_idx);
+
+                                        for (line_num, line_text) in &code_lines {
+                                            let is_active = step.code_line == *line_num;
+                                            let text_color = if is_active { p.text_primary } else { p.text_muted };
+                                            let bg = if is_active { p.code_active_bg } else { Color32::TRANSPARENT };
+
+                                            let frame_resp = egui::Frame::none()
+                                                .fill(bg)
+                                                .rounding(Rounding::same(4.0))
+                                                .inner_margin(4.0)
+                                                .show(ui, |ui| {
+                                                    ui.horizontal(|ui| {
+                                                        ui.label(RichText::new(format!("{:2} | ", line_num)).font(egui::FontId::monospace(11.0)).color(p.text_dim));
+                                                        let mut rt = RichText::new(*line_text).font(egui::FontId::monospace(12.0)).color(text_color);
+                                                        if is_active { rt = rt.strong(); }
+                                                        ui.label(rt);
+                                                    });
                                                 });
-                                            });
-                                    }
-                                });
+
+                                            if is_active && should_auto_focus {
+                                                frame_resp.response.scroll_to_me(Some(egui::Align::Center));
+                                                self.last_focused_step_idx = Some(self.current_step_idx);
+                                            }
+                                        }
+                                        ui.add_space(16.0);
+                                    });
                             }
                         }
                         RightTab::ProblemDetails => {
@@ -1339,6 +1526,12 @@ impl eframe::App for VisualizerApp {
                             VisualState::DecisionTreeVisual { current_path, active_choice, completed_results } => {
                                 self.render_decision_tree_visualizer(ui, &p, current_path, active_choice.as_deref(), completed_results);
                             }
+                            VisualState::GridGraph { rows, cols, grid, active_cell, visited_cells, frontier_cells, message } => {
+                                self.render_grid_graph(ui, &p, *rows, *cols, grid, *active_cell, visited_cells, frontier_cells, message);
+                            }
+                            VisualState::NodeGraph { nodes, node_labels, edges, active_node, active_edge, visited_nodes, cycle_edges, topo_order, message } => {
+                                self.render_node_graph(ui, &p, nodes, node_labels, edges, *active_node, *active_edge, visited_nodes, cycle_edges, topo_order, message);
+                            }
                         }
 
                     });
@@ -1448,6 +1641,169 @@ impl VisualizerApp {
                     }
                 });
             });
+        });
+    }
+
+    fn render_grid_graph(&self, ui: &mut egui::Ui, p: &ThemePalette, rows: usize, cols: usize, grid: &[Vec<String>], active_cell: Option<(usize, usize)>, visited_cells: &std::collections::BTreeSet<(usize, usize)>, _frontier_cells: &std::collections::BTreeSet<(usize, usize)>, message: &str) {
+        let z = self.canvas_zoom;
+        ui.heading(RichText::new(format!("2D Grid Graph Explorer: {}", message)).color(p.cyan).size(16.0 * z));
+        ui.add_space(12.0 * z);
+
+        ui.group(|ui| {
+            ui.label(RichText::new(format!("GRID MATRIX ({} Rows x {} Cols)", rows, cols)).font(egui::FontId::monospace(11.0 * z)).color(p.purple));
+            ui.add_space(8.0 * z);
+
+            egui::Grid::new("graph_grid_view").spacing([6.0 * z, 6.0 * z]).show(ui, |ui| {
+                for r in 0..rows {
+                    for c in 0..cols {
+                        let val = grid.get(r).and_then(|row| row.get(c)).cloned().unwrap_or_default();
+                        let is_active = active_cell == Some((r, c));
+                        let is_visited = visited_cells.contains(&(r, c));
+
+                        let bg = if is_active {
+                            p.amber
+                        } else if is_visited {
+                            p.purple
+                        } else if val == "1" {
+                            p.emerald
+                        } else if val == "0" {
+                            p.cyan
+                        } else if val == "-1" {
+                            p.cell_border
+                        } else {
+                            p.cell_bg
+                        };
+
+                        let text_color = if is_active || is_visited || val == "1" || val == "0" { Color32::WHITE } else { p.text_primary };
+
+                        egui::Frame::none()
+                            .fill(bg)
+                            .rounding(Rounding::same(6.0 * z))
+                            .stroke(Stroke::new(1.0 * z, if is_active { p.red } else { p.cell_border }))
+                            .inner_margin(egui::Margin::symmetric((14.0 * z).max(8.0), (10.0 * z).max(6.0)))
+                            .show(ui, |ui| {
+                                ui.label(RichText::new(&val).font(egui::FontId::monospace((15.0 * z).max(10.0))).strong().color(text_color));
+                            });
+                    }
+                    ui.end_row();
+                }
+            });
+        });
+    }
+
+    fn render_node_graph(&self, ui: &mut egui::Ui, p: &ThemePalette, nodes: &[usize], node_labels: &[String], edges: &[(usize, usize)], active_node: Option<usize>, active_edge: Option<(usize, usize)>, visited_nodes: &std::collections::BTreeSet<usize>, cycle_edges: &std::collections::BTreeSet<(usize, usize)>, topo_order: &[usize], message: &str) {
+        let z = self.canvas_zoom;
+        ui.heading(RichText::new(format!("Graph Topology & Connectivity: {}", message)).color(p.cyan).size(16.0 * z));
+        ui.add_space(10.0 * z);
+
+        ui.group(|ui| {
+            ui.label(RichText::new("2D GRAPH TOPOLOGY & DIRECTED EDGES CANVAS").font(egui::FontId::monospace(11.0 * z)).color(p.emerald_text));
+            ui.add_space(8.0 * z);
+
+            let canvas_width = (520.0 * z).max(320.0);
+            let canvas_height = (320.0 * z).max(220.0);
+
+            let (response, painter) = ui.allocate_painter(egui::vec2(canvas_width, canvas_height), egui::Sense::hover());
+            let rect = response.rect;
+
+            // Background canvas fill
+            painter.rect_filled(rect, 8.0 * z, p.step_box_bg);
+            painter.rect_stroke(rect, 8.0 * z, egui::Stroke::new(1.0 * z, p.cell_border));
+
+            let n = nodes.len();
+            if n > 0 {
+                let center = rect.center();
+                let radius = (canvas_height / 2.0 - 45.0 * z).max(50.0);
+
+                // Compute 2D circular positions for all nodes
+                let node_positions: std::collections::BTreeMap<usize, egui::Pos2> = nodes.iter().enumerate().map(|(idx, &u)| {
+                    let angle = (idx as f32 / n as f32) * std::f32::consts::TAU - std::f32::consts::FRAC_PI_2;
+                    let x = center.x + radius * angle.cos();
+                    let y = center.y + radius * angle.sin();
+                    (u, egui::pos2(x, y))
+                }).collect();
+
+                // 1. Draw Directed Edges & Arrowheads
+                for &(u, v) in edges {
+                    if let (Some(&pos_u), Some(&pos_v)) = (node_positions.get(&u), node_positions.get(&v)) {
+                        let is_act = active_edge == Some((u, v));
+                        let is_cycle = cycle_edges.contains(&(u, v));
+
+                        let stroke_color = if is_cycle {
+                            p.red
+                        } else if is_act {
+                            p.amber
+                        } else {
+                            p.cyan
+                        };
+
+                        let stroke_width = if is_cycle || is_act { 3.0 * z } else { 1.5 * z };
+
+                        // Shorten line to stop at node circle boundary
+                        let dir = (pos_v - pos_u).normalized();
+                        let node_r = 22.0 * z;
+                        let start = pos_u + dir * node_r;
+                        let end = pos_v - dir * node_r;
+
+                        // Draw edge line
+                        painter.line_segment([start, end], egui::Stroke::new(stroke_width, stroke_color));
+
+                        // Draw arrowhead
+                        let arrow_len = 10.0 * z;
+                        let perp = egui::vec2(-dir.y, dir.x);
+                        let p1 = end - dir * arrow_len + perp * (arrow_len * 0.5);
+                        let p2 = end - dir * arrow_len - perp * (arrow_len * 0.5);
+                        painter.line_segment([end, p1], egui::Stroke::new(stroke_width, stroke_color));
+                        painter.line_segment([end, p2], egui::Stroke::new(stroke_width, stroke_color));
+                    }
+                }
+
+                // 2. Draw Circular Nodes with Labels
+                for (idx, &u) in nodes.iter().enumerate() {
+                    if let Some(&pos) = node_positions.get(&u) {
+                        let label = node_labels.get(idx).cloned().unwrap_or_else(|| format!("{}", u));
+                        let short_label = if label.starts_with("Course ") {
+                            label.replace("Course ", "C")
+                        } else if label.starts_with("Node ") {
+                            label.replace("Node ", "N")
+                        } else {
+                            label.clone()
+                        };
+
+                        let is_act = active_node == Some(u);
+                        let is_vis = visited_nodes.contains(&u);
+
+                        let fill_color = if is_act {
+                            p.amber
+                        } else if is_vis {
+                            p.purple
+                        } else {
+                            p.cell_bg
+                        };
+
+                        let border_color = if is_act { p.red } else if is_vis { p.emerald_text } else { p.cyan };
+                        let node_r = 22.0 * z;
+
+                        // Draw node circle
+                        painter.circle_filled(pos, node_r, fill_color);
+                        painter.circle_stroke(pos, node_r, egui::Stroke::new(2.0 * z, border_color));
+
+                        // Draw node text label centered
+                        painter.text(
+                            pos,
+                            egui::Align2::CENTER_CENTER,
+                            short_label,
+                            egui::FontId::monospace((13.0 * z).max(9.0)),
+                            Color32::WHITE,
+                        );
+                    }
+                }
+            }
+
+            if !topo_order.is_empty() {
+                ui.add_space(10.0 * z);
+                ui.label(RichText::new(format!("TOPOLOGICAL SORT ORDER: {:?}", topo_order)).font(egui::FontId::monospace(12.0 * z)).color(p.cyan).strong());
+            }
         });
     }
 
@@ -2916,7 +3272,7 @@ fn render_complexity_card(ui: &mut egui::Ui, app_meta: &ApproachMeta, p: &ThemeP
         });
 }
 
-fn render_variable_scope_table(ui: &mut egui::Ui, step: &Step, p: &ThemePalette) {
+fn render_variable_scope_chips(ui: &mut egui::Ui, step: &Step, p: &ThemePalette) {
     let vars = step.visual.variables();
     if vars.is_empty() {
         return;
@@ -2925,24 +3281,34 @@ fn render_variable_scope_table(ui: &mut egui::Ui, step: &Step, p: &ThemePalette)
     egui::Frame::group(ui.style())
         .fill(p.step_box_bg)
         .rounding(Rounding::same(8.0))
-        .inner_margin(10.0)
+        .inner_margin(8.0)
         .show(ui, |ui| {
-            ui.label(RichText::new("🔍 Variable Scope Table").strong().color(p.amber).size(12.0));
-            ui.add_space(6.0);
+            ui.spacing_mut().scroll.bar_width = 3.0;
+            ui.spacing_mut().scroll.handle_min_length = 16.0;
 
-            egui::Grid::new("var_scope_grid")
-                .striped(true)
-                .spacing([12.0, 4.0])
+            egui::ScrollArea::horizontal()
+                .id_source("scope_chips_horizontal_scroll")
                 .show(ui, |ui| {
-                    ui.label(RichText::new("Variable").font(egui::FontId::monospace(11.0)).color(p.text_muted).strong());
-                    ui.label(RichText::new("Value").font(egui::FontId::monospace(11.0)).color(p.text_muted).strong());
-                    ui.end_row();
+                    ui.horizontal(|ui| {
+                        ui.label(RichText::new("🔍 Scope:").strong().color(p.amber).size(12.0));
+                        ui.add_space(4.0);
 
-                    for (name, val) in vars {
-                        ui.label(RichText::new(name).font(egui::FontId::monospace(12.0)).color(p.cyan).strong());
-                        ui.label(RichText::new(val).font(egui::FontId::monospace(12.0)).color(p.emerald_text));
-                        ui.end_row();
-                    }
+                        for (name, val) in vars {
+                            let chip_resp = egui::Frame::none()
+                                .fill(p.cell_bg)
+                                .rounding(Rounding::same(4.0))
+                                .inner_margin(egui::Margin::symmetric(6.0, 3.0))
+                                .show(ui, |ui| {
+                                    ui.horizontal(|ui| {
+                                        ui.label(RichText::new(format!("{}:", name)).font(egui::FontId::monospace(11.0)).color(p.cyan).strong());
+                                        ui.label(RichText::new(&val).font(egui::FontId::monospace(11.0)).color(p.emerald_text).strong());
+                                    });
+                                });
+
+                            chip_resp.response.on_hover_text(format!("{}: {}", name, val));
+                            ui.add_space(4.0);
+                        }
+                    });
                 });
         });
 }

@@ -58,5 +58,11 @@ pub mod find_median_sorted_arrays;
 pub mod trie;
 pub mod heap;
 pub mod backtracking;
+pub mod dp1d;
+pub mod bit_math;
+pub mod greedy_intervals;
+pub mod graphs;
+pub mod dp2d;
+pub mod advanced_graphs;
 
 
