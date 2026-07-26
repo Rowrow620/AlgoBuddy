@@ -45,6 +45,19 @@
             100% { transform: rotate(360deg); }
         }
     </style>
+    <script>
+        window.addEventListener('error', function(e) {
+            var loading = document.getElementById('loading_text');
+            if (loading) {
+                loading.style.pointerEvents = 'auto';
+                loading.innerHTML = '<div style="color:#ef4444; font-family:sans-serif; padding:20px; background:#262626; border-radius:8px; max-width:500px; margin:auto; border:1px solid #7f1d1d;">' +
+                    '<h3 style="margin-top:0">⚠️ WebAssembly Load Error</h3>' +
+                    '<p style="font-family:monospace; font-size:13px; background:#171717; padding:10px; border-radius:4px; text-align:left;">' + (e.message || e) + '</p>' +
+                    '<p style="color:#a3a3a3; font-size:12px;">Please check developer console (F12) for details.</p>' +
+                    '</div>';
+            }
+        });
+    </script>
 </head>
 <body>
     <canvas id="the_canvas_id"></canvas>
