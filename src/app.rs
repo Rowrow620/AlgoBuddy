@@ -591,12 +591,11 @@ impl eframe::App for VisualizerApp {
 
         self.render_settings_modal(ctx);
 
-        // ── Left Sidebar: NeetCode Roadmap Navigation ──
         if self.show_roadmap_sidebar {
             egui::SidePanel::left("roadmap_sidebar")
-                .min_width(260.0)
+                .min_width(280.0)
                 .max_width(450.0)
-                .default_width(300.0)
+                .default_width(320.0)
                 .frame(Frame::none().inner_margin(12.0).fill(p.sidebar_bg))
                 .show(ctx, |ui| {
                     ui.horizontal(|ui| {
@@ -607,25 +606,42 @@ impl eframe::App for VisualizerApp {
                             }
                         });
                     });
+
                     ui.add_space(8.0);
 
+                    // Filter controls: Direct keyword search & Difficulty toggles
                     ui.horizontal(|ui| {
                         ui.label(RichText::new("🔍").font(egui::FontId::proportional(12.0)));
-                        ui.add(egui::TextEdit::singleline(&mut self.search_query).hint_text("Search problem...").desired_width(190.0));
+                        ui.add(
+                            egui::TextEdit::singleline(&mut self.search_query)
+                                .hint_text("Search problem...")
+                                .desired_width(180.0),
+                        );
                     });
 
-                    ui.add_space(8.0);
+                    ui.add_space(4.0);
 
                     ui.horizontal(|ui| {
                         ui.label(RichText::new("Diff:").font(egui::FontId::proportional(11.0)).color(p.text_muted));
-                        if ui.selectable_label(self.selected_difficulty.is_none(), "All").clicked() { self.selected_difficulty = None; }
-                        if ui.selectable_label(self.selected_difficulty == Some(Difficulty::Easy), "Easy").clicked() { self.selected_difficulty = Some(Difficulty::Easy); }
-                        if ui.selectable_label(self.selected_difficulty == Some(Difficulty::Medium), "Med").clicked() { self.selected_difficulty = Some(Difficulty::Medium); }
-                        if ui.selectable_label(self.selected_difficulty == Some(Difficulty::Hard), "Hard").clicked() { self.selected_difficulty = Some(Difficulty::Hard); }
+
+                        if ui.selectable_label(self.selected_difficulty.is_none(), "All").clicked() {
+                            self.selected_difficulty = None;
+                        }
+                        if ui.selectable_label(self.selected_difficulty == Some(Difficulty::Easy), RichText::new("Easy").color(difficulty_color(Difficulty::Easy, &p))).clicked() {
+                            self.selected_difficulty = Some(Difficulty::Easy);
+                        }
+                        if ui.selectable_label(self.selected_difficulty == Some(Difficulty::Medium), RichText::new("Med").color(difficulty_color(Difficulty::Medium, &p))).clicked() {
+                            self.selected_difficulty = Some(Difficulty::Medium);
+                        }
+                        if ui.selectable_label(self.selected_difficulty == Some(Difficulty::Hard), RichText::new("Hard").color(difficulty_color(Difficulty::Hard, &p))).clicked() {
+                            self.selected_difficulty = Some(Difficulty::Hard);
+                        }
                     });
 
+
+                    ui.add_space(6.0);
                     ui.separator();
-                    ui.add_space(4.0);
+                    ui.add_space(6.0);
 
                     egui::ScrollArea::vertical().show(ui, |ui| {
                         for &category in Category::all() {
@@ -671,17 +687,22 @@ impl eframe::App for VisualizerApp {
                                                     ui.label(RichText::new(prob.difficulty().label()).font(egui::FontId::monospace(10.0)).color(diff_color));
 
                                                     ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                                                        ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Truncate);
+
                                                         let btn_rt = RichText::new(format!("#{} {}", prob.id(), prob.title()))
                                                             .font(egui::FontId::proportional(12.0));
                                                         let btn_text = if is_selected {
                                                             btn_rt.color(p.cyan).strong()
                                                         } else {
                                                             btn_rt.color(p.text_primary)
+
                                                         };
 
-                                                        if ui.selectable_label(is_selected, btn_text).clicked() {
+                                                        let resp = ui.selectable_label(is_selected, btn_text);
+                                                        if resp.clicked() {
                                                             self.select_problem(prob);
                                                         }
+                                                        resp.on_hover_text(format!("#{} {} ({})", prob.id(), prob.title(), prob.difficulty().label()));
                                                     });
                                                 });
                                             });
@@ -693,6 +714,7 @@ impl eframe::App for VisualizerApp {
                     });
                 });
         }
+
 
         // ── Top Header Panel ──
         egui::TopBottomPanel::top("header_panel")
