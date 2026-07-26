@@ -8,3 +8,7 @@ releases/
 
 # OS files
 .DS_Store
+
+# Trunk build output
+/dist
+

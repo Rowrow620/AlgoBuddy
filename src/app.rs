@@ -59,7 +59,9 @@ use crate::algorithms::{
     find_min_rotated::generate_find_min_rotated_steps,
     time_key_value_store::generate_time_key_value_store_steps,
     find_median_sorted_arrays::generate_find_median_sorted_arrays_steps,
+    trie::*,
 };
+
 
 use crate::model::*;
 
@@ -126,11 +128,19 @@ pub struct VisualizerApp {
     two_pointer_nums_input: String,
     two_pointer_target_input: i32,
 
+    trie_words_input: String,
+    trie_search_input: String,
+    word_dict_words_input: String,
+    word_dict_pattern_input: String,
+    word_search_ii_words_input: String,
+
     // Playback state
+
     steps: Vec<Step>,
     current_step_idx: usize,
     is_playing: bool,
     playback_speed_ms: u64,
+    playback_speed_mult: f32,
     last_step_time: Instant,
 
 
@@ -194,10 +204,18 @@ impl Default for VisualizerApp {
             two_pointer_nums_input: "2, 7, 11, 15".to_string(),
             two_pointer_target_input: 9,
 
+            trie_words_input: "apple, app, ape".to_string(),
+            trie_search_input: "app".to_string(),
+            word_dict_words_input: "bad, dad, mad".to_string(),
+            word_dict_pattern_input: ".ad".to_string(),
+            word_search_ii_words_input: "oath, pea, eat, rain".to_string(),
+
             steps: Vec::new(),
+
             current_step_idx: 0,
             is_playing: false,
             playback_speed_ms: 600,
+            playback_speed_mult: 1.0,
             last_step_time: Instant::now(),
 
 
@@ -480,7 +498,23 @@ impl VisualizerApp {
             }
             Problem::TimeKeyValueStore => generate_time_key_value_store_steps(),
             Problem::FindMedianSortedArrays => generate_find_median_sorted_arrays_steps(&[1, 3], &[2, 4]),
+            Problem::ImplementTrie => {
+                let insert_words: Vec<String> = self.trie_words_input.split(',')
+                    .map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect();
+                generate_implement_trie_steps(&insert_words, &self.trie_search_input)
+            }
+            Problem::WordDictionary => {
+                let words: Vec<String> = self.word_dict_words_input.split(',')
+                    .map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect();
+                generate_word_dictionary_steps(&words, &self.word_dict_pattern_input)
+            }
+            Problem::WordSearchII => {
+                let words: Vec<String> = self.word_search_ii_words_input.split(',')
+                    .map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect();
+                generate_word_search_ii_steps(&words)
+            }
         };
+
 
         self.current_step_idx = 0;
         self.is_playing = false;
@@ -813,8 +847,14 @@ impl eframe::App for VisualizerApp {
                             self.show_settings_modal = true;
                         }
 
-                        if let Some(active_approach) = details.approaches.get(self.selected_approach_id) {
-                            ui.label(RichText::new(format!("Time: {} | Space: {}", active_approach.time_complexity, active_approach.space_complexity)).font(egui::FontId::monospace(12.0)).color(p.emerald_text).strong());
+                        ui.add_space(8.0);
+                        if ui.button(RichText::new(format!("🌐 LeetCode #{} ↗", details.id)).strong().color(p.cyan)).clicked() {
+                            #[cfg(not(target_arch = "wasm32"))]
+                            let _ = open::that(details.leetcode_url);
+                            #[cfg(target_arch = "wasm32")]
+                            if let Some(win) = web_sys::window() {
+                                let _ = win.open_with_url_and_target(details.leetcode_url, "_blank");
+                            }
                         }
                     });
                 });
@@ -831,191 +871,6 @@ impl eframe::App for VisualizerApp {
                             self.selected_approach_id = approach.id;
                             self.recompute_steps();
                         }
-                    }
-                });
-
-                ui.add_space(6.0);
-
-                // Per-problem Controls & Inputs
-                ui.horizontal(|ui| {
-                    match self.current_problem {
-                        Problem::ContainsDuplicate => {
-                            ui.label(RichText::new("nums:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.contains_dup_nums_input).desired_width(200.0));
-                        }
-                        Problem::TwoSum => {
-                            ui.label(RichText::new("nums:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.two_sum_nums_input).desired_width(160.0));
-                            ui.label(RichText::new("target:").strong());
-                            if ui.add(egui::DragValue::new(&mut self.two_sum_target_input).speed(1.0)).changed() { self.recompute_steps(); }
-                        }
-                        Problem::ValidAnagram => {
-                            ui.label(RichText::new("s:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.valid_anagram_s_input).desired_width(120.0));
-                            ui.label(RichText::new("t:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.valid_anagram_t_input).desired_width(120.0));
-                        }
-                        Problem::GroupAnagrams => {
-                            ui.label(RichText::new("strings:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.group_anagrams_input).desired_width(260.0));
-                        }
-                        Problem::TopKFrequent => {
-                            ui.label(RichText::new("nums:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.topk_nums_input).desired_width(140.0));
-                            ui.label(RichText::new("k:").strong());
-                            if ui.add(egui::DragValue::new(&mut self.topk_k_input).speed(1.0).range(1..=10)).changed() { self.recompute_steps(); }
-                        }
-                        Problem::ProductExceptSelf => {
-                            ui.label(RichText::new("nums:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.prod_nums_input).desired_width(200.0));
-                        }
-                        Problem::EncodeDecode => {
-                            ui.label(RichText::new("Strings (comma-separated):").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.ed_strs_input).desired_width(260.0));
-                        }
-                        Problem::ValidSudoku => {
-                            ui.label(RichText::new("Board Preset:").strong());
-                            if ui.selectable_label(self.sudoku_preset_valid, "Valid Board (Image Ex 1)").clicked() {
-                                self.sudoku_preset_valid = true;
-                                self.recompute_steps();
-                            }
-                            if ui.selectable_label(!self.sudoku_preset_valid, "Invalid Board (Ex 2 Duplicate 1)").clicked() {
-                                self.sudoku_preset_valid = false;
-                                self.recompute_steps();
-                            }
-                        }
-                        Problem::LongestConsecutive => {
-                            ui.label(RichText::new("nums:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.longest_consecutive_nums_input).desired_width(240.0));
-                        }
-                        Problem::ValidPalindrome => {
-                            ui.label(RichText::new("String s:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.palindrome_s_input).desired_width(300.0));
-                        }
-                        Problem::BestTimeStock => {
-                            ui.label(RichText::new("prices:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.stock_prices_input).desired_width(220.0));
-                        }
-                        Problem::ValidParentheses => {
-                            ui.label(RichText::new("String s:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.parentheses_s_input).desired_width(200.0));
-                        }
-                        Problem::BinarySearch => {
-                            ui.label(RichText::new("nums (sorted):").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.binary_search_nums_input).desired_width(200.0));
-                            ui.label(RichText::new("target:").strong());
-                            if ui.add(egui::DragValue::new(&mut self.binary_search_target_input).speed(1.0)).changed() { self.recompute_steps(); }
-                        }
-                        Problem::ReverseLinkedList => {
-                            ui.label(RichText::new("head nodes:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.linked_list_nodes_input).desired_width(200.0));
-                        }
-                        Problem::MergeTwoLists => {
-                            ui.label(RichText::new("list1:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.merge_list1_input).desired_width(120.0));
-                            ui.label(RichText::new("list2:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.merge_list2_input).desired_width(120.0));
-                        }
-                        Problem::LinkedListCycle => {
-                            ui.label(RichText::new("head nodes:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.cycle_nodes_input).desired_width(140.0));
-                            ui.label(RichText::new("cycle index (-1=none):").strong());
-                            if ui.add(egui::DragValue::new(&mut self.cycle_index_input).speed(1.0).range(-1..=20)).changed() { self.recompute_steps(); }
-                        }
-                        Problem::InvertTree | Problem::MaxDepthTree | Problem::DiameterTree | Problem::BalancedTree | Problem::SameTree | Problem::Subtree => {
-                            ui.label(RichText::new("root level-order (use 'null' for empty):").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.tree_nodes_input).desired_width(260.0));
-                        }
-                        Problem::TwoSumII => {
-                            ui.label(RichText::new("nums (sorted):").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.two_pointer_nums_input).desired_width(180.0));
-                            ui.label(RichText::new("target:").strong());
-                            if ui.add(egui::DragValue::new(&mut self.two_pointer_target_input).speed(1.0)).changed() { self.recompute_steps(); }
-                        }
-                        Problem::ThreeSum | Problem::ContainerWater | Problem::TrappingRain => {
-                            ui.label(RichText::new("nums:").strong());
-                            ui.add(egui::TextEdit::singleline(&mut self.two_pointer_nums_input).desired_width(280.0));
-                        }
-                        _ => {}
-                    }
-
-                    if ui.button(RichText::new("Apply").strong().color(p.text_primary)).clicked() {
-                        self.recompute_steps();
-                    }
-
-                    ui.separator();
-                    ui.label(RichText::new("Presets:").strong());
-                    match self.current_problem {
-                        Problem::ContainsDuplicate => {
-                            if ui.button("[1,2,3,1]").clicked() { self.contains_dup_nums_input = "1,2,3,1".into(); self.recompute_steps(); }
-                            if ui.button("[1,2,3,4]").clicked() { self.contains_dup_nums_input = "1,2,3,4".into(); self.recompute_steps(); }
-                        }
-                        Problem::TwoSum => {
-                            if ui.button("[2,7,11,15] t=9").clicked() { self.two_sum_nums_input = "2,7,11,15".into(); self.two_sum_target_input = 9; self.recompute_steps(); }
-                        }
-                        Problem::ValidAnagram => {
-                            if ui.button("anagram / nagaram").clicked() { self.valid_anagram_s_input = "anagram".into(); self.valid_anagram_t_input = "nagaram".into(); self.recompute_steps(); }
-                        }
-                        Problem::GroupAnagrams => {
-                            if ui.button("eat, tea, tan, ate, nat, bat").clicked() { self.group_anagrams_input = "eat, tea, tan, ate, nat, bat".into(); self.recompute_steps(); }
-                            if ui.button("a").clicked() { self.group_anagrams_input = "a".into(); self.recompute_steps(); }
-                        }
-                        Problem::TopKFrequent => {
-                            if ui.button("[1,1,1,2,2,3] k=2").clicked() { self.topk_nums_input = "1,1,1,2,2,3".into(); self.topk_k_input = 2; self.recompute_steps(); }
-                        }
-                        Problem::ProductExceptSelf => {
-                            if ui.button("[1,2,4,6]").clicked() { self.prod_nums_input = "1,2,4,6".into(); self.recompute_steps(); }
-                            if ui.button("[-1,0,1,2,3]").clicked() { self.prod_nums_input = "-1,0,1,2,3".into(); self.recompute_steps(); }
-                        }
-                        Problem::EncodeDecode => {
-                            if ui.button("[Hello, World]").clicked() { self.ed_strs_input = "Hello, World".into(); self.recompute_steps(); }
-                        }
-                        Problem::ValidSudoku => {
-                            if ui.button("Valid Board Ex 1").clicked() { self.sudoku_preset_valid = true; self.recompute_steps(); }
-                            if ui.button("Invalid Board Ex 2").clicked() { self.sudoku_preset_valid = false; self.recompute_steps(); }
-                        }
-                        Problem::LongestConsecutive => {
-                            if ui.button("[2,20,4,10,3,4,5]").clicked() { self.longest_consecutive_nums_input = "2,20,4,10,3,4,5".into(); self.recompute_steps(); }
-                            if ui.button("[0,3,2,5,4,6,1,1]").clicked() { self.longest_consecutive_nums_input = "0,3,2,5,4,6,1,1".into(); self.recompute_steps(); }
-                        }
-                        Problem::ValidPalindrome => {
-                            if ui.button("Was it a car...").clicked() { self.palindrome_s_input = "Was it a car or a cat I saw?".into(); self.recompute_steps(); }
-                        }
-                        Problem::BestTimeStock => {
-                            if ui.button("[10,1,5,6,7,1]").clicked() { self.stock_prices_input = "10,1,5,6,7,1".into(); self.recompute_steps(); }
-                        }
-                        Problem::ValidParentheses => {
-                            if ui.button("([{}])").clicked() { self.parentheses_s_input = "([{}])".into(); self.recompute_steps(); }
-                        }
-                        Problem::BinarySearch => {
-                            if ui.button("[-1,0,2,4,6,8] t=4").clicked() { self.binary_search_nums_input = "-1,0,2,4,6,8".into(); self.binary_search_target_input = 4; self.recompute_steps(); }
-                        }
-                        Problem::ReverseLinkedList => {
-                            if ui.button("[0,1,2,3]").clicked() { self.linked_list_nodes_input = "0,1,2,3".into(); self.recompute_steps(); }
-                        }
-                        Problem::MergeTwoLists => {
-                            if ui.button("[1,2,4] & [1,3,5]").clicked() { self.merge_list1_input = "1,2,4".into(); self.merge_list2_input = "1,3,5".into(); self.recompute_steps(); }
-                        }
-                        Problem::LinkedListCycle => {
-                            if ui.button("[1,2,3,4] idx=1").clicked() { self.cycle_nodes_input = "1,2,3,4".into(); self.cycle_index_input = 1; self.recompute_steps(); }
-                        }
-                        Problem::InvertTree | Problem::MaxDepthTree | Problem::DiameterTree | Problem::BalancedTree | Problem::SameTree | Problem::Subtree => {
-                            if ui.button("[1,2,3,4,5,6,7]").clicked() { self.tree_nodes_input = "1,2,3,4,5,6,7".into(); self.recompute_steps(); }
-                        }
-                        Problem::TwoSumII => {
-                            if ui.button("[2,7,11,15] t=9").clicked() { self.two_pointer_nums_input = "2,7,11,15".into(); self.two_pointer_target_input = 9; self.recompute_steps(); }
-                            if ui.button("[2,3,4] t=6").clicked() { self.two_pointer_nums_input = "2,3,4".into(); self.two_pointer_target_input = 6; self.recompute_steps(); }
-                        }
-                        Problem::ThreeSum => {
-                            if ui.button("[-1,0,1,2,-1,-4]").clicked() { self.two_pointer_nums_input = "-1,0,1,2,-1,-4".into(); self.recompute_steps(); }
-                        }
-                        Problem::ContainerWater => {
-                            if ui.button("[1,8,6,2,5,4,8,3,7]").clicked() { self.two_pointer_nums_input = "1,8,6,2,5,4,8,3,7".into(); self.recompute_steps(); }
-                        }
-                        Problem::TrappingRain => {
-                            if ui.button("[0,1,0,2,1,0,1,3,2,1,2,1]").clicked() { self.two_pointer_nums_input = "0,1,0,2,1,0,1,3,2,1,2,1".into(); self.recompute_steps(); }
-                        }
-                        _ => {}
                     }
                 });
 
@@ -1042,8 +897,15 @@ impl eframe::App for VisualizerApp {
                     ui.add(egui::Slider::new(&mut self.current_step_idx, 0..=max_idx).show_value(false));
 
                     ui.separator();
-                    ui.label("Speed:");
-                    ui.add(egui::Slider::new(&mut self.playback_speed_ms, 100..=1500).text("ms"));
+                    ui.label(RichText::new("Speed:").strong().color(p.text_primary));
+                    let slider_resp = ui.add(
+                        egui::Slider::new(&mut self.playback_speed_mult, 0.25..=4.0)
+                            .step_by(0.05)
+                            .custom_formatter(|val, _| format!("{:.2}x", val))
+                    );
+                    if slider_resp.changed() {
+                        self.playback_speed_ms = (600.0 / self.playback_speed_mult.max(0.1)).round() as u64;
+                    }
                 });
             });
 
@@ -1089,7 +951,18 @@ impl eframe::App for VisualizerApp {
                                         ui.label(RichText::new(&step.description).font(egui::FontId::proportional(13.0)).color(p.text_primary));
                                     });
 
-                                ui.add_space(12.0);
+                                ui.add_space(8.0);
+                                
+                                // Algorithm Complexity Card
+                                if let Some(app_meta) = self.current_problem.details().approaches.get(self.selected_approach_id) {
+                                    render_complexity_card(ui, app_meta, &p);
+                                }
+
+                                ui.add_space(8.0);
+                                // Variable Scope Table
+                                render_variable_scope_table(ui, step, &p);
+
+                                ui.add_space(10.0);
                                 ui.label(RichText::new("Python Implementation").strong().color(p.text_muted));
                                 ui.add_space(6.0);
 
@@ -1213,6 +1086,10 @@ impl eframe::App for VisualizerApp {
                     }
                 }
 
+                // Custom Test Case Sandbox Input Bar
+                self.render_custom_playground_bar(ui, &p);
+                ui.add_space(8.0);
+
                 if let Some(step) = self.steps.get(self.current_step_idx) {
                     // Live State Inspector Banner with Zoom Controls
                     egui::Frame::none()
@@ -1248,7 +1125,8 @@ impl eframe::App for VisualizerApp {
                     ui.add_space(14.0);
 
 
-                    egui::ScrollArea::vertical().show(ui, |ui| {
+                    egui::ScrollArea::both().show(ui, |ui| {
+
                         match &step.visual {
                             VisualState::ContainsDuplicate { nums, active_idx, seen_set, duplicate_val, has_duplicate } => {
                                 self.render_contains_duplicate(ui, &p, nums, *active_idx, seen_set, *duplicate_val, *has_duplicate);
@@ -1301,7 +1179,11 @@ impl eframe::App for VisualizerApp {
                             VisualState::Product { nums, output, active_idx, prefix_val, suffix_val, phase } => {
                                 self.render_product(ui, &p, nums, output, *active_idx, *prefix_val, *suffix_val, phase);
                             }
+                            VisualState::Trie { .. } => {
+                                self.render_trie(ui, &p);
+                            }
                         }
+
                     });
 
                 }
@@ -1309,6 +1191,7 @@ impl eframe::App for VisualizerApp {
 
     }
 }
+
 
 // ── Visual Canvas Renderers ──
 
@@ -1383,47 +1266,54 @@ impl VisualizerApp {
     }
 
     fn render_group_anagrams(&self, ui: &mut egui::Ui, p: &ThemePalette, input_strs: &[String], active_idx: Option<usize>, key_fmt: &str, groups: &std::collections::BTreeMap<String, Vec<String>>) {
-        ui.heading(RichText::new("Group Anagrams (HashMap Buckets)").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_label = (11.0 * z).max(8.0);
+        let font_sz = (14.0 * z).max(9.0);
+        let font_small = (10.0 * z).max(8.0);
+        let margin = (10.0 * z).max(4.0);
+
+        ui.heading(RichText::new("Group Anagrams (HashMap Buckets)").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
 
         ui.group(|ui| {
-            ui.label(RichText::new("INPUT STRINGS ARRAY").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+            ui.label(RichText::new("INPUT STRINGS ARRAY").font(egui::FontId::monospace(font_label)).color(p.text_muted));
             ui.horizontal(|ui| {
                 for (i, s) in input_strs.iter().enumerate() {
                     let is_active = active_idx == Some(i);
                     let fill = if is_active { p.amber } else { p.cell_bg };
 
-                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(10.0).show(ui, |ui| {
-                        ui.label(RichText::new(format!("\"{}\"", s)).font(egui::FontId::monospace(14.0)).strong().color(Color32::WHITE));
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
+                        ui.label(RichText::new(format!("\"{}\"", s)).font(egui::FontId::monospace(font_sz)).strong().color(Color32::WHITE));
                     });
                 }
             });
         });
 
         if !key_fmt.is_empty() {
-            ui.add_space(16.0);
-            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cyan)).inner_margin(10.0).show(ui, |ui| {
-                ui.label(RichText::new(format!("Computed Anagram Key Signature: {}", key_fmt)).font(egui::FontId::monospace(13.0)).strong().color(p.cyan));
+            ui.add_space(16.0 * z);
+            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cyan)).inner_margin(margin).show(ui, |ui| {
+                ui.label(RichText::new(format!("Computed Anagram Key Signature: {}", key_fmt)).font(egui::FontId::monospace((13.0 * z).max(9.0))).strong().color(p.cyan));
             });
         }
 
-        ui.add_space(20.0);
+        ui.add_space(20.0 * z);
 
         ui.group(|ui| {
-            ui.label(RichText::new("HASHMAP GROUPS {signature -> list of words}").font(egui::FontId::monospace(11.0)).color(p.emerald_text));
+            ui.label(RichText::new("HASHMAP GROUPS {signature -> list of words}").font(egui::FontId::monospace(font_label)).color(p.emerald_text));
             ui.horizontal_wrapped(|ui| {
                 if groups.is_empty() {
                     ui.label(RichText::new("No groups formed yet...").italics().color(p.text_dim));
                 } else {
                     for (key, items) in groups {
-                        egui::Frame::none().fill(p.sidebar_bg).rounding(Rounding::same(10.0)).stroke(Stroke::new(1.0_f32, p.emerald)).inner_margin(12.0).show(ui, |ui| {
+                        egui::Frame::none().fill(p.sidebar_bg).rounding(Rounding::same(10.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.emerald)).inner_margin((12.0 * z).max(6.0)).show(ui, |ui| {
                             ui.vertical(|ui| {
-                                ui.label(RichText::new(format!("Key: {}", key)).font(egui::FontId::monospace(10.0)).color(p.text_muted));
+                                ui.label(RichText::new(format!("Key: {}", key)).font(egui::FontId::monospace(font_small)).color(p.text_muted));
                                 ui.separator();
                                 ui.horizontal(|ui| {
                                     for word in items {
-                                        egui::Frame::none().fill(p.emerald).rounding(Rounding::same(6.0)).inner_margin(6.0).show(ui, |ui| {
-                                            ui.label(RichText::new(format!("\"{}\"", word)).font(egui::FontId::monospace(14.0)).strong().color(Color32::WHITE));
+                                        egui::Frame::none().fill(p.emerald).rounding(Rounding::same(6.0 * z)).inner_margin((6.0 * z).max(3.0)).show(ui, |ui| {
+                                            ui.label(RichText::new(format!("\"{}\"", word)).font(egui::FontId::monospace(font_sz)).strong().color(Color32::WHITE));
                                         });
                                     }
                                 });
@@ -1436,28 +1326,34 @@ impl VisualizerApp {
     }
 
     fn render_longest_consecutive(&self, ui: &mut egui::Ui, p: &ThemePalette, nums: &[i32], num_set: &std::collections::BTreeSet<i32>, curr_num: Option<i32>, curr_seq: &[i32], max_len: usize, is_seq_start: Option<bool>) {
-        ui.heading(RichText::new("Longest Consecutive Sequence (HashSet O(N))").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_label = (11.0 * z).max(8.0);
+        let font_sz = (16.0 * z).max(9.0);
+        let margin = (8.0 * z).max(4.0);
+
+        ui.heading(RichText::new("Longest Consecutive Sequence (HashSet O(N))").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
 
         ui.group(|ui| {
-            ui.label(RichText::new("INPUT ARRAY (nums)").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+            ui.label(RichText::new("INPUT ARRAY (nums)").font(egui::FontId::monospace(font_label)).color(p.text_muted));
             ui.horizontal(|ui| {
                 for &val in nums {
                     let is_curr = curr_num == Some(val);
                     let is_in_seq = curr_seq.contains(&val);
                     let fill = if is_in_seq { p.emerald } else if is_curr { p.amber } else { p.cell_bg };
 
-                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(8.0).show(ui, |ui| {
-                        ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
+                        ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(font_sz)).strong().color(Color32::WHITE));
                     });
                 }
             });
         });
 
-        ui.add_space(16.0);
+        ui.add_space(16.0 * z);
 
         ui.group(|ui| {
-            ui.label(RichText::new("NUMSET (HashSet of unique values)").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+            ui.label(RichText::new("NUMSET (HashSet of unique values)").font(egui::FontId::monospace(font_label)).color(p.text_muted));
             ui.horizontal_wrapped(|ui| {
                 for &val in num_set {
                     let is_curr = curr_num == Some(val);
@@ -1471,59 +1367,65 @@ impl VisualizerApp {
                         p.cell_bg
                     };
 
-                    egui::Frame::none().fill(fill).rounding(Rounding::same(6.0)).stroke(Stroke::new(1.0_f32, p.purple)).inner_margin(8.0).show(ui, |ui| {
-                        ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(14.0)).strong().color(Color32::WHITE));
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(6.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.purple)).inner_margin(margin).show(ui, |ui| {
+                        ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace((14.0 * z).max(9.0))).strong().color(Color32::WHITE));
                     });
                 }
             });
         });
 
-        ui.add_space(20.0);
+        ui.add_space(20.0 * z);
 
         ui.horizontal(|ui| {
             ui.group(|ui| {
-                ui.label(RichText::new("CURRENT STREAK SEQUENCE").font(egui::FontId::monospace(11.0)).color(p.emerald_text));
+                ui.label(RichText::new("CURRENT STREAK SEQUENCE").font(egui::FontId::monospace(font_label)).color(p.emerald_text));
                 ui.horizontal(|ui| {
                     if curr_seq.is_empty() {
-                        ui.label(RichText::new("None (searching for sequence start...)").font(egui::FontId::monospace(14.0)).color(p.text_dim));
+                        ui.label(RichText::new("None (searching for sequence start...)").font(egui::FontId::monospace((14.0 * z).max(9.0))).color(p.text_dim));
                     } else {
                         for (i, &val) in curr_seq.iter().enumerate() {
-                            egui::Frame::none().fill(p.emerald).rounding(Rounding::same(8.0)).inner_margin(10.0).show(ui, |ui| {
-                                ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(18.0)).strong().color(Color32::WHITE));
+                            egui::Frame::none().fill(p.emerald).rounding(Rounding::same(8.0 * z)).inner_margin((10.0 * z).max(4.0)).show(ui, |ui| {
+                                ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace((18.0 * z).max(10.0))).strong().color(Color32::WHITE));
                             });
                             if i + 1 < curr_seq.len() {
-                                ui.label(RichText::new("->").font(egui::FontId::monospace(14.0)).color(p.cyan));
+                                ui.label(RichText::new("->").font(egui::FontId::monospace((14.0 * z).max(9.0))).color(p.cyan));
                             }
                         }
                     }
                 });
             });
 
-            ui.add_space(20.0);
+            ui.add_space(20.0 * z);
 
-            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.emerald_text)).inner_margin(12.0).show(ui, |ui| {
+            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.emerald_text)).inner_margin((12.0 * z).max(5.0)).show(ui, |ui| {
                 ui.vertical(|ui| {
-                    ui.label(RichText::new("Max Streak (longest)").font(egui::FontId::proportional(11.0)).color(p.text_muted));
-                    ui.label(RichText::new(format!("{}", max_len)).font(egui::FontId::monospace(22.0)).strong().color(p.emerald_text));
+                    ui.label(RichText::new("Max Streak (longest)").font(egui::FontId::proportional((11.0 * z).max(8.0))).color(p.text_muted));
+                    ui.label(RichText::new(format!("{}", max_len)).font(egui::FontId::monospace((22.0 * z).max(12.0))).strong().color(p.emerald_text));
                 });
             });
         });
     }
 
+
     fn render_sudoku(&self, ui: &mut egui::Ui, p: &ThemePalette, board: &[[char; 9]; 9], active_r: Option<usize>, active_c: Option<usize>, dup_pos: Option<(usize, usize)>, is_valid: Option<bool>) {
-        ui.heading(RichText::new("9x9 Sudoku Board Validation Grid").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_cell = (16.0 * z).max(9.0);
+        let margin = (8.0 * z).max(3.0);
+
+        ui.heading(RichText::new("9x9 Sudoku Board Validation Grid").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
 
         ui.group(|ui| {
             ui.vertical(|ui| {
                 for r in 0..9 {
                     if r > 0 && r % 3 == 0 {
-                        ui.add_space(4.0);
+                        ui.add_space(4.0 * z);
                     }
                     ui.horizontal(|ui| {
                         for c in 0..9 {
                             if c > 0 && c % 3 == 0 {
-                                ui.add_space(4.0);
+                                ui.add_space(4.0 * z);
                             }
 
                             let val = board[r][c];
@@ -1547,12 +1449,12 @@ impl VisualizerApp {
 
                             egui::Frame::none()
                                 .fill(fill)
-                                .rounding(Rounding::same(4.0))
-                                .stroke(Stroke::new(1.0_f32, border_color))
-                                .inner_margin(8.0)
+                                .rounding(Rounding::same(4.0 * z))
+                                .stroke(Stroke::new(1.0_f32 * z, border_color))
+                                .inner_margin(margin)
                                 .show(ui, |ui| {
                                     let mut text_rt = RichText::new(val.to_string())
-                                        .font(egui::FontId::monospace(16.0))
+                                        .font(egui::FontId::monospace(font_cell))
                                         .strong();
                                     if val == '.' {
                                         text_rt = text_rt.color(p.text_dim);
@@ -1568,74 +1470,87 @@ impl VisualizerApp {
         });
 
         if let Some(valid) = is_valid {
-            ui.add_space(20.0);
+            ui.add_space(20.0 * z);
             if valid {
-                ui.heading(RichText::new("Valid Sudoku Board! All rows, cols & 3x3 boxes satisfy constraint.").color(p.emerald_text).size(18.0));
+                ui.heading(RichText::new("Valid Sudoku Board! All rows, cols & 3x3 boxes satisfy constraint.").color(p.emerald_text).size((18.0 * z).max(11.0)));
             } else {
-                ui.heading(RichText::new("Invalid Sudoku Board! Duplicate digit detected.").color(p.red).size(18.0));
+                ui.heading(RichText::new("Invalid Sudoku Board! Duplicate digit detected.").color(p.red).size((18.0 * z).max(11.0)));
             }
         }
     }
 
     fn render_merge_lists(&self, ui: &mut egui::Ui, p: &ThemePalette, list1: &[i32], list2: &[i32], p1_idx: Option<usize>, p2_idx: Option<usize>, merged: &[i32]) {
-        ui.heading(RichText::new("Merge Two Sorted Linked Lists").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_label = (11.0 * z).max(8.0);
+        let font_node = (14.0 * z).max(9.0);
+        let margin = (8.0 * z).max(4.0);
+
+        ui.heading(RichText::new("Merge Two Sorted Linked Lists").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
 
         ui.horizontal(|ui| {
             ui.group(|ui| {
-                ui.label(RichText::new("LIST 1").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+                ui.label(RichText::new("LIST 1").font(egui::FontId::monospace(font_label)).color(p.text_muted));
                 ui.horizontal(|ui| {
                     for (i, &val) in list1.iter().enumerate() {
                         let fill = if p1_idx == Some(i) { p.cyan } else { p.cell_bg };
-                        egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(8.0).show(ui, |ui| {
-                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(14.0)).strong().color(Color32::WHITE));
+                        egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
+                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(font_node)).strong().color(Color32::WHITE));
                         });
                     }
-                    ui.label(RichText::new("None").font(egui::FontId::monospace(12.0)).color(p.text_dim));
+                    ui.label(RichText::new("None").font(egui::FontId::monospace((12.0 * z).max(8.0))).color(p.text_dim));
                 });
             });
 
-            ui.add_space(20.0);
+            ui.add_space(20.0 * z);
 
             ui.group(|ui| {
-                ui.label(RichText::new("LIST 2").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+                ui.label(RichText::new("LIST 2").font(egui::FontId::monospace(font_label)).color(p.text_muted));
                 ui.horizontal(|ui| {
                     for (i, &val) in list2.iter().enumerate() {
                         let fill = if p2_idx == Some(i) { p.pink } else { p.cell_bg };
-                        egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(8.0).show(ui, |ui| {
-                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(14.0)).strong().color(Color32::WHITE));
+                        egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
+                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(font_node)).strong().color(Color32::WHITE));
                         });
                     }
-                    ui.label(RichText::new("None").font(egui::FontId::monospace(12.0)).color(p.text_dim));
+                    ui.label(RichText::new("None").font(egui::FontId::monospace((12.0 * z).max(8.0))).color(p.text_dim));
                 });
             });
         });
 
-        ui.add_space(20.0);
+        ui.add_space(20.0 * z);
 
         ui.group(|ui| {
-            ui.label(RichText::new("MERGED SORTED LIST (TAIL ATTACHMENTS)").font(egui::FontId::monospace(11.0)).color(p.emerald_text));
+            ui.label(RichText::new("MERGED SORTED LIST (TAIL ATTACHMENTS)").font(egui::FontId::monospace(font_label)).color(p.emerald_text));
             ui.horizontal(|ui| {
                 if merged.is_empty() {
-                    ui.label(RichText::new("Dummy Head -> None").font(egui::FontId::monospace(14.0)).color(p.text_dim));
+                    ui.label(RichText::new("Dummy Head -> None").font(egui::FontId::monospace((14.0 * z).max(9.0))).color(p.text_dim));
                 } else {
                     for &val in merged {
-                        egui::Frame::none().fill(p.emerald).rounding(Rounding::same(8.0)).inner_margin(10.0).show(ui, |ui| {
-                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        egui::Frame::none().fill(p.emerald).rounding(Rounding::same(8.0 * z)).inner_margin((10.0 * z).max(4.0)).show(ui, |ui| {
+                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace((16.0 * z).max(10.0))).strong().color(Color32::WHITE));
                         });
                     }
-                    ui.label(RichText::new("None").font(egui::FontId::monospace(14.0)).color(p.text_dim));
+                    ui.label(RichText::new("None").font(egui::FontId::monospace((14.0 * z).max(9.0))).color(p.text_dim));
                 }
             });
         });
     }
 
+
     fn render_list_cycle(&self, ui: &mut egui::Ui, p: &ThemePalette, nodes: &[i32], cycle_target: Option<usize>, slow: Option<usize>, fast: Option<usize>, has_cycle: Option<bool>) {
-        ui.heading(RichText::new("Floyd's Tortoise and Hare Cycle Detection").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_label = (11.0 * z).max(8.0);
+        let font_node = (16.0 * z).max(9.0);
+        let margin = (10.0 * z).max(4.0);
+
+        ui.heading(RichText::new("Floyd's Tortoise and Hare Cycle Detection").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
 
         ui.group(|ui| {
-            ui.label(RichText::new("LINKED LIST NODES").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+            ui.label(RichText::new("LINKED LIST NODES").font(egui::FontId::monospace(font_label)).color(p.text_muted));
             ui.horizontal(|ui| {
                 for (i, &val) in nodes.iter().enumerate() {
                     let is_slow = slow == Some(i);
@@ -1654,43 +1569,49 @@ impl VisualizerApp {
                         p.cell_bg
                     };
 
-                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(10.0).show(ui, |ui| {
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
                         ui.vertical(|ui| {
                             let mut label = String::new();
                             if is_slow && is_fast { label.push_str("S & F"); }
                             else if is_slow { label.push_str("slow"); }
                             else if is_fast { label.push_str("fast"); }
 
-                            ui.label(RichText::new(format!("idx {} {}", i, label)).font(egui::FontId::proportional(10.0)).color(Color32::WHITE));
-                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                            ui.label(RichText::new(format!("idx {} {}", i, label)).font(egui::FontId::proportional((10.0 * z).max(8.0))).color(Color32::WHITE));
+                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(font_node)).strong().color(Color32::WHITE));
                         });
                     });
                 }
 
                 if let Some(target) = cycle_target {
-                    ui.label(RichText::new(format!("↺ [Cycle -> node idx {}]", target)).font(egui::FontId::monospace(14.0)).strong().color(p.amber));
+                    ui.label(RichText::new(format!("↺ [Cycle -> node idx {}]", target)).font(egui::FontId::monospace((14.0 * z).max(9.0))).strong().color(p.amber));
                 } else {
-                    ui.label(RichText::new("None").font(egui::FontId::monospace(14.0)).color(p.text_dim));
+                    ui.label(RichText::new("None").font(egui::FontId::monospace((14.0 * z).max(9.0))).color(p.text_dim));
                 }
             });
         });
 
         if let Some(cycle) = has_cycle {
-            ui.add_space(20.0);
+            ui.add_space(20.0 * z);
             if cycle {
-                ui.heading(RichText::new("Cycle Detected! Slow & Fast Pointers Met.").color(p.emerald_text).size(18.0));
+                ui.heading(RichText::new("Cycle Detected! Slow & Fast Pointers Met.").color(p.emerald_text).size((18.0 * z).max(11.0)));
             } else {
-                ui.heading(RichText::new("No Cycle Exists (Fast Pointer Reached End)").color(p.red).size(18.0));
+                ui.heading(RichText::new("No Cycle Exists (Fast Pointer Reached End)").color(p.red).size((18.0 * z).max(11.0)));
             }
         }
     }
 
     fn render_tree(&self, ui: &mut egui::Ui, p: &ThemePalette, tree_nodes: &[Option<i32>], active_idx: Option<usize>, sec_idx: Option<usize>, depth_val: Option<i32>, max_diameter: Option<i32>) {
-        ui.heading(RichText::new("Binary Tree Node Graph Hierarchy").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_label = (11.0 * z).max(8.0);
+        let font_node = (16.0 * z).max(9.0);
+        let margin = (10.0 * z).max(4.0);
+
+        ui.heading(RichText::new("Binary Tree Node Graph Hierarchy").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
 
         ui.group(|ui| {
-            ui.label(RichText::new("BINARY TREE LEVEL-ORDER NODES").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+            ui.label(RichText::new("BINARY TREE LEVEL-ORDER NODES").font(egui::FontId::monospace(font_label)).color(p.text_muted));
             ui.horizontal_wrapped(|ui| {
                 for (i, node_opt) in tree_nodes.iter().enumerate() {
                     let is_active = active_idx == Some(i);
@@ -1706,39 +1627,39 @@ impl VisualizerApp {
                         p.text_dim
                     };
 
-                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(10.0).show(ui, |ui| {
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
                         ui.vertical(|ui| {
                             let label = if is_active { "Active" } else if is_sec { "Child" } else { "" };
-                            ui.label(RichText::new(format!("i={} {}", i, label)).font(egui::FontId::proportional(10.0)).color(Color32::WHITE));
+                            ui.label(RichText::new(format!("i={} {}", i, label)).font(egui::FontId::proportional((10.0 * z).max(8.0))).color(Color32::WHITE));
                             let val_str = match node_opt {
                                 Some(v) => format!("[ {} ]", v),
                                 None => "null".to_string(),
                             };
-                            ui.label(RichText::new(val_str).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                            ui.label(RichText::new(val_str).font(egui::FontId::monospace(font_node)).strong().color(Color32::WHITE));
                         });
                     });
                 }
             });
         });
 
-        ui.add_space(20.0);
+        ui.add_space(20.0 * z);
 
         ui.horizontal(|ui| {
             if let Some(d) = depth_val {
-                egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cyan)).inner_margin(12.0).show(ui, |ui| {
+                egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cyan)).inner_margin((12.0 * z).max(5.0)).show(ui, |ui| {
                     ui.vertical(|ui| {
-                        ui.label(RichText::new("Current / Max Tree Depth").font(egui::FontId::proportional(11.0)).color(p.text_muted));
-                        ui.label(RichText::new(format!("Depth: {}", d)).font(egui::FontId::monospace(18.0)).strong().color(p.cyan));
+                        ui.label(RichText::new("Current / Max Tree Depth").font(egui::FontId::proportional((11.0 * z).max(8.0))).color(p.text_muted));
+                        ui.label(RichText::new(format!("Depth: {}", d)).font(egui::FontId::monospace((18.0 * z).max(10.0))).strong().color(p.cyan));
                     });
                 });
             }
 
             if let Some(diam) = max_diameter {
-                ui.add_space(16.0);
-                egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.emerald_text)).inner_margin(12.0).show(ui, |ui| {
+                ui.add_space(16.0 * z);
+                egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.emerald_text)).inner_margin((12.0 * z).max(5.0)).show(ui, |ui| {
                     ui.vertical(|ui| {
-                        ui.label(RichText::new("Maximum Tree Diameter (Edges Path)").font(egui::FontId::proportional(11.0)).color(p.text_muted));
-                        ui.label(RichText::new(format!("Diameter: {}", diam)).font(egui::FontId::monospace(18.0)).strong().color(p.emerald_text));
+                        ui.label(RichText::new("Maximum Tree Diameter (Edges Path)").font(egui::FontId::proportional((11.0 * z).max(8.0))).color(p.text_muted));
+                        ui.label(RichText::new(format!("Diameter: {}", diam)).font(egui::FontId::monospace((18.0 * z).max(10.0))).strong().color(p.emerald_text));
                     });
                 });
             }
@@ -1746,11 +1667,17 @@ impl VisualizerApp {
     }
 
     fn render_stock(&self, ui: &mut egui::Ui, p: &ThemePalette, prices: &[i32], left_buy: usize, right_sell: usize, current_profit: i32, max_profit: i32) {
-        ui.heading(RichText::new("Sliding Window / Buy & Sell Stock Trace").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_label = (11.0 * z).max(8.0);
+        let font_price = (16.0 * z).max(9.0);
+        let margin = (10.0 * z).max(4.0);
+
+        ui.heading(RichText::new("Sliding Window / Buy & Sell Stock Trace").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
 
         ui.group(|ui| {
-            ui.label(RichText::new("STOCK PRICES ARRAY (Days 0..N-1)").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+            ui.label(RichText::new("STOCK PRICES ARRAY (Days 0..N-1)").font(egui::FontId::monospace(font_label)).color(p.text_muted));
             ui.horizontal(|ui| {
                 for (i, &price) in prices.iter().enumerate() {
                     let is_buy = i == left_buy;
@@ -1766,7 +1693,7 @@ impl VisualizerApp {
                         p.cell_bg
                     };
 
-                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(10.0).show(ui, |ui| {
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
                         ui.vertical(|ui| {
                             let label = if is_buy && is_sell {
                                 "Buy & Sell"
@@ -1777,45 +1704,46 @@ impl VisualizerApp {
                             } else {
                                 ""
                             };
-                            ui.label(RichText::new(format!("day {} {}", i, label)).font(egui::FontId::proportional(10.0)).color(p.text_muted));
-                            ui.label(RichText::new(format!("${}", price)).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                            ui.label(RichText::new(format!("day {} {}", i, label)).font(egui::FontId::proportional((10.0 * z).max(8.0))).color(p.text_muted));
+                            ui.label(RichText::new(format!("${}", price)).font(egui::FontId::monospace(font_price)).strong().color(Color32::WHITE));
                         });
                     });
                 }
             });
         });
 
-        ui.add_space(20.0);
+        ui.add_space(20.0 * z);
 
         ui.horizontal(|ui| {
-            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.pink)).inner_margin(12.0).show(ui, |ui| {
+            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.pink)).inner_margin((12.0 * z).max(5.0)).show(ui, |ui| {
                 ui.vertical(|ui| {
-                    ui.label(RichText::new("Current Profit (prices[r] - prices[l])").font(egui::FontId::proportional(11.0)).color(p.text_muted));
-                    ui.label(RichText::new(format!("${}", current_profit)).font(egui::FontId::monospace(18.0)).strong().color(p.pink));
+                    ui.label(RichText::new("Current Profit (prices[r] - prices[l])").font(egui::FontId::proportional((11.0 * z).max(8.0))).color(p.text_muted));
+                    ui.label(RichText::new(format!("${}", current_profit)).font(egui::FontId::monospace((18.0 * z).max(10.0))).strong().color(p.pink));
                 });
             });
 
-            ui.add_space(16.0);
+            ui.add_space(16.0 * z);
 
-            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.emerald_text)).inner_margin(12.0).show(ui, |ui| {
+            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.emerald_text)).inner_margin((12.0 * z).max(5.0)).show(ui, |ui| {
                 ui.vertical(|ui| {
-                    ui.label(RichText::new("Maximum Achieved Profit (maxP)").font(egui::FontId::proportional(11.0)).color(p.text_muted));
-                    ui.label(RichText::new(format!("${}", max_profit)).font(egui::FontId::monospace(18.0)).strong().color(p.emerald_text));
+                    ui.label(RichText::new("Maximum Achieved Profit (maxP)").font(egui::FontId::proportional((11.0 * z).max(8.0))).color(p.text_muted));
+                    ui.label(RichText::new(format!("${}", max_profit)).font(egui::FontId::monospace((18.0 * z).max(10.0))).strong().color(p.emerald_text));
                 });
             });
         });
     }
 
     fn render_binary_search(&self, ui: &mut egui::Ui, p: &ThemePalette, nums: &[i32], target: i32, left: usize, right: usize, mid: Option<usize>, found_idx: Option<usize>) {
-        let is_wide = ui.available_width() > 600.0;
-        let margin = if is_wide { 14.0 } else { 9.0 };
-        let font_sz = if is_wide { 20.0 } else { 15.0 };
+        let z = self.canvas_zoom;
+        let margin = (12.0 * z).max(4.0);
+        let font_sz = (18.0 * z).max(9.0);
+        let font_title = (18.0 * z).max(10.0);
 
-        ui.heading(RichText::new(format!("Binary Search bounds (l={}, r={}) | Target = {}", left, right, target)).color(p.cyan).size(if is_wide { 18.0 } else { 15.0 }));
-        ui.add_space(10.0);
+        ui.heading(RichText::new(format!("Binary Search bounds (l={}, r={}) | Target = {}", left, right, target)).color(p.cyan).size(font_title));
+        ui.add_space(10.0 * z);
 
         ui.group(|ui| {
-            ui.label(RichText::new("SORTED ARRAY").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+            ui.label(RichText::new("SORTED ARRAY").font(egui::FontId::monospace((11.0 * z).max(8.0))).color(p.text_muted));
             ui.horizontal(|ui| {
                 for (i, &num) in nums.iter().enumerate() {
                     let is_found = found_idx == Some(i);
@@ -1832,14 +1760,14 @@ impl VisualizerApp {
                         p.text_dim
                     };
 
-                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(margin).show(ui, |ui| {
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
                         ui.vertical(|ui| {
                             let mut ptr_label = String::new();
                             if i == left { ptr_label.push_str("L "); }
                             if is_mid { ptr_label.push_str("MID "); }
                             if i == right { ptr_label.push_str("R"); }
 
-                            ui.label(RichText::new(format!("i={} {}", i, ptr_label)).font(egui::FontId::proportional(if is_wide { 11.0 } else { 9.0 })).color(Color32::WHITE));
+                            ui.label(RichText::new(format!("i={} {}", i, ptr_label)).font(egui::FontId::proportional((11.0 * z).max(8.0))).color(Color32::WHITE));
                             ui.label(RichText::new(num.to_string()).font(egui::FontId::monospace(font_sz)).strong().color(Color32::WHITE));
                         });
                     });
@@ -1847,19 +1775,24 @@ impl VisualizerApp {
             });
         });
 
-
         if let Some(f) = found_idx {
-            ui.add_space(20.0);
-            ui.heading(RichText::new(format!("Target {} Found at Index {}!", target, f)).color(p.emerald_text).size(18.0));
+            ui.add_space(20.0 * z);
+            ui.heading(RichText::new(format!("Target {} Found at Index {}!", target, f)).color(p.emerald_text).size((18.0 * z).max(11.0)));
         }
     }
 
     fn render_linked_list(&self, ui: &mut egui::Ui, p: &ThemePalette, nodes: &[i32], prev_idx: Option<usize>, curr_idx: Option<usize>, next_idx: Option<usize>, reversed_so_far: &[i32]) {
-        ui.heading(RichText::new("Singly-Linked List Pointer Reversal").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_label = (11.0 * z).max(8.0);
+        let font_node = (16.0 * z).max(9.0);
+        let margin = (10.0 * z).max(4.0);
+
+        ui.heading(RichText::new("Singly-Linked List Pointer Reversal").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
 
         ui.group(|ui| {
-            ui.label(RichText::new("ORIGINAL LINKED LIST NODES").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+            ui.label(RichText::new("ORIGINAL LINKED LIST NODES").font(egui::FontId::monospace(font_label)).color(p.text_muted));
             ui.horizontal(|ui| {
                 for (i, &val) in nodes.iter().enumerate() {
                     let is_prev = prev_idx == Some(i);
@@ -1876,53 +1809,55 @@ impl VisualizerApp {
                         p.cell_bg
                     };
 
-                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(10.0).show(ui, |ui| {
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
                         ui.vertical(|ui| {
                             let mut label = String::new();
                             if is_prev { label.push_str("prev "); }
                             if is_curr { label.push_str("curr "); }
                             if is_nxt { label.push_str("nxt "); }
 
-                            ui.label(RichText::new(format!("idx {} {}", i, label)).font(egui::FontId::proportional(10.0)).color(Color32::WHITE));
-                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                            ui.label(RichText::new(format!("idx {} {}", i, label)).font(egui::FontId::proportional((10.0 * z).max(8.0))).color(Color32::WHITE));
+                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(font_node)).strong().color(Color32::WHITE));
                         });
                     });
                 }
-                ui.label(RichText::new("None").font(egui::FontId::monospace(14.0)).color(p.text_dim));
+                ui.label(RichText::new("None").font(egui::FontId::monospace((14.0 * z).max(9.0))).color(p.text_dim));
             });
         });
 
-        ui.add_space(20.0);
+        ui.add_space(20.0 * z);
 
         ui.group(|ui| {
-            ui.label(RichText::new("REVERSED LINKED LIST (Constructed from head)").font(egui::FontId::monospace(11.0)).color(p.emerald_text));
+            ui.label(RichText::new("REVERSED LINKED LIST (Constructed from head)").font(egui::FontId::monospace(font_label)).color(p.emerald_text));
             ui.horizontal(|ui| {
                 if reversed_so_far.is_empty() {
-                    ui.label(RichText::new("None").font(egui::FontId::monospace(14.0)).color(p.text_dim));
+                    ui.label(RichText::new("None").font(egui::FontId::monospace((14.0 * z).max(9.0))).color(p.text_dim));
                 } else {
                     for (i, &val) in reversed_so_far.iter().enumerate() {
                         let fill = if i == 0 { p.emerald } else { p.cell_bg };
-                        egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.emerald_text)).inner_margin(10.0).show(ui, |ui| {
-                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.emerald_text)).inner_margin(margin).show(ui, |ui| {
+                            ui.label(RichText::new(format!("( {} ) ->", val)).font(egui::FontId::monospace(font_node)).strong().color(Color32::WHITE));
                         });
                     }
-                    ui.label(RichText::new("None").font(egui::FontId::monospace(14.0)).color(p.text_dim));
+                    ui.label(RichText::new("None").font(egui::FontId::monospace((14.0 * z).max(9.0))).color(p.text_dim));
                 }
             });
         });
     }
 
-    fn render_two_sum(&self, ui: &mut egui::Ui, p: &ThemePalette, nums: &[i32], target: i32, active_idx: Option<usize>, secondary_idx: Option<usize>, map: &std::collections::BTreeMap<i32, usize>, found: Option<(usize, usize)>) {
-        let is_wide = ui.available_width() > 600.0;
-        let margin = if is_wide { 14.0 } else { 9.0 };
-        let font_sz = if is_wide { 20.0 } else { 15.0 };
 
-        ui.heading(RichText::new(format!("Target Sum: {}", target)).color(p.cyan).size(if is_wide { 18.0 } else { 15.0 }));
-        ui.add_space(10.0);
+    fn render_two_sum(&self, ui: &mut egui::Ui, p: &ThemePalette, nums: &[i32], target: i32, active_idx: Option<usize>, secondary_idx: Option<usize>, map: &std::collections::BTreeMap<i32, usize>, found: Option<(usize, usize)>) {
+        let z = self.canvas_zoom;
+        let margin = (12.0 * z).max(4.0);
+        let font_sz = (18.0 * z).max(9.0);
+        let font_title = (18.0 * z).max(10.0);
+
+        ui.heading(RichText::new(format!("Target Sum: {}", target)).color(p.cyan).size(font_title));
+        ui.add_space(10.0 * z);
 
         ui.group(|ui| {
-            ui.label(RichText::new("NUMS ARRAY").font(egui::FontId::monospace(11.0)).color(p.text_muted));
-            ui.add_space(4.0);
+            ui.label(RichText::new("NUMS ARRAY").font(egui::FontId::monospace((11.0 * z).max(8.0))).color(p.text_muted));
+            ui.add_space(4.0 * z);
             ui.with_layout(egui::Layout::left_to_right(egui::Align::Center).with_main_align(egui::Align::Center), |ui| {
                 for (i, &num) in nums.iter().enumerate() {
                     let is_found = found.map_or(false, |(a, b)| a == i || b == i);
@@ -1945,36 +1880,32 @@ impl VisualizerApp {
                         (p.text_muted, Color32::WHITE)
                     };
 
-
-
-
-                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(margin).show(ui, |ui| {
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
                         ui.vertical(|ui| {
                             let label = if is_primary { "i" } else if is_sec { "j" } else { "" };
-                            ui.label(RichText::new(format!("i={} {}", i, label)).font(egui::FontId::proportional(if is_wide { 11.0 } else { 9.0 })).color(label_color));
+                            ui.label(RichText::new(format!("i={} {}", i, label)).font(egui::FontId::proportional((11.0 * z).max(8.0))).color(label_color));
                             ui.label(RichText::new(num.to_string()).font(egui::FontId::monospace(font_sz)).strong().color(val_color));
                         });
                     });
-
                 }
             });
         });
 
-        ui.add_space(20.0);
+        ui.add_space(20.0 * z);
 
         if self.selected_approach_id == 0 {
             ui.group(|ui| {
-                ui.label(RichText::new("PREVMAP {value -> index}").font(egui::FontId::monospace(11.0)).color(p.text_muted));
-                ui.add_space(4.0);
+                ui.label(RichText::new("PREVMAP {value -> index}").font(egui::FontId::monospace((11.0 * z).max(8.0))).color(p.text_muted));
+                ui.add_space(4.0 * z);
                 ui.with_layout(egui::Layout::left_to_right(egui::Align::Center).with_main_align(egui::Align::Center), |ui| {
                     if map.is_empty() {
                         ui.label(RichText::new("Empty {}").italics().color(p.text_dim));
                     } else {
                         for (&val, &idx) in map {
-                            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.purple)).inner_margin(margin).show(ui, |ui| {
+                            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.purple)).inner_margin(margin).show(ui, |ui| {
                                 ui.vertical(|ui| {
-                                    ui.label(RichText::new(format!("val={}", val)).font(egui::FontId::monospace(if is_wide { 14.0 } else { 12.0 })).strong().color(p.cyan));
-                                    ui.label(RichText::new(format!("idx={}", idx)).font(egui::FontId::monospace(if is_wide { 12.0 } else { 10.0 })).color(p.text_muted));
+                                    ui.label(RichText::new(format!("val={}", val)).font(egui::FontId::monospace((14.0 * z).max(9.0))).strong().color(p.cyan));
+                                    ui.label(RichText::new(format!("idx={}", idx)).font(egui::FontId::monospace((12.0 * z).max(8.0))).color(p.text_muted));
                                 });
                             });
                         }
@@ -1984,58 +1915,64 @@ impl VisualizerApp {
         }
 
         if let Some((a, b)) = found {
-            ui.add_space(20.0);
-            ui.heading(RichText::new(format!("Result Pair Found! Indices: [{}, {}]", a, b)).color(p.emerald_text).size(18.0));
+            ui.add_space(20.0 * z);
+            ui.heading(RichText::new(format!("Result Pair Found! Indices: [{}, {}]", a, b)).color(p.emerald_text).size((18.0 * z).max(11.0)));
         }
     }
 
     fn render_valid_anagram(&self, ui: &mut egui::Ui, p: &ThemePalette, s: &str, t: &str, s_counts: &[usize; 26], t_counts: &[usize; 26], active_s: Option<usize>, active_t: Option<usize>, is_anagram: Option<bool>) {
-        ui.heading(RichText::new("Character Comparison").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_label = (12.0 * z).max(8.0);
+        let font_char = (16.0 * z).max(9.0);
+        let margin = (8.0 * z).max(4.0);
+
+        ui.heading(RichText::new("Character Comparison").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
 
         ui.horizontal(|ui| {
             ui.group(|ui| {
-                ui.label(RichText::new(format!("STRING s: \"{}\"", s)).font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                ui.label(RichText::new(format!("STRING s: \"{}\"", s)).font(egui::FontId::monospace(font_label)).color(p.text_muted));
                 ui.horizontal(|ui| {
                     for (i, c) in s.chars().enumerate() {
                         let fill = if active_s == Some(i) { p.amber } else { p.cell_bg };
-                        egui::Frame::none().fill(fill).rounding(Rounding::same(6.0)).inner_margin(8.0).show(ui, |ui| {
-                            ui.label(RichText::new(c.to_string()).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        egui::Frame::none().fill(fill).rounding(Rounding::same(6.0 * z)).inner_margin(margin).show(ui, |ui| {
+                            ui.label(RichText::new(c.to_string()).font(egui::FontId::monospace(font_char)).strong().color(Color32::WHITE));
                         });
                     }
                 });
             });
 
-            ui.add_space(20.0);
+            ui.add_space(20.0 * z);
 
             ui.group(|ui| {
-                ui.label(RichText::new(format!("STRING t: \"{}\"", t)).font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                ui.label(RichText::new(format!("STRING t: \"{}\"", t)).font(egui::FontId::monospace(font_label)).color(p.text_muted));
                 ui.horizontal(|ui| {
                     for (i, c) in t.chars().enumerate() {
                         let fill = if active_t == Some(i) { p.pink } else { p.cell_bg };
-                        egui::Frame::none().fill(fill).rounding(Rounding::same(6.0)).inner_margin(8.0).show(ui, |ui| {
-                            ui.label(RichText::new(c.to_string()).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        egui::Frame::none().fill(fill).rounding(Rounding::same(6.0 * z)).inner_margin(margin).show(ui, |ui| {
+                            ui.label(RichText::new(c.to_string()).font(egui::FontId::monospace(font_char)).strong().color(Color32::WHITE));
                         });
                     }
                 });
             });
         });
 
-        ui.add_space(20.0);
+        ui.add_space(20.0 * z);
 
         if self.selected_approach_id == 0 {
             ui.group(|ui| {
-                ui.label(RichText::new("ALPHABET FREQUENCY LOG").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+                ui.label(RichText::new("ALPHABET FREQUENCY LOG").font(egui::FontId::monospace((11.0 * z).max(8.0))).color(p.text_muted));
                 ui.horizontal_wrapped(|ui| {
                     for i in 0..26 {
                         let ch = (b'a' + i as u8) as char;
                         if s_counts[i] > 0 || t_counts[i] > 0 {
                             let match_color = if s_counts[i] == t_counts[i] { p.emerald_text } else { p.red };
-                            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(6.0)).stroke(Stroke::new(1.0_f32, match_color)).inner_margin(6.0).show(ui, |ui| {
+                            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(6.0 * z)).stroke(Stroke::new(1.0_f32 * z, match_color)).inner_margin((6.0 * z).max(3.0)).show(ui, |ui| {
                                 ui.vertical(|ui| {
-                                    ui.label(RichText::new(ch.to_string()).font(egui::FontId::monospace(14.0)).strong().color(p.cyan));
-                                    ui.label(RichText::new(format!("s:{}", s_counts[i])).font(egui::FontId::monospace(11.0)).color(p.text_muted));
-                                    ui.label(RichText::new(format!("t:{}", t_counts[i])).font(egui::FontId::monospace(11.0)).color(p.text_muted));
+                                    ui.label(RichText::new(ch.to_string()).font(egui::FontId::monospace((14.0 * z).max(9.0))).strong().color(p.cyan));
+                                    ui.label(RichText::new(format!("s:{}", s_counts[i])).font(egui::FontId::monospace((11.0 * z).max(8.0))).color(p.text_muted));
+                                    ui.label(RichText::new(format!("t:{}", t_counts[i])).font(egui::FontId::monospace((11.0 * z).max(8.0))).color(p.text_muted));
                                 });
                             });
                         }
@@ -2045,18 +1982,23 @@ impl VisualizerApp {
         }
 
         if let Some(res) = is_anagram {
-            ui.add_space(20.0);
+            ui.add_space(20.0 * z);
             if res {
-                ui.heading(RichText::new("Valid Anagram!").color(p.emerald_text).size(18.0));
+                ui.heading(RichText::new("Valid Anagram!").color(p.emerald_text).size((18.0 * z).max(11.0)));
             } else {
-                ui.heading(RichText::new("Not an Anagram").color(p.red).size(18.0));
+                ui.heading(RichText::new("Not an Anagram").color(p.red).size((18.0 * z).max(11.0)));
             }
         }
     }
 
     fn render_two_pointers(&self, ui: &mut egui::Ui, p: &ThemePalette, chars: &[char], left: usize, right: usize, is_valid: Option<bool>, skipped: bool) {
-        ui.heading(RichText::new("Two Pointers Convergence").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_char = (16.0 * z).max(9.0);
+        let margin = (8.0 * z).max(4.0);
+
+        ui.heading(RichText::new("Two Pointers Convergence").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
 
         ui.horizontal_wrapped(|ui| {
             for (i, &c) in chars.iter().enumerate() {
@@ -2075,7 +2017,7 @@ impl VisualizerApp {
                     p.cell_bg
                 };
 
-                egui::Frame::none().fill(fill).rounding(Rounding::same(6.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(8.0).show(ui, |ui| {
+                egui::Frame::none().fill(fill).rounding(Rounding::same(6.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
                     ui.vertical(|ui| {
                         let ptr_label = if is_left && is_right {
                             "L & R"
@@ -2086,92 +2028,101 @@ impl VisualizerApp {
                         } else {
                             " "
                         };
-                        ui.label(RichText::new(ptr_label).font(egui::FontId::monospace(10.0)).strong().color(Color32::WHITE));
-                        ui.label(RichText::new(c.to_string()).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        ui.label(RichText::new(ptr_label).font(egui::FontId::monospace((10.0 * z).max(8.0))).strong().color(Color32::WHITE));
+                        ui.label(RichText::new(c.to_string()).font(egui::FontId::monospace(font_char)).strong().color(Color32::WHITE));
                     });
                 });
             }
         });
 
         if let Some(valid) = is_valid {
-            ui.add_space(20.0);
+            ui.add_space(20.0 * z);
+            let heading_sz = (18.0 * z).max(11.0);
             match self.current_problem {
                 Problem::ValidPalindrome => {
                     if valid {
-                        ui.heading(RichText::new("Valid Palindrome!").color(p.emerald_text).size(18.0));
+                        ui.heading(RichText::new("Valid Palindrome!").color(p.emerald_text).size(heading_sz));
                     } else {
-                        ui.heading(RichText::new("Invalid Palindrome Mismatch").color(p.red).size(18.0));
+                        ui.heading(RichText::new("Invalid Palindrome Mismatch").color(p.red).size(heading_sz));
                     }
                 }
                 Problem::TwoSumII => {
                     if valid {
-                        ui.heading(RichText::new("Target Sum Pair Found!").color(p.emerald_text).size(18.0));
+                        ui.heading(RichText::new("Target Sum Pair Found!").color(p.emerald_text).size(heading_sz));
                     } else {
-                        ui.heading(RichText::new("No Pair Sum Equals Target").color(p.red).size(18.0));
+                        ui.heading(RichText::new("No Pair Sum Equals Target").color(p.red).size(heading_sz));
                     }
                 }
                 Problem::ThreeSum => {
                     if valid {
-                        ui.heading(RichText::new("3Sum Triplets Search Complete!").color(p.emerald_text).size(18.0));
+                        ui.heading(RichText::new("3Sum Triplets Search Complete!").color(p.emerald_text).size(heading_sz));
                     } else {
-                        ui.heading(RichText::new("No Triplets Sum to 0").color(p.red).size(18.0));
+                        ui.heading(RichText::new("No Triplets Sum to 0").color(p.red).size(heading_sz));
                     }
                 }
                 Problem::ContainerWater => {
-                    ui.heading(RichText::new("Maximum Water Container Area Computed!").color(p.emerald_text).size(18.0));
+                    ui.heading(RichText::new("Maximum Water Container Area Computed!").color(p.emerald_text).size(heading_sz));
                 }
                 Problem::TrappingRain => {
-                    ui.heading(RichText::new("Trapped Rain Water Traversal Complete!").color(p.emerald_text).size(18.0));
+                    ui.heading(RichText::new("Trapped Rain Water Traversal Complete!").color(p.emerald_text).size(heading_sz));
                 }
                 Problem::LongestSubstring => {
-                    ui.heading(RichText::new("Longest Substring Without Repeating Characters Found!").color(p.emerald_text).size(18.0));
+                    ui.heading(RichText::new("Longest Substring Without Repeating Characters Found!").color(p.emerald_text).size(heading_sz));
                 }
                 Problem::CharacterReplacement => {
-                    ui.heading(RichText::new("Longest Repeating Character Replacement Window Found!").color(p.emerald_text).size(18.0));
+                    ui.heading(RichText::new("Longest Repeating Character Replacement Window Found!").color(p.emerald_text).size(heading_sz));
                 }
                 Problem::PermutationInString => {
                     if valid {
-                        ui.heading(RichText::new("Permutation of s1 Found in s2!").color(p.emerald_text).size(18.0));
+                        ui.heading(RichText::new("Permutation of s1 Found in s2!").color(p.emerald_text).size(heading_sz));
                     } else {
-                        ui.heading(RichText::new("No Permutation of s1 Found in s2").color(p.red).size(18.0));
+                        ui.heading(RichText::new("No Permutation of s1 Found in s2").color(p.red).size(heading_sz));
                     }
                 }
                 Problem::MinWindowSubstring => {
                     if valid {
-                        ui.heading(RichText::new("Minimum Window Substring Found!").color(p.emerald_text).size(18.0));
+                        ui.heading(RichText::new("Minimum Window Substring Found!").color(p.emerald_text).size(heading_sz));
                     } else {
-                        ui.heading(RichText::new("No Valid Window Substring Found").color(p.red).size(18.0));
+                        ui.heading(RichText::new("No Valid Window Substring Found").color(p.red).size(heading_sz));
                     }
                 }
                 Problem::SlidingWindowMax => {
-                    ui.heading(RichText::new("Sliding Window Maximum Evaluation Complete!").color(p.emerald_text).size(18.0));
+                    ui.heading(RichText::new("Sliding Window Maximum Evaluation Complete!").color(p.emerald_text).size(heading_sz));
                 }
                 _ => {}
             }
         }
     }
 
+
+
+
     fn render_stack(&self, ui: &mut egui::Ui, p: &ThemePalette, chars: &[char], active_idx: Option<usize>, stack: &[char], is_valid: Option<bool>) {
-        ui.heading(RichText::new("Vertical Stack Push / Pop Trace").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_char = (16.0 * z).max(9.0);
+        let margin = (8.0 * z).max(4.0);
+
+        ui.heading(RichText::new("Vertical Stack Push / Pop Trace").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
 
         ui.horizontal(|ui| {
             ui.group(|ui| {
-                ui.label(RichText::new("EXPRESSION").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+                ui.label(RichText::new("EXPRESSION").font(egui::FontId::monospace((11.0 * z).max(8.0))).color(p.text_muted));
                 ui.horizontal(|ui| {
                     for (i, &c) in chars.iter().enumerate() {
                         let fill = if active_idx == Some(i) { p.amber } else { p.cell_bg };
-                        egui::Frame::none().fill(fill).rounding(Rounding::same(6.0)).inner_margin(8.0).show(ui, |ui| {
-                            ui.label(RichText::new(c.to_string()).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        egui::Frame::none().fill(fill).rounding(Rounding::same(6.0 * z)).inner_margin(margin).show(ui, |ui| {
+                            ui.label(RichText::new(c.to_string()).font(egui::FontId::monospace(font_char)).strong().color(Color32::WHITE));
                         });
                     }
                 });
             });
 
-            ui.add_space(30.0);
+            ui.add_space(30.0 * z);
 
             ui.group(|ui| {
-                ui.label(RichText::new("STACK (Top on right/bottom)").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+                ui.label(RichText::new("STACK (Top on right/bottom)").font(egui::FontId::monospace((11.0 * z).max(8.0))).color(p.text_muted));
                 ui.vertical(|ui| {
                     if stack.is_empty() {
                         ui.label(RichText::new("Stack is Empty []").italics().color(p.text_dim));
@@ -2179,12 +2130,12 @@ impl VisualizerApp {
                         for (idx, &c) in stack.iter().rev().enumerate() {
                             let is_top = idx == 0;
                             let fill = if is_top { p.purple } else { p.cell_bg };
-                            egui::Frame::none().fill(fill).rounding(Rounding::same(6.0)).stroke(Stroke::new(1.0_f32, p.cyan)).inner_margin(8.0).show(ui, |ui| {
+                            egui::Frame::none().fill(fill).rounding(Rounding::same(6.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cyan)).inner_margin(margin).show(ui, |ui| {
                                 ui.horizontal(|ui| {
                                     if is_top {
-                                        ui.label(RichText::new("TOP ->").font(egui::FontId::monospace(10.0)).color(p.amber));
+                                        ui.label(RichText::new("TOP ->").font(egui::FontId::monospace((10.0 * z).max(8.0))).color(p.amber));
                                     }
-                                    ui.label(RichText::new(c.to_string()).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                                    ui.label(RichText::new(c.to_string()).font(egui::FontId::monospace(font_char)).strong().color(Color32::WHITE));
                                 });
                             });
                         }
@@ -2194,42 +2145,47 @@ impl VisualizerApp {
         });
 
         if let Some(valid) = is_valid {
-            ui.add_space(20.0);
+            ui.add_space(20.0 * z);
             if valid {
-                ui.heading(RichText::new("Valid Parentheses Expression!").color(p.emerald_text).size(18.0));
+                ui.heading(RichText::new("Valid Parentheses Expression!").color(p.emerald_text).size((18.0 * z).max(11.0)));
             } else {
-                ui.heading(RichText::new("Invalid Parentheses Expression").color(p.red).size(18.0));
+                ui.heading(RichText::new("Invalid Parentheses Expression").color(p.red).size((18.0 * z).max(11.0)));
             }
         }
     }
 
     fn render_topk(&self, ui: &mut egui::Ui, p: &ThemePalette, nums: &[i32], active_nums_idx: Option<usize>, count_map: &std::collections::BTreeMap<i32, usize>, buckets: &[Vec<i32>], active_bucket_idx: Option<usize>, result: &[i32]) {
-        ui.heading(RichText::new("1. Input Array & Frequency Map").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_num = (16.0 * z).max(9.0);
+        let margin = (10.0 * z).max(4.0);
+
+        ui.heading(RichText::new("1. Input Array & Frequency Map").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
         ui.horizontal(|ui| {
             ui.group(|ui| {
-                ui.label(RichText::new("NUMS ARRAY").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+                ui.label(RichText::new("NUMS ARRAY").font(egui::FontId::monospace((11.0 * z).max(8.0))).color(p.text_muted));
                 ui.horizontal(|ui| {
                     for (idx, &val) in nums.iter().enumerate() {
                         let fill = if active_nums_idx == Some(idx) { p.amber } else { p.cell_bg };
-                        egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(10.0).show(ui, |ui| {
-                            ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
+                            ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(font_num)).strong().color(Color32::WHITE));
                         });
                     }
                 });
             });
-            ui.add_space(20.0);
+            ui.add_space(20.0 * z);
             ui.group(|ui| {
-                ui.label(RichText::new("COUNT MAP {num: frequency}").font(egui::FontId::monospace(11.0)).color(p.text_muted));
+                ui.label(RichText::new("COUNT MAP {num: frequency}").font(egui::FontId::monospace((11.0 * z).max(8.0))).color(p.text_muted));
                 ui.horizontal(|ui| {
                     if count_map.is_empty() {
                         ui.label(RichText::new("Empty {}").italics().color(p.text_dim));
                     } else {
                         for (&num, &cnt) in count_map.iter() {
-                            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.purple)).inner_margin(8.0).show(ui, |ui| {
+                            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.purple)).inner_margin((8.0 * z).max(4.0)).show(ui, |ui| {
                                 ui.vertical(|ui| {
-                                    ui.label(RichText::new(format!("num: {}", num)).font(egui::FontId::proportional(12.0)).color(p.text_primary));
-                                    ui.label(RichText::new(format!("{}", cnt)).font(egui::FontId::monospace(16.0)).strong().color(p.purple));
+                                    ui.label(RichText::new(format!("num: {}", num)).font(egui::FontId::proportional((12.0 * z).max(8.0))).color(p.text_primary));
+                                    ui.label(RichText::new(format!("{}", cnt)).font(egui::FontId::monospace(font_num)).strong().color(p.purple));
                                 });
                             });
                         }
@@ -2238,24 +2194,24 @@ impl VisualizerApp {
             });
         });
 
-        ui.add_space(24.0);
+        ui.add_space(24.0 * z);
 
-        ui.heading(RichText::new("2. Frequency Buckets (Index = Count)").color(p.purple).size(16.0));
-        ui.add_space(8.0);
+        ui.heading(RichText::new("2. Frequency Buckets (Index = Count)").color(p.purple).size(font_title));
+        ui.add_space(8.0 * z);
         ui.horizontal(|ui| {
             for (idx, items) in buckets.iter().enumerate() {
                 let is_active = active_bucket_idx == Some(idx);
                 let fill = if is_active { p.pink } else { p.sidebar_bg };
-                egui::Frame::none().fill(fill).rounding(Rounding::same(10.0)).stroke(Stroke::new(1.0_f32, if is_active { Color32::WHITE } else { p.cell_border })).inner_margin(12.0).show(ui, |ui| {
+                egui::Frame::none().fill(fill).rounding(Rounding::same(10.0 * z)).stroke(Stroke::new(1.0_f32 * z, if is_active { Color32::WHITE } else { p.cell_border })).inner_margin((12.0 * z).max(5.0)).show(ui, |ui| {
                     ui.vertical(|ui| {
-                        ui.label(RichText::new(format!("freq[{}]", idx)).font(egui::FontId::monospace(12.0)).strong().color(p.text_muted));
+                        ui.label(RichText::new(format!("freq[{}]", idx)).font(egui::FontId::monospace((12.0 * z).max(8.0))).strong().color(p.text_muted));
                         ui.separator();
                         if items.is_empty() {
                             ui.label(RichText::new("—").color(p.text_dim));
                         } else {
                             for &item in items {
-                                egui::Frame::none().fill(p.cyan).rounding(Rounding::same(6.0)).inner_margin(6.0).show(ui, |ui| {
-                                    ui.label(RichText::new(item.to_string()).font(egui::FontId::monospace(14.0)).strong().color(Color32::BLACK));
+                                egui::Frame::none().fill(p.cyan).rounding(Rounding::same(6.0 * z)).inner_margin((6.0 * z).max(3.0)).show(ui, |ui| {
+                                    ui.label(RichText::new(item.to_string()).font(egui::FontId::monospace((14.0 * z).max(9.0))).strong().color(Color32::BLACK));
                                 });
                             }
                         }
@@ -2264,17 +2220,17 @@ impl VisualizerApp {
             }
         });
 
-        ui.add_space(24.0);
+        ui.add_space(24.0 * z);
 
-        ui.heading(RichText::new(format!("3. Result Collector (Target k = {})", self.topk_k)).color(p.emerald_text).size(16.0));
-        ui.add_space(8.0);
+        ui.heading(RichText::new(format!("3. Result Collector (Target k = {})", self.topk_k)).color(p.emerald_text).size(font_title));
+        ui.add_space(8.0 * z);
         ui.horizontal(|ui| {
             if result.is_empty() {
                 ui.label(RichText::new("Result array is empty...").italics().color(p.text_dim));
             } else {
                 for &val in result {
-                    egui::Frame::none().fill(p.emerald).rounding(Rounding::same(10.0)).inner_margin(12.0).show(ui, |ui| {
-                        ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(18.0)).strong().color(Color32::WHITE));
+                    egui::Frame::none().fill(p.emerald).rounding(Rounding::same(10.0 * z)).inner_margin((12.0 * z).max(5.0)).show(ui, |ui| {
+                        ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace((18.0 * z).max(10.0))).strong().color(Color32::WHITE));
                     });
                 }
             }
@@ -2282,22 +2238,27 @@ impl VisualizerApp {
     }
 
     fn render_encode_decode(&self, ui: &mut egui::Ui, p: &ThemePalette, input_strs: &[String], encoded_so_far: &str, decoded_so_far: &[String], pointer: usize, active_str_idx: Option<usize>, phase: &EncodeDecodePhase) {
-        ui.heading(RichText::new("1. Input Strings").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_sz = (14.0 * z).max(9.0);
+        let margin = (10.0 * z).max(4.0);
+
+        ui.heading(RichText::new("1. Input Strings").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
         ui.horizontal(|ui| {
             for (idx, s) in input_strs.iter().enumerate() {
                 let is_active = active_str_idx == Some(idx);
                 let fill = if is_active { p.amber } else { p.cell_bg };
-                egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(10.0).show(ui, |ui| {
-                    ui.label(RichText::new(format!("\"{}\"", s)).font(egui::FontId::monospace(14.0)).strong().color(Color32::WHITE));
+                egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
+                    ui.label(RichText::new(format!("\"{}\"", s)).font(egui::FontId::monospace(font_sz)).strong().color(Color32::WHITE));
                 });
             }
         });
 
-        ui.add_space(24.0);
+        ui.add_space(24.0 * z);
 
-        ui.heading(RichText::new("2. Encoded String").color(p.purple).size(16.0));
-        ui.add_space(8.0);
+        ui.heading(RichText::new("2. Encoded String").color(p.purple).size(font_title));
+        ui.add_space(8.0 * z);
         if encoded_so_far.is_empty() {
             ui.label(RichText::new("\"\" (empty)").italics().color(p.text_dim));
         } else {
@@ -2305,24 +2266,24 @@ impl VisualizerApp {
                 for (i, ch) in encoded_so_far.chars().enumerate() {
                     let is_ptr = *phase == EncodeDecodePhase::Decoding && i == pointer;
                     let fill = if is_ptr { p.pink } else if ch == '#' { p.purple } else { p.cell_bg };
-                    egui::Frame::none().fill(fill).rounding(Rounding::same(4.0)).inner_margin(6.0).show(ui, |ui| {
-                        ui.label(RichText::new(ch.to_string()).font(egui::FontId::monospace(14.0)).strong().color(Color32::WHITE));
+                    egui::Frame::none().fill(fill).rounding(Rounding::same(4.0 * z)).inner_margin((6.0 * z).max(3.0)).show(ui, |ui| {
+                        ui.label(RichText::new(ch.to_string()).font(egui::FontId::monospace(font_sz)).strong().color(Color32::WHITE));
                     });
                 }
             });
         }
 
-        ui.add_space(24.0);
+        ui.add_space(24.0 * z);
 
-        ui.heading(RichText::new("3. Decoded Strings").color(p.emerald_text).size(16.0));
-        ui.add_space(8.0);
+        ui.heading(RichText::new("3. Decoded Strings").color(p.emerald_text).size(font_title));
+        ui.add_space(8.0 * z);
         if decoded_so_far.is_empty() {
             ui.label(RichText::new("Decoded list is empty...").italics().color(p.text_dim));
         } else {
             ui.horizontal(|ui| {
                 for s in decoded_so_far {
-                    egui::Frame::none().fill(p.emerald).rounding(Rounding::same(10.0)).inner_margin(12.0).show(ui, |ui| {
-                        ui.label(RichText::new(format!("\"{}\"", s)).font(egui::FontId::monospace(14.0)).strong().color(Color32::WHITE));
+                    egui::Frame::none().fill(p.emerald).rounding(Rounding::same(10.0 * z)).inner_margin((12.0 * z).max(5.0)).show(ui, |ui| {
+                        ui.label(RichText::new(format!("\"{}\"", s)).font(egui::FontId::monospace(font_sz)).strong().color(Color32::WHITE));
                     });
                 }
             });
@@ -2330,53 +2291,58 @@ impl VisualizerApp {
     }
 
     fn render_product(&self, ui: &mut egui::Ui, p: &ThemePalette, nums: &[i32], output: &[i64], active_idx: Option<usize>, prefix_val: i64, suffix_val: i64, phase: &ProductPhase) {
-        ui.heading(RichText::new("1. Input Array (nums)").color(p.cyan).size(16.0));
-        ui.add_space(8.0);
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_num = (16.0 * z).max(9.0);
+        let margin = (10.0 * z).max(4.0);
+
+        ui.heading(RichText::new("1. Input Array (nums)").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
         ui.horizontal(|ui| {
             for (idx, &val) in nums.iter().enumerate() {
                 let is_active = active_idx == Some(idx);
                 let fill = if is_active { p.amber } else { p.cell_bg };
-                egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cell_border)).inner_margin(10.0).show(ui, |ui| {
+                egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
                     ui.vertical(|ui| {
-                        ui.label(RichText::new(format!("i={}", idx)).font(egui::FontId::proportional(10.0)).color(p.text_muted));
-                        ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        ui.label(RichText::new(format!("i={}", idx)).font(egui::FontId::proportional((10.0 * z).max(8.0))).color(p.text_muted));
+                        ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(font_num)).strong().color(Color32::WHITE));
                     });
                 });
             }
         });
 
-        ui.add_space(24.0);
+        ui.add_space(24.0 * z);
 
-        ui.heading(RichText::new("2. Running Prefix / Suffix Values").color(p.purple).size(16.0));
-        ui.add_space(8.0);
+        ui.heading(RichText::new("2. Running Prefix / Suffix Values").color(p.purple).size(font_title));
+        ui.add_space(8.0 * z);
         ui.horizontal(|ui| {
-            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.cyan)).inner_margin(12.0).show(ui, |ui| {
+            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cyan)).inner_margin((12.0 * z).max(5.0)).show(ui, |ui| {
                 ui.vertical(|ui| {
-                    ui.label(RichText::new("prefix").font(egui::FontId::monospace(12.0)).color(p.text_muted));
-                    ui.label(RichText::new(prefix_val.to_string()).font(egui::FontId::monospace(18.0)).strong().color(p.cyan));
+                    ui.label(RichText::new("prefix").font(egui::FontId::monospace((12.0 * z).max(8.0))).color(p.text_muted));
+                    ui.label(RichText::new(prefix_val.to_string()).font(egui::FontId::monospace((18.0 * z).max(10.0))).strong().color(p.cyan));
                 });
             });
-            ui.add_space(16.0);
-            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.pink)).inner_margin(12.0).show(ui, |ui| {
+            ui.add_space(16.0 * z);
+            egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.pink)).inner_margin((12.0 * z).max(5.0)).show(ui, |ui| {
                 ui.vertical(|ui| {
-                    ui.label(RichText::new("suffix").font(egui::FontId::monospace(12.0)).color(p.text_muted));
-                    ui.label(RichText::new(suffix_val.to_string()).font(egui::FontId::monospace(18.0)).strong().color(p.pink));
+                    ui.label(RichText::new("suffix").font(egui::FontId::monospace((12.0 * z).max(8.0))).color(p.text_muted));
+                    ui.label(RichText::new(suffix_val.to_string()).font(egui::FontId::monospace((18.0 * z).max(10.0))).strong().color(p.pink));
                 });
             });
-            ui.add_space(16.0);
+            ui.add_space(16.0 * z);
             let phase_label = match phase {
                 ProductPhase::Init => "Initializing",
                 ProductPhase::PrefixPass => "Prefix Pass (left to right)",
                 ProductPhase::SuffixPass => "Suffix Pass (right to left)",
                 ProductPhase::Complete => "Complete",
             };
-            ui.label(RichText::new(format!("Phase: {}", phase_label)).font(egui::FontId::proportional(14.0)).strong().color(p.text_primary));
+            ui.label(RichText::new(format!("Phase: {}", phase_label)).font(egui::FontId::proportional((14.0 * z).max(9.0))).strong().color(p.text_primary));
         });
 
-        ui.add_space(24.0);
+        ui.add_space(24.0 * z);
 
-        ui.heading(RichText::new("3. Output Array").color(p.emerald_text).size(16.0));
-        ui.add_space(8.0);
+        ui.heading(RichText::new("3. Output Array").color(p.emerald_text).size(font_title));
+        ui.add_space(8.0 * z);
         ui.horizontal(|ui| {
             for (idx, &val) in output.iter().enumerate() {
                 let is_active = active_idx == Some(idx);
@@ -2389,13 +2355,340 @@ impl VisualizerApp {
                 } else {
                     p.cell_bg
                 };
-                egui::Frame::none().fill(fill).rounding(Rounding::same(8.0)).stroke(Stroke::new(1.0_f32, p.emerald_text)).inner_margin(10.0).show(ui, |ui| {
+                egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.emerald_text)).inner_margin((10.0 * z).max(4.0)).show(ui, |ui| {
                     ui.vertical(|ui| {
-                        ui.label(RichText::new(format!("o[{}]", idx)).font(egui::FontId::proportional(10.0)).color(p.text_muted));
-                        ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(16.0)).strong().color(Color32::WHITE));
+                        ui.label(RichText::new(format!("o[{}]", idx)).font(egui::FontId::proportional((10.0 * z).max(8.0))).color(p.text_muted));
+                        ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(font_num)).strong().color(Color32::WHITE));
                     });
                 });
             }
         });
     }
+
+
+    fn render_trie(&self, ui: &mut egui::Ui, p: &ThemePalette) {
+        let z = self.canvas_zoom;
+        let font_title = (16.0 * z).max(10.0);
+        let font_label = (11.0 * z).max(8.0);
+        let font_root = (14.0 * z).max(9.0);
+        let font_word_idx = (12.0 * z).max(8.0);
+        let font_char = (13.0 * z).max(8.0);
+        let margin = (10.0 * z).max(4.0);
+
+        ui.heading(RichText::new("🌲 Trie (Prefix Tree) Character Node Hierarchy").color(p.cyan).size(font_title));
+        ui.add_space(8.0 * z);
+
+        ui.group(|ui| {
+            ui.label(RichText::new("TRIE CHARACTER NODE PATHS").font(egui::FontId::monospace(font_label)).color(p.text_muted));
+            ui.add_space(8.0 * z);
+
+            ui.horizontal_wrapped(|ui| {
+                // Render Root Node
+                egui::Frame::none()
+                    .fill(p.cyan)
+                    .rounding(Rounding::same(20.0 * z))
+                    .inner_margin(egui::Margin::symmetric(14.0 * z, 10.0 * z))
+                    .show(ui, |ui| {
+                        ui.label(RichText::new("ROOT (*)").font(egui::FontId::monospace(font_root)).strong().color(Color32::WHITE));
+                    });
+
+                ui.label(RichText::new(" ──► ").font(egui::FontId::monospace(16.0 * z)).color(p.cyan));
+
+                // Render Sample Word Nodes dynamically
+                let words: Vec<&str> = match self.current_problem {
+                    Problem::ImplementTrie => self.trie_words_input.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect(),
+                    Problem::WordDictionary => self.word_dict_words_input.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect(),
+                    Problem::WordSearchII => self.word_search_ii_words_input.split(',').map(|s| s.trim()).filter(|s| !s.is_empty()).collect(),
+                    _ => vec!["apple", "app", "ape"],
+                };
+
+                for (w_idx, w) in words.iter().enumerate() {
+                    egui::Frame::group(ui.style())
+                        .fill(p.step_box_bg)
+                        .rounding(Rounding::same(12.0 * z))
+                        .stroke(Stroke::new(1.5_f32 * z, p.cyan))
+                        .inner_margin(margin)
+                        .show(ui, |ui| {
+                            ui.vertical(|ui| {
+                                ui.label(RichText::new(format!("Word #{}: \"{}\"", w_idx + 1, w)).font(egui::FontId::monospace(font_word_idx)).color(p.amber).strong());
+                                ui.add_space(4.0 * z);
+                                ui.horizontal(|ui| {
+                                    for (c_idx, ch) in w.chars().enumerate() {
+                                        let is_last = c_idx == w.len() - 1;
+                                        let bg_color = if is_last { p.emerald } else { p.cell_bg };
+                                        let text_color = if is_last { Color32::WHITE } else { p.text_primary };
+
+                                        egui::Frame::none()
+                                            .fill(bg_color)
+                                            .rounding(Rounding::same(14.0 * z))
+                                            .stroke(Stroke::new(1.0_f32 * z, p.cell_border))
+                                            .inner_margin(egui::Margin::symmetric(8.0 * z, 4.0 * z))
+                                            .show(ui, |ui| {
+                                                if is_last {
+                                                    ui.label(RichText::new(format!("'{}' ★", ch)).font(egui::FontId::monospace(font_char)).strong().color(text_color));
+                                                } else {
+                                                    ui.label(RichText::new(format!("'{}'", ch)).font(egui::FontId::monospace(font_char)).strong().color(text_color));
+                                                }
+                                            });
+
+                                         if c_idx < w.len() - 1 {
+                                            ui.label(RichText::new("►").color(p.text_dim));
+                                        }
+                                    }
+                                });
+                            });
+                        });
+                    ui.add_space(6.0 * z);
+                }
+            });
+        });
+    }
+
+    fn render_custom_playground_bar(&mut self, ui: &mut egui::Ui, p: &ThemePalette) {
+        egui::Frame::none()
+            .fill(p.sidebar_bg)
+            .rounding(Rounding::same(8.0))
+            .stroke(Stroke::new(1.0_f32, p.amber))
+            .inner_margin(egui::Margin::symmetric(14.0, 8.0))
+            .show(ui, |ui| {
+                ui.horizontal(|ui| {
+                    ui.label(RichText::new("🎮 Custom Input Playground:").font(egui::FontId::proportional(12.0)).color(p.amber).strong());
+                    ui.add_space(4.0);
+
+                    let mut should_run = false;
+
+                    match self.current_problem {
+                        Problem::ContainsDuplicate => {
+                            ui.label(RichText::new("nums =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.contains_dup_nums_input).desired_width(160.0)).changed() { should_run = true; }
+                            if ui.button("[1,2,3,1]").clicked() { self.contains_dup_nums_input = "1,2,3,1".into(); should_run = true; }
+                            if ui.button("[1,2,3,4]").clicked() { self.contains_dup_nums_input = "1,2,3,4".into(); should_run = true; }
+                        }
+                        Problem::TwoSum => {
+                            ui.label(RichText::new("nums =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.two_sum_nums_input).desired_width(130.0)).changed() { should_run = true; }
+                            ui.label(RichText::new("target =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::DragValue::new(&mut self.two_sum_target_input)).changed() { should_run = true; }
+                            if ui.button("[2,7,11,15] t=9").clicked() { self.two_sum_nums_input = "2,7,11,15".into(); self.two_sum_target_input = 9; should_run = true; }
+                        }
+                        Problem::ValidAnagram => {
+                            ui.label(RichText::new("s =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.valid_anagram_s_input).desired_width(90.0)).changed() { should_run = true; }
+                            ui.label(RichText::new("t =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.valid_anagram_t_input).desired_width(90.0)).changed() { should_run = true; }
+                            if ui.button("anagram / nagaram").clicked() { self.valid_anagram_s_input = "anagram".into(); self.valid_anagram_t_input = "nagaram".into(); should_run = true; }
+                            if ui.button("rat / car").clicked() { self.valid_anagram_s_input = "rat".into(); self.valid_anagram_t_input = "car".into(); should_run = true; }
+                        }
+                        Problem::GroupAnagrams => {
+                            ui.label(RichText::new("strs =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.group_anagrams_input).desired_width(200.0)).changed() { should_run = true; }
+                            if ui.button("eat, tea, tan, ate, nat, bat").clicked() { self.group_anagrams_input = "eat, tea, tan, ate, nat, bat".into(); should_run = true; }
+                        }
+                        Problem::TopKFrequent => {
+                            ui.label(RichText::new("nums =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.topk_nums_input).desired_width(120.0)).changed() { should_run = true; }
+                            ui.label(RichText::new("k =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::DragValue::new(&mut self.topk_k_input).range(1..=10)).changed() { should_run = true; }
+                            if ui.button("[1,1,1,2,2,3] k=2").clicked() { self.topk_nums_input = "1,1,1,2,2,3".into(); self.topk_k_input = 2; should_run = true; }
+                        }
+                        Problem::ProductExceptSelf => {
+                            ui.label(RichText::new("nums =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.prod_nums_input).desired_width(160.0)).changed() { should_run = true; }
+                            if ui.button("[1,2,4,6]").clicked() { self.prod_nums_input = "1,2,4,6".into(); should_run = true; }
+                        }
+                        Problem::EncodeDecode => {
+                            ui.label(RichText::new("strs =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.ed_strs_input).desired_width(160.0)).changed() { should_run = true; }
+                            if ui.button("Hello, World").clicked() { self.ed_strs_input = "Hello, World".into(); should_run = true; }
+                        }
+                        Problem::ValidSudoku => {
+                            ui.label(RichText::new("Board Preset:").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.selectable_label(self.sudoku_preset_valid, "Valid Board Ex 1").clicked() { self.sudoku_preset_valid = true; should_run = true; }
+                            if ui.selectable_label(!self.sudoku_preset_valid, "Invalid Board Ex 2").clicked() { self.sudoku_preset_valid = false; should_run = true; }
+                        }
+                        Problem::LongestConsecutive => {
+                            ui.label(RichText::new("nums =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.longest_consecutive_nums_input).desired_width(180.0)).changed() { should_run = true; }
+                            if ui.button("[2,20,4,10,3,4,5]").clicked() { self.longest_consecutive_nums_input = "2,20,4,10,3,4,5".into(); should_run = true; }
+                        }
+                        Problem::ValidPalindrome => {
+                            ui.label(RichText::new("s =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.palindrome_s_input).desired_width(200.0)).changed() { should_run = true; }
+                            if ui.button("Was it a car...").clicked() { self.palindrome_s_input = "Was it a car or a cat I saw?".into(); should_run = true; }
+                        }
+                        Problem::BestTimeStock => {
+                            ui.label(RichText::new("prices =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.stock_prices_input).desired_width(160.0)).changed() { should_run = true; }
+                            if ui.button("[10,1,5,6,7,1]").clicked() { self.stock_prices_input = "10,1,5,6,7,1".into(); should_run = true; }
+                        }
+                        Problem::ValidParentheses => {
+                            ui.label(RichText::new("s =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.parentheses_s_input).desired_width(140.0)).changed() { should_run = true; }
+                            if ui.button("([{}])").clicked() { self.parentheses_s_input = "([{}])".into(); should_run = true; }
+                        }
+                        Problem::BinarySearch => {
+                            ui.label(RichText::new("nums =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.binary_search_nums_input).desired_width(140.0)).changed() { should_run = true; }
+                            ui.label(RichText::new("target =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::DragValue::new(&mut self.binary_search_target_input)).changed() { should_run = true; }
+                            if ui.button("[-1,0,2,4,6,8] t=4").clicked() { self.binary_search_nums_input = "-1,0,2,4,6,8".into(); self.binary_search_target_input = 4; should_run = true; }
+                        }
+                        Problem::ReverseLinkedList => {
+                            ui.label(RichText::new("nodes =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.linked_list_nodes_input).desired_width(140.0)).changed() { should_run = true; }
+                            if ui.button("[0,1,2,3]").clicked() { self.linked_list_nodes_input = "0,1,2,3".into(); should_run = true; }
+                        }
+                        Problem::MergeTwoLists => {
+                            ui.label(RichText::new("list1 =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.merge_list1_input).desired_width(100.0)).changed() { should_run = true; }
+                            ui.label(RichText::new("list2 =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.merge_list2_input).desired_width(100.0)).changed() { should_run = true; }
+                            if ui.button("[1,2,4] & [1,3,5]").clicked() { self.merge_list1_input = "1,2,4".into(); self.merge_list2_input = "1,3,5".into(); should_run = true; }
+                        }
+                        Problem::LinkedListCycle => {
+                            ui.label(RichText::new("nodes =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.cycle_nodes_input).desired_width(120.0)).changed() { should_run = true; }
+                            ui.label(RichText::new("cycle_idx =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::DragValue::new(&mut self.cycle_index_input).range(-1..=10)).changed() { should_run = true; }
+                            if ui.button("[1,2,3,4] idx=1").clicked() { self.cycle_nodes_input = "1,2,3,4".into(); self.cycle_index_input = 1; should_run = true; }
+                        }
+                        Problem::InvertTree | Problem::MaxDepthTree | Problem::DiameterTree | Problem::BalancedTree | Problem::SameTree | Problem::Subtree => {
+                            ui.label(RichText::new("tree nodes =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.tree_nodes_input).desired_width(180.0)).changed() { should_run = true; }
+                            if ui.button("[1,2,3,4,5,6,7]").clicked() { self.tree_nodes_input = "1,2,3,4,5,6,7".into(); should_run = true; }
+                        }
+                        Problem::TwoSumII => {
+                            ui.label(RichText::new("nums =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.two_pointer_nums_input).desired_width(140.0)).changed() { should_run = true; }
+                            ui.label(RichText::new("target =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::DragValue::new(&mut self.two_pointer_target_input)).changed() { should_run = true; }
+                            if ui.button("[2,7,11,15] t=9").clicked() { self.two_pointer_nums_input = "2,7,11,15".into(); self.two_pointer_target_input = 9; should_run = true; }
+                        }
+                        Problem::ThreeSum | Problem::ContainerWater | Problem::TrappingRain | Problem::HouseRobber => {
+                            ui.label(RichText::new("nums =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.two_pointer_nums_input).desired_width(180.0)).changed() { should_run = true; }
+                            if ui.button("Default Preset").clicked() { self.two_pointer_nums_input = "-1,0,1,2,-1,-4".into(); should_run = true; }
+                        }
+                        Problem::SearchRotatedArray | Problem::FindMinRotated => {
+                            ui.label(RichText::new("nums =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.binary_search_nums_input).desired_width(140.0)).changed() { should_run = true; }
+                            ui.label(RichText::new("target =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::DragValue::new(&mut self.binary_search_target_input)).changed() { should_run = true; }
+                            if ui.button("[4,5,6,7,0,1,2] t=0").clicked() { self.binary_search_nums_input = "4,5,6,7,0,1,2".into(); self.binary_search_target_input = 0; should_run = true; }
+                        }
+                        Problem::ImplementTrie => {
+                            ui.label(RichText::new("insert =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.trie_words_input).desired_width(140.0)).changed() { should_run = true; }
+                            ui.label(RichText::new("search =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.trie_search_input).desired_width(80.0)).changed() { should_run = true; }
+                            if ui.button("apple, app").clicked() { self.trie_words_input = "apple, app".into(); self.trie_search_input = "app".into(); should_run = true; }
+                        }
+                        Problem::WordDictionary => {
+                            ui.label(RichText::new("words =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.word_dict_words_input).desired_width(140.0)).changed() { should_run = true; }
+                            ui.label(RichText::new("pattern =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.word_dict_pattern_input).desired_width(80.0)).changed() { should_run = true; }
+                        }
+                        Problem::WordSearchII => {
+                            ui.label(RichText::new("words =").font(egui::FontId::monospace(12.0)).color(p.text_muted));
+                            if ui.add(egui::TextEdit::singleline(&mut self.word_search_ii_words_input).desired_width(200.0)).changed() { should_run = true; }
+                        }
+                        _ => {
+                            ui.label(RichText::new("Default test dataset active.").font(egui::FontId::proportional(12.0)).color(p.text_muted));
+                        }
+                    }
+
+                    if should_run {
+                        self.recompute_steps();
+                        self.current_step_idx = 0;
+                        self.is_playing = false;
+                    }
+                });
+            });
+    }
+
 }
+
+fn render_complexity_card(ui: &mut egui::Ui, app_meta: &ApproachMeta, p: &ThemePalette) {
+    egui::Frame::group(ui.style())
+        .fill(p.step_box_bg)
+        .rounding(Rounding::same(8.0))
+        .inner_margin(10.0)
+        .show(ui, |ui| {
+            ui.label(RichText::new("📊 Algorithm Complexity Card").strong().color(p.cyan).size(12.0));
+            ui.add_space(6.0);
+
+            ui.horizontal(|ui| {
+                let tc_color = if app_meta.time_complexity.contains("O(1)") || app_meta.time_complexity.contains("O(log") || app_meta.time_complexity == "O(N)" {
+                    p.emerald_text
+                } else if app_meta.time_complexity.contains("O(N log N)") || app_meta.time_complexity.contains("O(N * K)") {
+                    p.amber
+                } else {
+                    p.red
+                };
+
+                egui::Frame::none()
+                    .fill(tc_color.gamma_multiply(0.15))
+                    .rounding(Rounding::same(4.0))
+                    .inner_margin(egui::Margin::symmetric(8.0, 4.0))
+                    .show(ui, |ui| {
+                        ui.label(RichText::new(format!("⚡ Time: {}", app_meta.time_complexity)).font(egui::FontId::monospace(12.0)).color(tc_color).strong());
+                    });
+
+                ui.add_space(4.0);
+
+                let sc_color = if app_meta.space_complexity.contains("O(1)") {
+                    p.emerald_text
+                } else if app_meta.space_complexity.contains("O(N)") || app_meta.space_complexity.contains("O(H)") {
+                    p.cyan
+                } else {
+                    p.amber
+                };
+
+                egui::Frame::none()
+                    .fill(sc_color.gamma_multiply(0.15))
+                    .rounding(Rounding::same(4.0))
+                    .inner_margin(egui::Margin::symmetric(8.0, 4.0))
+                    .show(ui, |ui| {
+                        ui.label(RichText::new(format!("💾 Space: {}", app_meta.space_complexity)).font(egui::FontId::monospace(12.0)).color(sc_color).strong());
+                    });
+            });
+
+            if !app_meta.rationale.is_empty() {
+                ui.add_space(8.0);
+                ui.label(RichText::new(app_meta.rationale).font(egui::FontId::proportional(12.0)).color(p.text_primary));
+            }
+        });
+}
+
+fn render_variable_scope_table(ui: &mut egui::Ui, step: &Step, p: &ThemePalette) {
+    let vars = step.visual.variables();
+    if vars.is_empty() {
+        return;
+    }
+
+    egui::Frame::group(ui.style())
+        .fill(p.step_box_bg)
+        .rounding(Rounding::same(8.0))
+        .inner_margin(10.0)
+        .show(ui, |ui| {
+            ui.label(RichText::new("🔍 Variable Scope Table").strong().color(p.amber).size(12.0));
+            ui.add_space(6.0);
+
+            egui::Grid::new("var_scope_grid")
+                .striped(true)
+                .spacing([12.0, 4.0])
+                .show(ui, |ui| {
+                    ui.label(RichText::new("Variable").font(egui::FontId::monospace(11.0)).color(p.text_muted).strong());
+                    ui.label(RichText::new("Value").font(egui::FontId::monospace(11.0)).color(p.text_muted).strong());
+                    ui.end_row();
+
+                    for (name, val) in vars {
+                        ui.label(RichText::new(name).font(egui::FontId::monospace(12.0)).color(p.cyan).strong());
+                        ui.label(RichText::new(val).font(egui::FontId::monospace(12.0)).color(p.emerald_text));
+                        ui.end_row();
+                    }
+                });
+        });
+}
+

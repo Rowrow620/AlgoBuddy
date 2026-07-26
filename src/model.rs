@@ -240,6 +240,7 @@ pub struct ApproachMeta {
     pub name: &'static str,
     pub time_complexity: &'static str,
     pub space_complexity: &'static str,
+    pub rationale: &'static str,
     pub description: &'static str,
 }
 
@@ -314,6 +315,9 @@ pub enum Problem {
     FindMinRotated,
     TimeKeyValueStore,
     FindMedianSortedArrays,
+    ImplementTrie,
+    WordDictionary,
+    WordSearchII,
 }
 
 impl Problem {
@@ -341,7 +345,11 @@ impl Problem {
             Problem::BalancedTree,
             Problem::SameTree,
             Problem::Subtree,
+            Problem::ImplementTrie,
+            Problem::WordDictionary,
+            Problem::WordSearchII,
             Problem::ClimbingStairs,
+
             Problem::MinCostStairs,
             Problem::KthLargestStream,
             Problem::LastStone,
@@ -401,385 +409,406 @@ impl Problem {
                 statement: "Given an integer array nums, return true if any value appears at least twice in the array.",
                 examples: &[Example { input: "nums = [1, 2, 3, 1]", output: "true", explanation: "Digit 1 appears twice." }],
                 constraints: &["1 <= nums.length <= 10^5"], leetcode_url: "https://leetcode.com/problems/contains-duplicate/",
-                approaches: &[ApproachMeta { id: 0, name: "Hash Set Lookup", time_complexity: "O(N)", space_complexity: "O(N)", description: "Insert into set, return true on collision." }],
+                approaches: &[ApproachMeta { id: 0, name: "Hash Set Lookup", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "Checking presence in a Hash Set takes O(1) average time per element, avoiding the O(N^2) nested loop comparison.", description: "Insert into set, return true on collision." }],
             },
             Problem::TwoSum => ProblemDetails {
                 id: 1, title: "Two Sum", difficulty: Difficulty::Easy, category: Category::ArraysAndHashing,
                 statement: "Given an array of integers nums and a target, return indices of the two numbers that add up to target.",
                 examples: &[Example { input: "nums = [2, 7, 11, 15], target = 9", output: "[0, 1]", explanation: "nums[0] + nums[1] == 9" }],
                 constraints: &["2 <= nums.length <= 10^4"], leetcode_url: "https://leetcode.com/problems/two-sum/",
-                approaches: &[ApproachMeta { id: 0, name: "Hash Map (One Pass)", time_complexity: "O(N)", space_complexity: "O(N)", description: "Use hash map complement lookup." }],
+                approaches: &[ApproachMeta { id: 0, name: "Hash Map (One Pass)", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "Storing seen numbers in a Hash Map allows complement lookup in O(1) time instead of brute-force O(N^2) pair checking.", description: "Use hash map complement lookup." }],
             },
             Problem::ValidAnagram => ProblemDetails {
                 id: 242, title: "Valid Anagram", difficulty: Difficulty::Easy, category: Category::ArraysAndHashing,
                 statement: "Given two strings s and t, return true if t is an anagram of s.",
                 examples: &[Example { input: "s = \"anagram\", t = \"nagaram\"", output: "true", explanation: "Frequencies match." }],
                 constraints: &["1 <= s.length <= 5*10^4"], leetcode_url: "https://leetcode.com/problems/valid-anagram/",
-                approaches: &[ApproachMeta { id: 0, name: "Frequency Counter Array", time_complexity: "O(N)", space_complexity: "O(1)", description: "Count char frequencies." }],
+                approaches: &[ApproachMeta { id: 0, name: "Frequency Counter Array", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Using a fixed-size 26-element array avoids sorting O(N log N) while requiring only O(1) auxiliary memory.", description: "Count char frequencies." }],
             },
             Problem::GroupAnagrams => ProblemDetails {
                 id: 49, title: "Group Anagrams", difficulty: Difficulty::Medium, category: Category::ArraysAndHashing,
                 statement: "Given an array of strings strs, group the anagrams together.",
                 examples: &[Example { input: "strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]", output: "[[\"bat\"],[\"nat\",\"tan\"],[\"ate\",\"eat\",\"tea\"]]", explanation: "Anagrams grouped by key." }],
                 constraints: &["1 <= strs.length <= 10^4"], leetcode_url: "https://leetcode.com/problems/group-anagrams/",
-                approaches: &[ApproachMeta { id: 0, name: "Char Frequency Tuple Map", time_complexity: "O(N * K)", space_complexity: "O(N * K)", description: "Tuple key map." }],
+                approaches: &[ApproachMeta { id: 0, name: "Char Frequency Tuple Map", time_complexity: "O(N * K)", space_complexity: "O(N * K)", rationale: "Using character frequency tuples as Hash Map keys groups anagrams in O(N * K) time without sorting individual strings.", description: "Tuple key map." }],
             },
             Problem::TopKFrequent => ProblemDetails {
                 id: 347, title: "Top K Frequent Elements", difficulty: Difficulty::Medium, category: Category::ArraysAndHashing,
                 statement: "Given an integer array nums and integer k, return the k most frequent elements.",
                 examples: &[Example { input: "nums = [1,1,1,2,2,3], k = 2", output: "[1, 2]", explanation: "1 appears 3x, 2 appears 2x." }],
                 constraints: &["1 <= nums.length <= 10^5"], leetcode_url: "https://leetcode.com/problems/top-k-frequent-elements/",
-                approaches: &[ApproachMeta { id: 0, name: "Bucket Sort", time_complexity: "O(N)", space_complexity: "O(N)", description: "Frequency buckets." }],
+                approaches: &[ApproachMeta { id: 0, name: "Bucket Sort", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "Bucket sorting by frequency index allows linear O(N) extraction of top K elements, outperforming O(N log N) heap/sorting methods.", description: "Frequency buckets." }],
             },
             Problem::ProductExceptSelf => ProblemDetails {
                 id: 238, title: "Product of Array Except Self", difficulty: Difficulty::Medium, category: Category::ArraysAndHashing,
                 statement: "Return an array output where output[i] is the product of all elements except nums[i].",
                 examples: &[Example { input: "nums = [1, 2, 4, 6]", output: "[48, 24, 12, 8]", explanation: "Prefix/suffix passes." }],
                 constraints: &["2 <= nums.length <= 1000"], leetcode_url: "https://leetcode.com/problems/product-of-array-except-self/",
-                approaches: &[ApproachMeta { id: 0, name: "Prefix & Suffix Pass", time_complexity: "O(N)", space_complexity: "O(1)", description: "Running prefix & suffix." }],
+                approaches: &[ApproachMeta { id: 0, name: "Prefix & Suffix Pass", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Computing left prefix products and right suffix products in two O(N) passes avoids division while keeping extra space to O(1).", description: "Running prefix & suffix." }],
             },
             Problem::EncodeDecode => ProblemDetails {
                 id: 271, title: "Encode and Decode Strings", difficulty: Difficulty::Medium, category: Category::ArraysAndHashing,
                 statement: "Design an algorithm to encode a list of strings to a string and decode it back.",
                 examples: &[Example { input: "strs = [\"Hello\",\"World\"]", output: "[\"Hello\",\"World\"]", explanation: "Encoded into 5#Hello5#World." }],
                 constraints: &["0 <= strs.length < 100"], leetcode_url: "https://leetcode.com/problems/encode-and-decode-strings/",
-                approaches: &[ApproachMeta { id: 0, name: "Length Prefix (# Protocol)", time_complexity: "O(N)", space_complexity: "O(N)", description: "Len#str encoding." }],
+                approaches: &[ApproachMeta { id: 0, name: "Length Prefix (# Protocol)", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "Prepending character length and a delimiter (#) guarantees unambiguous parsing regardless of special characters in strings.", description: "Len#str encoding." }],
             },
             Problem::ValidSudoku => ProblemDetails {
                 id: 36, title: "Valid Sudoku", difficulty: Difficulty::Medium, category: Category::ArraysAndHashing,
                 statement: "Determine if a 9x9 Sudoku board is valid (rows, cols, 3x3 boxes).",
                 examples: &[Example { input: "board = [[1, 2, ...]]", output: "true", explanation: "No duplicates." }],
                 constraints: &["board.length == 9"], leetcode_url: "https://leetcode.com/problems/valid-sudoku/",
-                approaches: &[ApproachMeta { id: 0, name: "HashSet Validation", time_complexity: "O(1)", space_complexity: "O(1)", description: "Scan rows, cols, 3x3 boxes." }],
+                approaches: &[ApproachMeta { id: 0, name: "HashSet Validation", time_complexity: "O(1)", space_complexity: "O(1)", rationale: "A single 9x9 grid scan verifies row, column, and 3x3 box constraints in deterministic O(1) constant time.", description: "Scan rows, cols, 3x3 boxes." }],
             },
             Problem::LongestConsecutive => ProblemDetails {
                 id: 128, title: "Longest Consecutive Sequence", difficulty: Difficulty::Medium, category: Category::ArraysAndHashing,
                 statement: "Return the length of the longest consecutive elements sequence.",
                 examples: &[Example { input: "nums = [2, 20, 4, 10, 3, 4, 5]", output: "4", explanation: "Sequence [2, 3, 4, 5]." }],
                 constraints: &["0 <= nums.length <= 1000"], leetcode_url: "https://leetcode.com/problems/longest-consecutive-sequence/",
-                approaches: &[ApproachMeta { id: 0, name: "HashSet Sequence Start Expansion", time_complexity: "O(N)", space_complexity: "O(N)", description: "Expand from streak starts." }],
+                approaches: &[ApproachMeta { id: 0, name: "HashSet Sequence Start Expansion", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "Only expanding streaks from sequence start numbers (where n-1 is not in set) guarantees each number is visited at most twice (O(N)).", description: "Expand from streak starts." }],
             },
             Problem::ValidPalindrome => ProblemDetails {
                 id: 125, title: "Valid Palindrome", difficulty: Difficulty::Easy, category: Category::TwoPointers,
                 statement: "Given a string s, return true if it is a palindrome.",
                 examples: &[Example { input: "s = \"Was it a car or a cat I saw?\"", output: "true", explanation: "Alphanumeric filter palindrome." }],
                 constraints: &["1 <= s.length <= 1000"], leetcode_url: "https://leetcode.com/problems/valid-palindrome/",
-                approaches: &[ApproachMeta { id: 0, name: "Two Pointers In-Place", time_complexity: "O(N)", space_complexity: "O(1)", description: "Left and right pointers." }],
+                approaches: &[ApproachMeta { id: 0, name: "Two Pointers In-Place", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Two pointers converging from both ends check symmetry in O(N) time without allocating extra string storage (O(1) space).", description: "Left and right pointers." }],
             },
             Problem::BestTimeStock => ProblemDetails {
                 id: 121, title: "Best Time to Buy and Sell Stock", difficulty: Difficulty::Easy, category: Category::SlidingWindow,
                 statement: "Choose a single day to buy and a future day to sell to maximize profit.",
                 examples: &[Example { input: "prices = [10, 1, 5, 6, 7, 1]", output: "6", explanation: "Buy at 1, sell at 7." }],
                 constraints: &["1 <= prices.length <= 100"], leetcode_url: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
-                approaches: &[ApproachMeta { id: 0, name: "Two Pointers / Sliding Window", time_complexity: "O(N)", space_complexity: "O(1)", description: "Min buy pointer, running max profit." }],
+                approaches: &[ApproachMeta { id: 0, name: "Two Pointers / Sliding Window", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Tracking the minimum buy price while scanning linear prices computes max profit in one O(N) pass with O(1) space.", description: "Min buy pointer, running max profit." }],
             },
             Problem::ValidParentheses => ProblemDetails {
                 id: 20, title: "Valid Parentheses", difficulty: Difficulty::Easy, category: Category::Stack,
                 statement: "Return true if the input bracket string is valid.",
                 examples: &[Example { input: "s = \"([{}])\"", output: "true", explanation: "Matched brackets." }],
                 constraints: &["1 <= s.length <= 1000"], leetcode_url: "https://leetcode.com/problems/valid-parentheses/",
-                approaches: &[ApproachMeta { id: 0, name: "Stack Matching", time_complexity: "O(N)", space_complexity: "O(N)", description: "Push open, pop matching close." }],
+                approaches: &[ApproachMeta { id: 0, name: "Stack Matching", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "A LIFO stack matches closing brackets with the most recently opened bracket in O(N) time and O(N) memory.", description: "Push open, pop matching close." }],
             },
             Problem::BinarySearch => ProblemDetails {
                 id: 704, title: "Binary Search", difficulty: Difficulty::Easy, category: Category::BinarySearch,
                 statement: "Given sorted array nums and target, return index of target or -1.",
                 examples: &[Example { input: "nums = [-1, 0, 2, 4, 6, 8], target = 4", output: "3", explanation: "Found at index 3." }],
                 constraints: &["1 <= nums.length <= 10000"], leetcode_url: "https://leetcode.com/problems/binary-search/",
-                approaches: &[ApproachMeta { id: 0, name: "Binary Search Iterative", time_complexity: "O(log N)", space_complexity: "O(1)", description: "Midpoint bounds." }],
+                approaches: &[ApproachMeta { id: 0, name: "Binary Search Iterative", time_complexity: "O(log N)", space_complexity: "O(1)", rationale: "Halving the search space at each midpoint step guarantees logarithmic O(log N) runtime on sorted arrays.", description: "Midpoint bounds." }],
             },
             Problem::ReverseLinkedList => ProblemDetails {
                 id: 206, title: "Reverse Linked List", difficulty: Difficulty::Easy, category: Category::LinkedList,
                 statement: "Reverse a singly linked list.",
                 examples: &[Example { input: "head = [0, 1, 2, 3]", output: "[3, 2, 1, 0]", explanation: "Next pointers flipped." }],
                 constraints: &["0 <= length <= 1000"], leetcode_url: "https://leetcode.com/problems/reverse-linked-list/",
-                approaches: &[ApproachMeta { id: 0, name: "Iterative Pointers (prev, curr)", time_complexity: "O(N)", space_complexity: "O(1)", description: "Flip next pointers." }],
+                approaches: &[ApproachMeta { id: 0, name: "Iterative Pointers (prev, curr)", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Reversing link pointers iteratively requires only 3 pointer variables (prev, curr, nxt), achieving O(N) time and O(1) space.", description: "Flip next pointers." }],
             },
             Problem::MergeTwoLists => ProblemDetails {
                 id: 21, title: "Merge Two Sorted Linked Lists", difficulty: Difficulty::Easy, category: Category::LinkedList,
                 statement: "Merge two sorted linked lists into one sorted list.",
                 examples: &[Example { input: "list1 = [1, 2, 4], list2 = [1, 3, 5]", output: "[1, 1, 2, 3, 4, 5]", explanation: "Merged in order." }],
                 constraints: &["0 <= list1.length <= 100"], leetcode_url: "https://leetcode.com/problems/merge-two-sorted-lists/",
-                approaches: &[ApproachMeta { id: 0, name: "Two Pointers Merge", time_complexity: "O(N + M)", space_complexity: "O(1)", description: "Tail node attachments." }],
+                approaches: &[ApproachMeta { id: 0, name: "Two Pointers Merge", time_complexity: "O(N + M)", space_complexity: "O(1)", rationale: "Splicing existing list nodes together using two pointers merges sorted lists in O(N + M) time with zero extra allocations.", description: "Tail node attachments." }],
             },
             Problem::LinkedListCycle => ProblemDetails {
                 id: 141, title: "Linked List Cycle Detection", difficulty: Difficulty::Easy, category: Category::LinkedList,
                 statement: "Return true if there is a cycle in the linked list.",
                 examples: &[Example { input: "head = [1, 2, 3, 4], index = 1", output: "true", explanation: "Tail connects to index 1." }],
                 constraints: &["0 <= length <= 1000"], leetcode_url: "https://leetcode.com/problems/linked-list-cycle/",
-                approaches: &[ApproachMeta { id: 0, name: "Floyd's Tortoise & Hare", time_complexity: "O(N)", space_complexity: "O(1)", description: "Slow and fast pointers." }],
+                approaches: &[ApproachMeta { id: 0, name: "Floyd's Tortoise & Hare", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Floyd's fast pointer moves at 2x speed; if a cycle exists, the distance between slow and fast decreases by 1 each step (O(N) catch-up).", description: "Slow and fast pointers." }],
             },
             Problem::InvertTree => ProblemDetails {
                 id: 226, title: "Invert Binary Tree", difficulty: Difficulty::Easy, category: Category::Trees,
                 statement: "Invert a binary tree (swap left and right subtrees for every node).",
                 examples: &[Example { input: "root = [1, 2, 3, 4, 5, 6, 7]", output: "[1, 3, 2, 7, 6, 5, 4]", explanation: "Subtrees swapped." }],
                 constraints: &["0 <= nodes <= 100"], leetcode_url: "https://leetcode.com/problems/invert-binary-tree/",
-                approaches: &[ApproachMeta { id: 0, name: "Recursive DFS", time_complexity: "O(N)", space_complexity: "O(H)", description: "Post-order swap." }],
+                approaches: &[ApproachMeta { id: 0, name: "Recursive DFS", time_complexity: "O(N)", space_complexity: "O(H)", rationale: "Swapping left and right child pointers recursively visits all N tree nodes in O(N) time.", description: "Post-order swap." }],
             },
             Problem::MaxDepthTree => ProblemDetails {
                 id: 104, title: "Maximum Depth of Binary Tree", difficulty: Difficulty::Easy, category: Category::Trees,
                 statement: "Return the maximum depth of a binary tree.",
                 examples: &[Example { input: "root = [1, 2, 3, null, null, 4]", output: "3", explanation: "Longest path is 3 nodes." }],
                 constraints: &["0 <= nodes <= 100"], leetcode_url: "https://leetcode.com/problems/maximum-depth-of-binary-tree/",
-                approaches: &[ApproachMeta { id: 0, name: "Recursive DFS", time_complexity: "O(N)", space_complexity: "O(H)", description: "1 + max(left, right)." }],
+                approaches: &[ApproachMeta { id: 0, name: "Recursive DFS", time_complexity: "O(N)", space_complexity: "O(H)", rationale: "Depth-first search computes subtree heights recursively as 1 + max(left, right) in O(N) time.", description: "1 + max(left, right)." }],
             },
             Problem::DiameterTree => ProblemDetails {
                 id: 543, title: "Diameter of Binary Tree", difficulty: Difficulty::Easy, category: Category::Trees,
                 statement: "Return length of longest path between any two nodes.",
                 examples: &[Example { input: "root = [1, null, 2, 3, 4, 5]", output: "3", explanation: "Longest path has 3 edges." }],
                 constraints: &["1 <= nodes <= 100"], leetcode_url: "https://leetcode.com/problems/diameter-of-binary-tree/",
-                approaches: &[ApproachMeta { id: 0, name: "Post-order Depth DFS", time_complexity: "O(N)", space_complexity: "O(H)", description: "Left height + right height." }],
+                approaches: &[ApproachMeta { id: 0, name: "Post-order Depth DFS", time_complexity: "O(N)", space_complexity: "O(H)", rationale: "Calculating longest left + right depth path at each node during DFS finds the global diameter in O(N) time.", description: "Left height + right height." }],
             },
             Problem::BalancedTree => ProblemDetails {
                 id: 110, title: "Balanced Binary Tree", difficulty: Difficulty::Easy, category: Category::Trees,
                 statement: "Determine if a binary tree is height-balanced (|height(left) - height(right)| <= 1).",
                 examples: &[Example { input: "root = [3, 9, 20, null, null, 15, 7]", output: "true", explanation: "Balanced heights." }],
                 constraints: &["0 <= nodes <= 5000"], leetcode_url: "https://leetcode.com/problems/balanced-binary-tree/",
-                approaches: &[ApproachMeta { id: 0, name: "Bottom-Up Height DFS", time_complexity: "O(N)", space_complexity: "O(H)", description: "Check height difference at each node." }],
+                approaches: &[ApproachMeta { id: 0, name: "Bottom-Up Height DFS", time_complexity: "O(N)", space_complexity: "O(H)", rationale: "Bottom-up DFS returns -1 immediately upon detecting an unbalanced subtree, pruning unnecessary calculations in O(N) time.", description: "Check height difference at each node." }],
             },
             Problem::SameTree => ProblemDetails {
                 id: 100, title: "Same Tree", difficulty: Difficulty::Easy, category: Category::Trees,
                 statement: "Given roots of two binary trees p and q, return true if they are structural and value identical.",
                 examples: &[Example { input: "p = [1, 2, 3], q = [1, 2, 3]", output: "true", explanation: "Trees match." }],
                 constraints: &["0 <= nodes <= 100"], leetcode_url: "https://leetcode.com/problems/same-tree/",
-                approaches: &[ApproachMeta { id: 0, name: "Recursive DFS Comparison", time_complexity: "O(N)", space_complexity: "O(H)", description: "Check p.val == q.val and recurse." }],
+                approaches: &[ApproachMeta { id: 0, name: "Recursive DFS Comparison", time_complexity: "O(N)", space_complexity: "O(H)", rationale: "Recursive DFS verifies value match and structural equality across both trees simultaneously in O(N) time.", description: "Check p.val == q.val and recurse." }],
             },
             Problem::Subtree => ProblemDetails {
                 id: 572, title: "Subtree of Another Tree", difficulty: Difficulty::Easy, category: Category::Trees,
                 statement: "Return true if there is a subtree of root with the same structure and node values as subRoot.",
                 examples: &[Example { input: "root = [3, 4, 5, 1, 2], subRoot = [4, 1, 2]", output: "true", explanation: "Subtree matches." }],
                 constraints: &["0 <= nodes <= 2000"], leetcode_url: "https://leetcode.com/problems/subtree-of-another-tree/",
-                approaches: &[ApproachMeta { id: 0, name: "DFS Tree Traversal & Match", time_complexity: "O(N * M)", space_complexity: "O(H)", description: "Check sameTree at each node." }],
+                approaches: &[ApproachMeta { id: 0, name: "Recursive Tree Matching", time_complexity: "O(N * M)", space_complexity: "O(H)", rationale: "Comparing subtree matches recursively at each root node checks structural identity in O(N * M) time.", description: "Compare root node with subRoot recursively." }],
+            },
+            Problem::ImplementTrie => ProblemDetails {
+                id: 208, title: "Implement Trie (Prefix Tree)", difficulty: Difficulty::Medium, category: Category::Tries,
+                statement: "A trie (prefix tree) is a tree data structure used to efficiently store and retrieve keys in a dataset of strings.",
+                examples: &[Example { input: "insert(\"apple\"), search(\"apple\"), startsWith(\"app\")", output: "[null, true, true]", explanation: "Word and prefix found." }],
+                constraints: &["1 <= word.length <= 2000"], leetcode_url: "https://leetcode.com/problems/implement-trie-prefix-tree/",
+                approaches: &[ApproachMeta { id: 0, name: "TrieNode Hash/Array", time_complexity: "O(N)", space_complexity: "O(N * 26)", rationale: "Navigating child nodes by character code provides O(L) lookup independent of the total number of stored words.", description: "N-ary tree with character map and is_end flag." }],
+            },
+            Problem::WordDictionary => ProblemDetails {
+                id: 211, title: "Design Add and Search Words Data Structure", difficulty: Difficulty::Medium, category: Category::Tries,
+                statement: "Design a data structure that supports adding new words and searching if a string matches any previously added string (supporting '.' wildcards).",
+                examples: &[Example { input: "addWord(\"bad\"), search(\".ad\")", output: "[null, true]", explanation: "'.' matches 'b'." }],
+                constraints: &["1 <= word.length <= 25"], leetcode_url: "https://leetcode.com/problems/design-add-and-search-words-data-structure/",
+                approaches: &[ApproachMeta { id: 0, name: "Trie DFS Wildcard Match", time_complexity: "O(N * 26^M)", space_complexity: "O(N)", rationale: "Trie DFS branches across 26 child nodes only when encountering wildcard ('.'), efficiently searching word patterns.", description: "DFS traversal branching on wildcard '.'." }],
+            },
+            Problem::WordSearchII => ProblemDetails {
+                id: 212, title: "Word Search II", difficulty: Difficulty::Hard, category: Category::Tries,
+                statement: "Given an m x n board of characters and a list of strings words, return all words on the board.",
+                examples: &[Example { input: "board = [[\"o\",\"a\",\"a\",\"n\"],[\"e\",\"t\",\"a\",\"e\"]], words = [\"oath\",\"pea\",\"eat\",\"rain\"]", output: "[\"oath\",\"eat\"]", explanation: "Words found on grid." }],
+                constraints: &["1 <= words.length <= 3 * 10^4"], leetcode_url: "https://leetcode.com/problems/word-search-ii/",
+                approaches: &[ApproachMeta { id: 0, name: "Trie Grid Backtracking DFS", time_complexity: "O(M * N * 4^L)", space_complexity: "O(W * L)", rationale: "Building a Trie from dictionary words allows early pruning of grid DFS paths that do not form valid prefixes.", description: "Prune grid DFS using dictionary Trie." }],
             },
             Problem::ClimbingStairs => ProblemDetails {
                 id: 70, title: "Climbing Stairs", difficulty: Difficulty::Easy, category: Category::OneDDp,
                 statement: "It takes n steps to reach top. Each time you can climb 1 or 2 steps. How many distinct ways?",
                 examples: &[Example { input: "n = 3", output: "3", explanation: "1+1+1, 1+2, 2+1." }],
                 constraints: &["1 <= n <= 45"], leetcode_url: "https://leetcode.com/problems/climbing-stairs/",
-                approaches: &[ApproachMeta { id: 0, name: "Dynamic Programming (Fibonacci)", time_complexity: "O(N)", space_complexity: "O(1)", description: "dp[i] = dp[i-1] + dp[i-2]." }],
+                approaches: &[ApproachMeta { id: 0, name: "Dynamic Programming (Fibonacci)", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Ways to step n equal Fibonacci(n); maintaining 2 variables (dp[i-1], dp[i-2]) solves the problem in O(N) time and O(1) space.", description: "dp[i] = dp[i-1] + dp[i-2]." }],
             },
             Problem::MinCostStairs => ProblemDetails {
                 id: 746, title: "Min Cost Climbing Stairs", difficulty: Difficulty::Easy, category: Category::OneDDp,
                 statement: "Return minimum cost to reach top of floor by taking 1 or 2 steps.",
                 examples: &[Example { input: "cost = [10, 15, 20]", output: "15", explanation: "Start at index 1, pay 15." }],
                 constraints: &["2 <= cost.length <= 1000"], leetcode_url: "https://leetcode.com/problems/min-cost-climbing-stairs/",
-                approaches: &[ApproachMeta { id: 0, name: "Bottom-Up DP", time_complexity: "O(N)", space_complexity: "O(1)", description: "dp[i] = min(dp[i-1]+cost[i-1], dp[i-2]+cost[i-2])." }],
+                approaches: &[ApproachMeta { id: 0, name: "Bottom-Up DP", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Subproblem optimal transition dp[i] = cost[i] + min(dp[i-1], dp[i-2]) computes minimum cost in a single O(N) DP pass.", description: "dp[i] = min(dp[i-1]+cost[i-1], dp[i-2]+cost[i-2])." }],
             },
             Problem::KthLargestStream => ProblemDetails {
                 id: 703, title: "Kth Largest Element in a Stream", difficulty: Difficulty::Easy, category: Category::HeapPriorityQueue,
                 statement: "Design a class to find the k-th largest element in a stream.",
                 examples: &[Example { input: "k = 3, nums = [4, 5, 8, 2], val = 3", output: "4", explanation: "Min-heap of size k=3." }],
                 constraints: &["1 <= k <= 10^4"], leetcode_url: "https://leetcode.com/problems/kth-largest-element-in-a-stream/",
-                approaches: &[ApproachMeta { id: 0, name: "Min-Heap of Size k", time_complexity: "O(N log k)", space_complexity: "O(k)", description: "Maintain min-heap of size k." }],
+                approaches: &[ApproachMeta { id: 0, name: "Min-Heap of Size k", time_complexity: "O(N log k)", space_complexity: "O(k)", rationale: "A min-heap of size k keeps the k largest elements at all times; the top element is always the k-th largest in O(log k) per add.", description: "Maintain min-heap of size k." }],
             },
             Problem::LastStone => ProblemDetails {
                 id: 1046, title: "Last Stone Weight", difficulty: Difficulty::Easy, category: Category::HeapPriorityQueue,
                 statement: "Smash two heaviest stones y and x until at most 1 stone remains.",
                 examples: &[Example { input: "stones = [2, 7, 4, 1, 8, 1]", output: "1", explanation: "Smash 8 and 7, remaining 1." }],
                 constraints: &["1 <= stones.length <= 30"], leetcode_url: "https://leetcode.com/problems/last-stone-weight/",
-                approaches: &[ApproachMeta { id: 0, name: "Max-Heap Simulation", time_complexity: "O(N log N)", space_complexity: "O(N)", description: "Repeatedly smash top 2." }],
+                approaches: &[ApproachMeta { id: 0, name: "Max-Heap Simulation", time_complexity: "O(N log N)", space_complexity: "O(N)", rationale: "A max-heap always provides the two heaviest stones in O(log N) time per smash iteration.", description: "Repeatedly smash top 2." }],
             },
             Problem::MeetingRooms => ProblemDetails {
                 id: 252, title: "Meeting Rooms", difficulty: Difficulty::Easy, category: Category::Intervals,
                 statement: "Given an array of meeting time intervals, determine if a person could attend all meetings.",
                 examples: &[Example { input: "intervals = [[0,30],[5,10],[15,20]]", output: "false", explanation: "[0,30] and [5,10] overlap." }],
                 constraints: &["0 <= intervals.length <= 10^4"], leetcode_url: "https://leetcode.com/problems/meeting-rooms/",
-                approaches: &[ApproachMeta { id: 0, name: "Sort Intervals by Start Time", time_complexity: "O(N log N)", space_complexity: "O(1)", description: "Check adjacent overlap." }],
+                approaches: &[ApproachMeta { id: 0, name: "Sort Intervals by Start Time", time_complexity: "O(N log N)", space_complexity: "O(1)", rationale: "Sorting interval start times in O(N log N) allows checking adjacent meeting overlaps in a single O(N) pass.", description: "Check adjacent overlap." }],
             },
             Problem::HappyNumber => ProblemDetails {
                 id: 202, title: "Happy Number", difficulty: Difficulty::Easy, category: Category::MathAndGeometry,
                 statement: "Determine if a number n is happy (sum of square of digits reaches 1).",
                 examples: &[Example { input: "n = 19", output: "true", explanation: "1^2+9^2=82 -> 68 -> 100 -> 1." }],
                 constraints: &["1 <= n <= 2^31 - 1"], leetcode_url: "https://leetcode.com/problems/happy-number/",
-                approaches: &[ApproachMeta { id: 0, name: "HashSet Cycle Detection", time_complexity: "O(log N)", space_complexity: "O(log N)", description: "Track seen square sums." }],
+                approaches: &[ApproachMeta { id: 0, name: "HashSet Cycle Detection", time_complexity: "O(log N)", space_complexity: "O(log N)", rationale: "A HashSet tracks previously seen digit sum results to detect infinite cycles in logarithmic time.", description: "Track seen square sums." }],
             },
             Problem::PlusOne => ProblemDetails {
                 id: 66, title: "Plus One", difficulty: Difficulty::Easy, category: Category::MathAndGeometry,
                 statement: "Increment the large integer represented as a digit array by one.",
                 examples: &[Example { input: "digits = [1, 2, 3]", output: "[1, 2, 4]", explanation: "123 + 1 = 124." }],
                 constraints: &["1 <= digits.length <= 100"], leetcode_url: "https://leetcode.com/problems/plus-one/",
-                approaches: &[ApproachMeta { id: 0, name: "Right-to-Left Carry Pass", time_complexity: "O(N)", space_complexity: "O(1)", description: "Add 1 from right, carry overflow." }],
+                approaches: &[ApproachMeta { id: 0, name: "Right-to-Left Carry Pass", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Iterating backwards handles digit carry in O(N) time, adding a new leading 1 only if all digits were 9.", description: "Add 1 from right, carry overflow." }],
             },
             Problem::SingleNumber => ProblemDetails {
                 id: 136, title: "Single Number", difficulty: Difficulty::Easy, category: Category::BitManipulation,
                 statement: "Given a non-empty array of integers where every element appears twice except for one, find it.",
                 examples: &[Example { input: "nums = [4, 1, 2, 1, 2]", output: "4", explanation: "4 is non-duplicate." }],
                 constraints: &["1 <= nums.length <= 3*10^4"], leetcode_url: "https://leetcode.com/problems/single-number/",
-                approaches: &[ApproachMeta { id: 0, name: "Bitwise XOR", time_complexity: "O(N)", space_complexity: "O(1)", description: "a ^ a = 0 cancels duplicates." }],
+                approaches: &[ApproachMeta { id: 0, name: "Bitwise XOR", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Bitwise XOR properties (a ^ a = 0 and a ^ 0 = a) cancel out paired numbers, isolating the single number in O(N) time and O(1) space.", description: "a ^ a = 0 cancels duplicates." }],
             },
             Problem::CountBits => ProblemDetails {
                 id: 191, title: "Number of 1 Bits", difficulty: Difficulty::Easy, category: Category::BitManipulation,
                 statement: "Return the number of set bits (1s) in a 32-bit unsigned integer.",
                 examples: &[Example { input: "n = 11 (0000...1011)", output: "3", explanation: "3 set bits." }],
                 constraints: &["1 <= n <= 2^31 - 1"], leetcode_url: "https://leetcode.com/problems/number-of-1-bits/",
-                approaches: &[ApproachMeta { id: 0, name: "Brian Kernighan's Algorithm", time_complexity: "O(1)", space_complexity: "O(1)", description: "n &= n - 1 clears lowest 1 bit." }],
+                approaches: &[ApproachMeta { id: 0, name: "Brian Kernighan's Algorithm", time_complexity: "O(1)", space_complexity: "O(1)", rationale: "Kernighan's operation n &= (n - 1) clears the lowest set bit, counting set bits in O(set_bits) operations.", description: "n &= n - 1 clears lowest 1 bit." }],
             },
             Problem::CountingBits => ProblemDetails {
                 id: 338, title: "Counting Bits", difficulty: Difficulty::Easy, category: Category::BitManipulation,
                 statement: "Given n, return an array ans of length n + 1 where ans[i] is the number of 1's in binary representation of i.",
                 examples: &[Example { input: "n = 5", output: "[0,1,1,2,1,2]", explanation: "Bits for 0..5." }],
                 constraints: &["0 <= n <= 10^5"], leetcode_url: "https://leetcode.com/problems/counting-bits/",
-                approaches: &[ApproachMeta { id: 0, name: "Dynamic Programming (Bit Shift / Offset)", time_complexity: "O(N)", space_complexity: "O(N)", description: "dp[i] = 1 + dp[i - offset]." }],
+                approaches: &[ApproachMeta { id: 0, name: "Dynamic Programming (Bit Shift / Offset)", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "Using DP transition bits[i] = bits[i >> 1] + (i & 1) computes bit counts for 0..N in linear O(N) time.", description: "dp[i] = 1 + dp[i - offset]." }],
             },
             Problem::ReverseBits => ProblemDetails {
                 id: 190, title: "Reverse Bits", difficulty: Difficulty::Easy, category: Category::BitManipulation,
                 statement: "Reverse bits of a given 32-bit unsigned integer.",
                 examples: &[Example { input: "n = 43261596 (00000010100101000001111010011100)", output: "964176192", explanation: "Reversed bits." }],
                 constraints: &["32-bit integer"], leetcode_url: "https://leetcode.com/problems/reverse-bits/",
-                approaches: &[ApproachMeta { id: 0, name: "Bitwise Shift & Or", time_complexity: "O(1)", space_complexity: "O(1)", description: "Shift bit i to 31 - i." }],
+                approaches: &[ApproachMeta { id: 0, name: "Bitwise Shift & Or", time_complexity: "O(1)", space_complexity: "O(1)", rationale: "Looping 32 bits and shifting the target bit to position (31 - i) reverses bit order in deterministic O(1) time.", description: "Shift bit i to 31 - i." }],
             },
             Problem::MissingNumber => ProblemDetails {
                 id: 268, title: "Missing Number", difficulty: Difficulty::Easy, category: Category::BitManipulation,
                 statement: "Given an array containing n distinct numbers in range [0, n], return the missing number.",
                 examples: &[Example { input: "nums = [3, 0, 1]", output: "2", explanation: "Range [0..3], 2 is missing." }],
                 constraints: &["1 <= n <= 10^4"], leetcode_url: "https://leetcode.com/problems/missing-number/",
-                approaches: &[ApproachMeta { id: 0, name: "Gauss Sum Formula", time_complexity: "O(N)", space_complexity: "O(1)", description: "expected_sum - actual_sum." }],
+                approaches: &[ApproachMeta { id: 0, name: "Gauss Sum Formula", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Gauss sum formula N*(N+1)/2 gives expected total; subtracting actual array sum finds missing number in O(N) time and O(1) space.", description: "expected_sum - actual_sum." }],
             },
             Problem::TwoSumII => ProblemDetails {
                 id: 167, title: "Two Sum II - Input Array Is Sorted", difficulty: Difficulty::Medium, category: Category::TwoPointers,
                 statement: "Given a 1-indexed array of integers that is already sorted in non-decreasing order, find two numbers such that they add up to a specific target number.",
                 examples: &[Example { input: "numbers = [2, 7, 11, 15], target = 9", output: "[1, 2]", explanation: "numbers[1] + numbers[2] = 9." }],
                 constraints: &["2 <= numbers.length <= 3*10^4", "numbers is sorted in non-decreasing order"], leetcode_url: "https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/",
-                approaches: &[ApproachMeta { id: 0, name: "Two Pointers (Sorted)", time_complexity: "O(N)", space_complexity: "O(1)", description: "Left/right pointers converge on target sum." }],
+                approaches: &[ApproachMeta { id: 0, name: "Two Pointers (Sorted)", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Because the array is sorted, moving left pointer right increases sum and right pointer left decreases sum in O(N) time and O(1) space.", description: "Left/right pointers converge on target sum." }],
             },
             Problem::ThreeSum => ProblemDetails {
                 id: 15, title: "3Sum", difficulty: Difficulty::Medium, category: Category::TwoPointers,
                 statement: "Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0.",
                 examples: &[Example { input: "nums = [-1, 0, 1, 2, -1, -4]", output: "[[-1, -1, 2], [-1, 0, 1]]", explanation: "Two unique triplets sum to 0." }],
                 constraints: &["3 <= nums.length <= 3000"], leetcode_url: "https://leetcode.com/problems/3sum/",
-                approaches: &[ApproachMeta { id: 0, name: "Sort + Two Pointers", time_complexity: "O(N^2)", space_complexity: "O(1)", description: "Fix anchor, two pointers for remaining pair." }],
+                approaches: &[ApproachMeta { id: 0, name: "Sort + Two Pointers", time_complexity: "O(N^2)", space_complexity: "O(1)", rationale: "Sorting the array and using two pointers for each fixed anchor avoids duplicate triplets in O(N^2) time and O(1) auxiliary space.", description: "Fix anchor, two pointers for remaining pair." }],
             },
             Problem::ContainerWater => ProblemDetails {
                 id: 11, title: "Container With Most Water", difficulty: Difficulty::Medium, category: Category::TwoPointers,
                 statement: "Given n non-negative integers representing n vertical lines, find two lines that together with the x-axis form a container that holds the most water.",
                 examples: &[Example { input: "height = [1, 8, 6, 2, 5, 4, 8, 3, 7]", output: "49", explanation: "Lines at index 1 and 8 form container of area 49." }],
                 constraints: &["n == height.length", "2 <= n <= 10^5"], leetcode_url: "https://leetcode.com/problems/container-with-most-water/",
-                approaches: &[ApproachMeta { id: 0, name: "Two Pointers Greedy", time_complexity: "O(N)", space_complexity: "O(1)", description: "Move the shorter line inward to maximize area." }],
+                approaches: &[ApproachMeta { id: 0, name: "Two Pointers Greedy", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Moving the pointer with shorter height inward is the only way to potentially find a larger area, achieving O(N) time.", description: "Move the shorter line inward to maximize area." }],
             },
             Problem::TrappingRain => ProblemDetails {
                 id: 42, title: "Trapping Rain Water", difficulty: Difficulty::Hard, category: Category::TwoPointers,
                 statement: "Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.",
                 examples: &[Example { input: "height = [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]", output: "6", explanation: "6 units of rain water are trapped." }],
                 constraints: &["n == height.length", "0 <= n <= 2*10^4"], leetcode_url: "https://leetcode.com/problems/trapping-rain-water/",
-                approaches: &[ApproachMeta { id: 0, name: "Two Pointers (leftMax / rightMax)", time_complexity: "O(N)", space_complexity: "O(1)", description: "Track max heights from both sides." }],
+                approaches: &[ApproachMeta { id: 0, name: "Two Pointers (leftMax / rightMax)", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Maintaining leftMax and rightMax bounds computes trapped water per column in a single O(N) pass with O(1) space.", description: "Track max heights from both sides." }],
             },
             Problem::MinStack => ProblemDetails {
                 id: 155, title: "Min Stack", difficulty: Difficulty::Medium, category: Category::Stack,
                 statement: "Design a stack that supports push, pop, top, and retrieving the minimum element in constant time O(1).",
                 examples: &[Example { input: "push(-2), push(0), push(-3), getMin(), pop(), top(), getMin()", output: "getMin() = -3, top() = 0, getMin() = -2", explanation: "Min stack tracks minimum element at every push level." }],
                 constraints: &["-2^31 <= val <= 2^31 - 1", "Methods pop, top and getMin will always be called on non-empty stacks"], leetcode_url: "https://leetcode.com/problems/min-stack/",
-                approaches: &[ApproachMeta { id: 0, name: "Two Stacks (Value + MinStack)", time_complexity: "O(1)", space_complexity: "O(N)", description: "Maintain parallel stack tracking minimums." }],
+                approaches: &[ApproachMeta { id: 0, name: "Two Stacks (Value + MinStack)", time_complexity: "O(1)", space_complexity: "O(N)", rationale: "Storing running minimums alongside stack values guarantees O(1) constant time retrieval for min operations.", description: "Maintain parallel stack tracking minimums." }],
             },
             Problem::EvalRPN => ProblemDetails {
                 id: 150, title: "Evaluate Reverse Polish Notation", difficulty: Difficulty::Medium, category: Category::Stack,
                 statement: "Evaluate the value of an arithmetic expression in Reverse Polish Notation (postfix). Valid operators are +, -, *, and /.",
                 examples: &[Example { input: "tokens = [\"2\", \"1\", \"+\", \"3\", \"*\"]", output: "9", explanation: "((2 + 1) * 3) = 9." }],
                 constraints: &["1 <= tokens.length <= 10^4", "tokens[i] is an operator or integer in range [-200, 200]"], leetcode_url: "https://leetcode.com/problems/evaluate-reverse-polish-notation/",
-                approaches: &[ApproachMeta { id: 0, name: "Stack Operand Evaluation", time_complexity: "O(N)", space_complexity: "O(N)", description: "Push numbers, pop 2 numbers on operator." }],
+                approaches: &[ApproachMeta { id: 0, name: "Stack Operand Evaluation", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "Postfix evaluation using a LIFO stack processes operands and applies operators in linear O(N) time.", description: "Push numbers, pop 2 numbers on operator." }],
             },
             Problem::LongestSubstring => ProblemDetails {
                 id: 3, title: "Longest Substring Without Repeating Characters", difficulty: Difficulty::Medium, category: Category::SlidingWindow,
                 statement: "Given a string s, find the length of the longest substring without repeating characters.",
                 examples: &[Example { input: "s = \"abcabcbb\"", output: "3", explanation: "The answer is \"abc\", with length 3." }],
                 constraints: &["0 <= s.length <= 5*10^4"], leetcode_url: "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
-                approaches: &[ApproachMeta { id: 0, name: "Sliding Window Set", time_complexity: "O(N)", space_complexity: "O(N)", description: "Expand right, shrink left on duplicate." }],
+                approaches: &[ApproachMeta { id: 0, name: "Sliding Window Set", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "A sliding window HashSet expands right and shrinks left on duplicates, processing each character at most twice (O(N)).", description: "Expand right, shrink left on duplicate." }],
             },
             Problem::Search2DMatrix => ProblemDetails {
                 id: 74, title: "Search a 2D Matrix", difficulty: Difficulty::Medium, category: Category::BinarySearch,
                 statement: "Write an efficient algorithm that searches for a target value in an m x n integer matrix with sorted rows and columns.",
                 examples: &[Example { input: "matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3", output: "true", explanation: "3 exists in row 0, col 1." }],
                 constraints: &["m == matrix.length", "n == matrix[i].length", "1 <= m, n <= 100"], leetcode_url: "https://leetcode.com/problems/search-a-2d-matrix/",
-                approaches: &[ApproachMeta { id: 0, name: "Binary Search Virtual 1D Array", time_complexity: "O(log(M*N))", space_complexity: "O(1)", description: "Map mid index to matrix[mid / cols][mid % cols]." }],
+                approaches: &[ApproachMeta { id: 0, name: "Binary Search Virtual 1D Array", time_complexity: "O(log(M*N))", space_complexity: "O(1)", rationale: "Treating the M x N matrix as a virtual 1D sorted array allows binary search in O(log(M*N)) time and O(1) space.", description: "Map mid index to matrix[mid / cols][mid % cols]." }],
             },
             Problem::HouseRobber => ProblemDetails {
                 id: 198, title: "House Robber", difficulty: Difficulty::Medium, category: Category::OneDDp,
                 statement: "Given an integer array nums representing the amount of money of each house, return the maximum amount of money you can rob tonight without robbing adjacent houses.",
                 examples: &[Example { input: "nums = [1, 2, 3, 1]", output: "4", explanation: "Rob house 1 (money = 1) and rob house 3 (money = 3). Total = 1 + 3 = 4." }],
                 constraints: &["1 <= nums.length <= 100"], leetcode_url: "https://leetcode.com/problems/house-robber/",
-                approaches: &[ApproachMeta { id: 0, name: "Bottom-Up Dynamic Programming", time_complexity: "O(N)", space_complexity: "O(1)", description: "dp[i] = max(dp[i-1], dp[i-2] + nums[i])." }],
+                approaches: &[ApproachMeta { id: 0, name: "Bottom-Up Dynamic Programming", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "DP state transition max(rob_prev_prev + num, rob_prev) computes max loot in O(N) time and O(1) space.", description: "dp[i] = max(dp[i-1], dp[i-2] + nums[i])." }],
             },
             Problem::GenerateParentheses => ProblemDetails {
                 id: 22, title: "Generate Parentheses", difficulty: Difficulty::Medium, category: Category::Stack,
                 statement: "Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses.",
                 examples: &[Example { input: "n = 3", output: "[\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]", explanation: "All 5 valid combinations." }],
                 constraints: &["1 <= n <= 8"], leetcode_url: "https://leetcode.com/problems/generate-parentheses/",
-                approaches: &[ApproachMeta { id: 0, name: "Backtracking / Stack", time_complexity: "O(4^N / sqrt(N))", space_complexity: "O(N)", description: "Recursively build string adhering to open < n and close < open." }],
+                approaches: &[ApproachMeta { id: 0, name: "Backtracking / Stack", time_complexity: "O(4^N / sqrt(N))", space_complexity: "O(N)", rationale: "Backtracking only branches when open_count < N or close_count < open_count, generating only valid combinations.", description: "Recursively build string adhering to open < n and close < open." }],
             },
             Problem::DailyTemperatures => ProblemDetails {
                 id: 739, title: "Daily Temperatures", difficulty: Difficulty::Medium, category: Category::Stack,
                 statement: "Given an array of integers temperatures represents the daily temperatures, return an array answer such that answer[i] is the number of days you have to wait after the i-th day to get a warmer temperature.",
                 examples: &[Example { input: "temperatures = [73, 74, 75, 71, 69, 72, 76, 73]", output: "[1, 1, 4, 2, 1, 1, 0, 0]", explanation: "Monotonic stack tracking waiting days." }],
                 constraints: &["1 <= temperatures.length <= 10^5", "30 <= temperatures[i] <= 100"], leetcode_url: "https://leetcode.com/problems/daily-temperatures/",
-                approaches: &[ApproachMeta { id: 0, name: "Monotonic Decreasing Stack", time_complexity: "O(N)", space_complexity: "O(N)", description: "Maintain stack of indices in decreasing temperature order." }],
+                approaches: &[ApproachMeta { id: 0, name: "Monotonic Decreasing Stack", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "A monotonic decreasing stack stores indices waiting for warmer days, resolving each index in O(N) time.", description: "Maintain stack of indices in decreasing temperature order." }],
             },
             Problem::CarFleet => ProblemDetails {
                 id: 853, title: "Car Fleet", difficulty: Difficulty::Medium, category: Category::Stack,
                 statement: "There are n cars at given miles away from the starting mile 0, traveling to a destination target. Return the number of car fleets that will arrive at the destination.",
                 examples: &[Example { input: "target = 12, position = [10,8,0,5,3], speed = [2,4,1,1,3]", output: "3", explanation: "Cars starting at 10 and 8 merge into 1 fleet, 5 and 3 merge into 1 fleet, 0 drives alone." }],
                 constraints: &["n == position.length == speed.length", "1 <= n <= 10^5"], leetcode_url: "https://leetcode.com/problems/car-fleet/",
-                approaches: &[ApproachMeta { id: 0, name: "Monotonic Time Stack (Position Order)", time_complexity: "O(N log N)", space_complexity: "O(N)", description: "Sort by position desc, pop if car behind catches up." }],
+                approaches: &[ApproachMeta { id: 0, name: "Monotonic Time Stack (Position Order)", time_complexity: "O(N log N)", space_complexity: "O(N)", rationale: "Sorting cars by start position descending computes arrival times; if a car behind arrives earlier, it joins the fleet (O(N log N)).", description: "Sort by position desc, pop if car behind catches up." }],
             },
             Problem::LargestRectangle => ProblemDetails {
                 id: 84, title: "Largest Rectangle in Histogram", difficulty: Difficulty::Hard, category: Category::Stack,
                 statement: "Given an array of integers heights representing the histogram's bar height where the width of each bar is 1, return the area of the largest rectangle in the histogram.",
                 examples: &[Example { input: "heights = [2, 1, 5, 6, 2, 3]", output: "10", explanation: "The largest rectangle has area = 10 units (heights 5 and 6)." }],
                 constraints: &["1 <= heights.length <= 10^5", "0 <= heights[i] <= 10^4"], leetcode_url: "https://leetcode.com/problems/largest-rectangle-in-histogram/",
-                approaches: &[ApproachMeta { id: 0, name: "Monotonic Increasing Stack", time_complexity: "O(N)", space_complexity: "O(N)", description: "Maintain (index, height) pair stack, compute max area on pop." }],
+                approaches: &[ApproachMeta { id: 0, name: "Monotonic Increasing Stack", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "A monotonic increasing stack of heights computes maximum rectangular area bounds upon popping in O(N) time.", description: "Maintain (index, height) pair stack, compute max area on pop." }],
             },
             Problem::CharacterReplacement => ProblemDetails {
                 id: 424, title: "Longest Repeating Character Replacement", difficulty: Difficulty::Medium, category: Category::SlidingWindow,
                 statement: "You are given a string s and an integer k. You can choose any character of the string and change it to any other uppercase English character at most k times. Return the length of the longest substring containing the same letter.",
                 examples: &[Example { input: "s = \"ABAB\", k = 2", output: "4", explanation: "Replace the two 'A's with 'B's or vice versa." }],
                 constraints: &["1 <= s.length <= 10^5", "0 <= k <= s.length"], leetcode_url: "https://leetcode.com/problems/longest-repeating-character-replacement/",
-                approaches: &[ApproachMeta { id: 0, name: "Sliding Window Frequency Map", time_complexity: "O(N)", space_complexity: "O(26)", description: "Maintain max frequency, shrink left when (window_len - max_freq) > k." }],
+                approaches: &[ApproachMeta { id: 0, name: "Sliding Window Frequency Map", time_complexity: "O(N)", space_complexity: "O(26)", rationale: "Maintaining max character frequency in sliding window shrinks left bound when (window_len - max_freq) > k in O(N) time.", description: "Maintain max frequency, shrink left when (window_len - max_freq) > k." }],
             },
             Problem::PermutationInString => ProblemDetails {
                 id: 567, title: "Permutation in String", difficulty: Difficulty::Medium, category: Category::SlidingWindow,
                 statement: "Given two strings s1 and s2, return true if s2 contains a permutation of s1, or false otherwise.",
                 examples: &[Example { input: "s1 = \"ab\", s2 = \"eidbaooo\"", output: "true", explanation: "s2 contains one permutation of s1 (\"ba\")." }],
                 constraints: &["1 <= s1.length, s2.length <= 10^4"], leetcode_url: "https://leetcode.com/problems/permutation-in-string/",
-                approaches: &[ApproachMeta { id: 0, name: "Fixed Size Sliding Window Matches Count", time_complexity: "O(N)", space_complexity: "O(26)", description: "Slide window of size len(s1), track matching char counts." }],
+                approaches: &[ApproachMeta { id: 0, name: "Fixed Size Sliding Window Matches Count", time_complexity: "O(N)", space_complexity: "O(26)", rationale: "A fixed-size sliding window of length len(s1) matches character count frequencies in O(N) time and O(1) space.", description: "Slide window of size len(s1), track matching char counts." }],
             },
             Problem::MinWindowSubstring => ProblemDetails {
                 id: 76, title: "Minimum Window Substring", difficulty: Difficulty::Hard, category: Category::SlidingWindow,
                 statement: "Given two strings s and t of lengths m and n respectively, return the minimum window substring of s such that every character in t (including duplicates) is included in the window.",
                 examples: &[Example { input: "s = \"ADOBECODEBANC\", t = \"ABC\"", output: "\"BANC\"", explanation: "The minimum window substring \"BANC\" includes 'A', 'B', and 'C' from string t." }],
                 constraints: &["m == s.length", "n == t.length", "1 <= m, n <= 10^5"], leetcode_url: "https://leetcode.com/problems/minimum-window-substring/",
-                approaches: &[ApproachMeta { id: 0, name: "Dynamic Sliding Window Have/Need Map", time_complexity: "O(N)", space_complexity: "O(M+N)", description: "Expand right until valid, then shrink left to minimize window." }],
+                approaches: &[ApproachMeta { id: 0, name: "Dynamic Sliding Window Have/Need Map", time_complexity: "O(N)", space_complexity: "O(M+N)", rationale: "A dynamic sliding window expands right to satisfy target character counts and shrinks left to find minimum length in O(N) time.", description: "Expand right until valid, then shrink left to minimize window." }],
             },
             Problem::SlidingWindowMax => ProblemDetails {
                 id: 239, title: "Sliding Window Maximum", difficulty: Difficulty::Hard, category: Category::SlidingWindow,
                 statement: "You are given an array of integers nums, there is a sliding window of size k which is moving from the very left of the array to the very right. Return the max sliding window.",
                 examples: &[Example { input: "nums = [1,3,-1,-3,5,3,6,7], k = 3", output: "[3,3,5,5,6,7]", explanation: "Monotonic deque tracks sliding window maximum in O(N)." }],
                 constraints: &["1 <= nums.length <= 10^5", "1 <= k <= nums.length"], leetcode_url: "https://leetcode.com/problems/sliding-window-maximum/",
-                approaches: &[ApproachMeta { id: 0, name: "Monotonic Decreasing Deque", time_complexity: "O(N)", space_complexity: "O(k)", description: "Maintain deque of indices with strictly decreasing values." }],
+                approaches: &[ApproachMeta { id: 0, name: "Monotonic Decreasing Deque", time_complexity: "O(N)", space_complexity: "O(k)", rationale: "A monotonic decreasing deque stores indices of potential max values, removing expired indices in O(N) time.", description: "Maintain deque of indices with strictly decreasing values." }],
             },
             Problem::SearchRotatedArray => ProblemDetails {
                 id: 33, title: "Search in Rotated Sorted Array", difficulty: Difficulty::Medium, category: Category::BinarySearch,
                 statement: "Given the array nums after the possible rotation and an integer target, return the index of target if it is in nums, or -1 if it is not in nums.",
                 examples: &[Example { input: "nums = [4,5,6,7,0,1,2], target = 0", output: "4", explanation: "Binary search comparing mid with boundary values." }],
                 constraints: &["1 <= nums.length <= 5000", "-10^4 <= nums[i] <= 10^4"], leetcode_url: "https://leetcode.com/problems/search-in-rotated-sorted-array/",
-                approaches: &[ApproachMeta { id: 0, name: "Rotated Binary Search", time_complexity: "O(log N)", space_complexity: "O(1)", description: "Determine which half is sorted, check if target lies in that range." }],
+                approaches: &[ApproachMeta { id: 0, name: "Rotated Binary Search", time_complexity: "O(log N)", space_complexity: "O(1)", rationale: "Identifying which half (left or right of mid) is sorted allows halving the search space in O(log N) time.", description: "Determine which half is sorted, check if target lies in that range." }],
             },
             Problem::FindMinRotated => ProblemDetails {
                 id: 153, title: "Find Minimum in Rotated Sorted Array", difficulty: Difficulty::Medium, category: Category::BinarySearch,
                 statement: "Suppose an array of length n sorted in ascending order is rotated between 1 and n times. Given the sorted rotated array nums of unique elements, return the minimum element of this array.",
                 examples: &[Example { input: "nums = [3,4,5,1,2]", output: "1", explanation: "The original array was [1,2,3,4,5] rotated 3 times." }],
                 constraints: &["1 <= n <= 5000", "-5000 <= nums[i] <= 5000"], leetcode_url: "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/",
-                approaches: &[ApproachMeta { id: 0, name: "Binary Search Right Boundary Comparison", time_complexity: "O(log N)", space_complexity: "O(1)", description: "Compare nums[mid] with nums[right] to halve search space." }],
+                approaches: &[ApproachMeta { id: 0, name: "Binary Search Right Boundary Comparison", time_complexity: "O(log N)", space_complexity: "O(1)", rationale: "Comparing nums[mid] to nums[right] determines whether the rotation pivot is in the left or right half in O(log N) time.", description: "Compare nums[mid] with nums[right] to halve search space." }],
             },
             Problem::TimeKeyValueStore => ProblemDetails {
                 id: 981, title: "Time Based Key-Value Store", difficulty: Difficulty::Medium, category: Category::BinarySearch,
                 statement: "Design a time-based key-value data structure that can store multiple values for the same key at different time stamps and retrieve the key's value at a certain timestamp.",
                 examples: &[Example { input: "set(\"foo\", \"bar\", 1), get(\"foo\", 1), get(\"foo\", 3)", output: "\"bar\", \"bar\"", explanation: "Binary search list of (timestamp, value) pairs." }],
                 constraints: &["1 <= key.length, value.length <= 100", "1 <= timestamp <= 10^7"], leetcode_url: "https://leetcode.com/problems/time-based-key-value-store/",
-                approaches: &[ApproachMeta { id: 0, name: "HashMap + Binary Search Timestamps", time_complexity: "O(log N) get", space_complexity: "O(N)", description: "HashMap maps key to sorted list of (time, val), binary search for upper bound." }],
+                approaches: &[ApproachMeta { id: 0, name: "HashMap + Binary Search Timestamps", time_complexity: "O(log N) get", space_complexity: "O(N)", rationale: "HashMap maps key to a vector of (timestamp, value) pairs; binary search finds upper bound timestamp in O(log N) time.", description: "HashMap maps key to sorted list of (time, val), binary search for upper bound." }],
             },
             Problem::FindMedianSortedArrays => ProblemDetails {
                 id: 4, title: "Median of Two Sorted Arrays", difficulty: Difficulty::Hard, category: Category::BinarySearch,
                 statement: "Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.",
                 examples: &[Example { input: "nums1 = [1,3], nums2 = [2,4]", output: "2.5", explanation: "merged array = [1,2,3,4] and median is (2 + 3) / 2 = 2.5." }],
                 constraints: &["nums1.length == m", "nums2.length == n", "0 <= m, n <= 1000"], leetcode_url: "https://leetcode.com/problems/median-of-two-sorted-arrays/",
-                approaches: &[ApproachMeta { id: 0, name: "Binary Search Partition on Smaller Array", time_complexity: "O(log(min(M, N)))", space_complexity: "O(1)", description: "Binary search partition index i in A such that A[i-1] <= B[j] and B[j-1] <= A[i]." }],
+                approaches: &[ApproachMeta { id: 0, name: "Binary Search Partition on Smaller Array", time_complexity: "O(log(min(M, N)))", space_complexity: "O(1)", rationale: "Binary searching partition index on the smaller array balances left and right halves in O(log(min(M, N))) time.", description: "Binary search partition index i in A such that A[i-1] <= B[j] and B[j-1] <= A[i]." }],
             },
         }
     }
@@ -827,6 +856,12 @@ pub enum VisualState {
         suffix_val: i64,
         phase: ProductPhase,
     },
+    Trie {
+        words: Vec<String>,
+        current_word: String,
+        active_char_idx: Option<usize>,
+    },
+
     ValidSudoku {
         board: [[char; 9]; 9],
         active_r: Option<usize>,
@@ -915,6 +950,200 @@ pub enum VisualState {
         depth_val: Option<i32>,
         max_diameter: Option<i32>,
     },
+}
+
+impl VisualState {
+    pub fn variables(&self) -> Vec<(&'static str, String)> {
+        match self {
+            VisualState::ContainsDuplicate { active_idx, duplicate_val, has_duplicate, seen_set, nums } => {
+                let mut vars = Vec::new();
+                if let Some(i) = active_idx {
+                    vars.push(("i", i.to_string()));
+                    if let Some(val) = nums.get(*i) {
+                        vars.push(("nums[i]", val.to_string()));
+                    }
+                }
+                vars.push(("seen", format!("{:?}", seen_set.iter().cloned().collect::<Vec<_>>())));
+                if let Some(dup) = duplicate_val {
+                    vars.push(("duplicate", dup.to_string()));
+                }
+                if let Some(res) = has_duplicate {
+                    vars.push(("result", res.to_string()));
+                }
+                vars
+            }
+            VisualState::TwoSum { active_idx, secondary_idx, map, found_indices, nums, target } => {
+                let mut vars = Vec::new();
+                vars.push(("target", target.to_string()));
+                if let Some(i) = active_idx {
+                    vars.push(("i", i.to_string()));
+                    if let Some(val) = nums.get(*i) {
+                        vars.push(("nums[i]", val.to_string()));
+                        vars.push(("diff", (target - val).to_string()));
+                    }
+                }
+                if let Some(j) = secondary_idx {
+                    vars.push(("j", j.to_string()));
+                }
+                vars.push(("prevMap", format!("{:?}", map)));
+                if let Some((a, b)) = found_indices {
+                    vars.push(("result", format!("[{}, {}]", a, b)));
+                }
+                vars
+            }
+            VisualState::ValidAnagram { s, t, active_s_idx, active_t_idx, is_anagram, .. } => {
+                let mut vars = Vec::new();
+                vars.push(("s", s.clone()));
+                vars.push(("t", t.clone()));
+                if let Some(i) = active_s_idx {
+                    vars.push(("i (in s)", i.to_string()));
+                }
+                if let Some(j) = active_t_idx {
+                    vars.push(("j (in t)", j.to_string()));
+                }
+                if let Some(res) = is_anagram {
+                    vars.push(("is_anagram", res.to_string()));
+                }
+                vars
+            }
+            VisualState::GroupAnagrams { active_idx, key_fmt, groups, input_strs } => {
+                let mut vars = Vec::new();
+                if let Some(i) = active_idx {
+                    vars.push(("i", i.to_string()));
+                    if let Some(s) = input_strs.get(*i) {
+                        vars.push(("word", s.clone()));
+                    }
+                }
+                if !key_fmt.is_empty() {
+                    vars.push(("key", key_fmt.clone()));
+                }
+                vars.push(("groups_count", groups.len().to_string()));
+                vars
+            }
+            VisualState::TopK { active_nums_idx, count_map, result, nums, .. } => {
+                let mut vars = Vec::new();
+                if let Some(i) = active_nums_idx {
+                    vars.push(("i", i.to_string()));
+                    if let Some(n) = nums.get(*i) {
+                        vars.push(("num", n.to_string()));
+                    }
+                }
+                vars.push(("count_map", format!("{:?}", count_map)));
+                vars.push(("result", format!("{:?}", result)));
+                vars
+            }
+            VisualState::EncodeDecode { pointer, encoded_so_far, decoded_so_far, .. } => {
+                let mut vars = Vec::new();
+                vars.push(("pointer", pointer.to_string()));
+                vars.push(("encoded", encoded_so_far.clone()));
+                vars.push(("decoded", format!("{:?}", decoded_so_far)));
+                vars
+            }
+            VisualState::Product { active_idx, prefix_val, suffix_val, output, nums, .. } => {
+                let mut vars = Vec::new();
+                if let Some(i) = active_idx {
+                    vars.push(("i", i.to_string()));
+                    if let Some(n) = nums.get(*i) {
+                        vars.push(("nums[i]", n.to_string()));
+                    }
+                }
+                vars.push(("prefix", prefix_val.to_string()));
+                vars.push(("suffix", suffix_val.to_string()));
+                vars.push(("output", format!("{:?}", output)));
+                vars
+            }
+            VisualState::ValidSudoku { active_r, active_c, is_valid, duplicate_pos, .. } => {
+                let mut vars = Vec::new();
+                if let Some(r) = active_r { vars.push(("row", r.to_string())); }
+                if let Some(c) = active_c { vars.push(("col", c.to_string())); }
+                if let Some(pos) = duplicate_pos { vars.push(("dup_pos", format!("({},{})", pos.0, pos.1))); }
+                if let Some(v) = is_valid { vars.push(("is_valid", v.to_string())); }
+                vars
+            }
+            VisualState::LongestConsecutive { current_num, current_seq, max_length, .. } => {
+                let mut vars = Vec::new();
+                if let Some(n) = current_num { vars.push(("num", n.to_string())); }
+                vars.push(("curr_streak", current_seq.len().to_string()));
+                vars.push(("max_streak", max_length.to_string()));
+                vars
+            }
+            VisualState::TwoPointers { left, right, is_valid, .. } => {
+                let mut vars = Vec::new();
+                vars.push(("left", left.to_string()));
+                vars.push(("right", right.to_string()));
+                if let Some(v) = is_valid { vars.push(("is_valid", v.to_string())); }
+                vars
+            }
+            VisualState::Stack { active_idx, stack, is_valid, chars } => {
+                let mut vars = Vec::new();
+                if let Some(i) = active_idx {
+                    vars.push(("i", i.to_string()));
+                    if let Some(ch) = chars.get(*i) { vars.push(("char", ch.to_string())); }
+                }
+                vars.push(("stack", format!("{:?}", stack)));
+                if let Some(v) = is_valid { vars.push(("is_valid", v.to_string())); }
+                vars
+            }
+            VisualState::BestTimeStock { left_buy, right_sell, current_profit, max_profit, prices } => {
+                let mut vars = Vec::new();
+                vars.push(("buy_day (l)", left_buy.to_string()));
+                vars.push(("sell_day (r)", right_sell.to_string()));
+                if let Some(p) = prices.get(*left_buy) { vars.push(("buy_price", format!("${}", p))); }
+                if let Some(p) = prices.get(*right_sell) { vars.push(("sell_price", format!("${}", p))); }
+                vars.push(("current_profit", format!("${}", current_profit)));
+                vars.push(("max_profit", format!("${}", max_profit)));
+                vars
+            }
+            VisualState::BinarySearch { left, right, mid, target, found_idx, nums } => {
+                let mut vars = Vec::new();
+                vars.push(("left", left.to_string()));
+                vars.push(("right", right.to_string()));
+                if let Some(m) = mid {
+                    vars.push(("mid", m.to_string()));
+                    if let Some(n) = nums.get(*m) { vars.push(("nums[mid]", n.to_string())); }
+                }
+                vars.push(("target", target.to_string()));
+                if let Some(f) = found_idx { vars.push(("found_index", f.to_string())); }
+                vars
+            }
+            VisualState::LinkedList { prev_idx, curr_idx, next_idx, reversed_so_far, .. } => {
+                let mut vars = Vec::new();
+                if let Some(p) = prev_idx { vars.push(("prev_idx", p.to_string())); }
+                if let Some(c) = curr_idx { vars.push(("curr_idx", c.to_string())); }
+                if let Some(n) = next_idx { vars.push(("next_idx", n.to_string())); }
+                vars.push(("reversed_len", reversed_so_far.len().to_string()));
+                vars
+            }
+            VisualState::MergeLinkedLists { p1_idx, p2_idx, merged_so_far, .. } => {
+                let mut vars = Vec::new();
+                if let Some(p1) = p1_idx { vars.push(("p1_idx", p1.to_string())); }
+                if let Some(p2) = p2_idx { vars.push(("p2_idx", p2.to_string())); }
+                vars.push(("merged_len", merged_so_far.len().to_string()));
+                vars
+            }
+            VisualState::LinkedListCycle { slow_idx, fast_idx, has_cycle, .. } => {
+                let mut vars = Vec::new();
+                if let Some(s) = slow_idx { vars.push(("slow_idx", s.to_string())); }
+                if let Some(f) = fast_idx { vars.push(("fast_idx", f.to_string())); }
+                if let Some(c) = has_cycle { vars.push(("has_cycle", c.to_string())); }
+                vars
+            }
+            VisualState::TreeVisual { active_node_idx, depth_val, max_diameter, .. } => {
+                let mut vars = Vec::new();
+                if let Some(a) = active_node_idx { vars.push(("active_node_idx", a.to_string())); }
+                if let Some(d) = depth_val { vars.push(("depth", d.to_string())); }
+                if let Some(diam) = max_diameter { vars.push(("diameter", diam.to_string())); }
+                vars
+            }
+            VisualState::Trie { words, current_word, active_char_idx } => {
+                let mut vars = Vec::new();
+                vars.push(("word", current_word.clone()));
+                if let Some(c) = active_char_idx { vars.push(("char_idx", c.to_string())); }
+                vars.push(("trie_words_count", words.len().to_string()));
+                vars
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -1510,7 +1739,9 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (15, "            elif Aleft > Bright: r = i - 1"),
             (16, "            else: l = i + 1"),
         ],
-
+        (Problem::ImplementTrie, _) => implement_trie_code_lines(),
+        (Problem::WordDictionary, _) => word_dictionary_code_lines(),
+        (Problem::WordSearchII, _) => word_search_ii_code_lines(),
         _ => vec![(1, "# Approach implementation trace")],
     }
 }
@@ -1579,3 +1810,78 @@ pub fn product_code_lines() -> Vec<(usize, &'static str)> {
         (16, "        return output"),
     ]
 }
+
+pub fn implement_trie_code_lines() -> Vec<(usize, &'static str)> {
+    vec![
+        (1, "class TrieNode:"),
+        (2, "    def __init__(self):"),
+        (3, "        self.children = {}"),
+        (4, "        self.is_end = False"),
+        (5, ""),
+        (6, "class Trie:"),
+        (7, "    def insert(self, word: str) -> None:"),
+        (8, "        curr = self.root"),
+        (9, "        for c in word:"),
+        (10, "            if c not in curr.children:"),
+        (11, "                curr.children[c] = TrieNode()"),
+        (12, "            curr = curr.children[c]"),
+        (13, "        curr.is_end = True"),
+        (14, ""),
+        (15, "    def search(self, word: str) -> bool:"),
+        (16, "        curr = self.root"),
+        (17, "        for c in word:"),
+        (18, "            if c not in curr.children: return False"),
+        (19, "            curr = curr.children[c]"),
+        (20, "        return curr.is_end"),
+    ]
+}
+
+pub fn word_dictionary_code_lines() -> Vec<(usize, &'static str)> {
+    vec![
+        (1, "class WordDictionary:"),
+        (2, "    def addWord(self, word: str) -> None:"),
+        (3, "        curr = self.root"),
+        (4, "        for c in word:"),
+        (5, "            if c not in curr.children: curr.children[c] = TrieNode()"),
+        (6, "            curr = curr.children[c]"),
+        (7, "        curr.is_end = True"),
+        (8, ""),
+        (9, "    def search(self, word: str) -> bool:"),
+        (10, "        def dfs(j, root):"),
+        (11, "            curr = root"),
+        (12, "            for i in range(j, len(word)):"),
+        (13, "                c = word[i]"),
+        (14, "                if c == '.':"),
+        (15, "                    for child in curr.children.values():"),
+        (16, "                        if dfs(i + 1, child): return True"),
+        (17, "                    return False"),
+        (18, "                if c not in curr.children: return False"),
+        (19, "                curr = curr.children[c]"),
+        (20, "            return curr.is_end"),
+        (21, "        return dfs(0, self.root)"),
+    ]
+}
+
+pub fn word_search_ii_code_lines() -> Vec<(usize, &'static str)> {
+    vec![
+        (1, "class Solution:"),
+        (2, "    def findWords(self, board, words):"),
+        (3, "        root = TrieNode()"),
+        (4, "        for w in words: root.addWord(w)"),
+        (5, "        res, visited = set(), set()"),
+        (6, ""),
+        (7, "        def dfs(r, c, node, word):"),
+        (8, "            if r < 0 or c < 0 or r >= ROWS or c >= COLS: return"),
+        (9, "            if (r, c) in visited or board[r][c] not in node.children: return"),
+        (10, "            visited.add((r, c))"),
+        (11, "            node = node.children[board[r][c]]"),
+        (12, "            word += board[r][c]"),
+        (13, "            if node.is_end: res.add(word)"),
+        (14, "            for dr, dc in [(-1,0),(1,0),(0,-1),(0,1)]:") ,
+        (15, "                dfs(r + dr, c + dc, node, word)"),
+        (16, "            visited.remove((r, c))"),
+        (17, ""),
+        (18, "        return list(res)"),
+    ]
+}
+
