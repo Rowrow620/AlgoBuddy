@@ -56,6 +56,20 @@ fn generate_anagram_counter(s: &str, t: &str) -> Vec<Step> {
             s_counts[idx_s] += 1;
         }
 
+        steps.push(Step {
+            code_line: 6,
+            description: format!("Index i={}: countS['{}'] = 1 + countS.get('{}', 0). Updated countS.", i, ch_s, ch_s),
+            visual: VisualState::ValidAnagram {
+                s: s.to_string(),
+                t: t.to_string(),
+                s_counts,
+                t_counts,
+                active_s_idx: Some(i),
+                active_t_idx: None,
+                is_anagram: None,
+            },
+        });
+
         if ch_t.is_ascii_lowercase() {
             let idx_t = (ch_t as u8 - b'a') as usize;
             t_counts[idx_t] += 1;
@@ -63,7 +77,7 @@ fn generate_anagram_counter(s: &str, t: &str) -> Vec<Step> {
 
         steps.push(Step {
             code_line: 7,
-            description: format!("Index {}: incremented count for '{}' in s and '{}' in t.", i, ch_s, ch_t),
+            description: format!("Index i={}: countT['{}'] = 1 + countT.get('{}', 0). Updated countT.", i, ch_t, ch_t),
             visual: VisualState::ValidAnagram {
                 s: s.to_string(),
                 t: t.to_string(),

@@ -89,6 +89,7 @@ pub struct VisualizerApp {
     theme: Theme,
     colorblind_mode: ColorblindMode,
     show_settings_modal: bool,
+    show_unaudited: bool,
     view_mode: ViewMode,
     completed_problems: std::collections::HashSet<u32>,
     favorite_problems: std::collections::HashSet<u32>,
@@ -167,6 +168,7 @@ impl Default for VisualizerApp {
             theme: Theme::DarkVSCode, // Default to user's favorite VS Code Dark style!
             colorblind_mode: ColorblindMode::Off,
             show_settings_modal: false,
+            show_unaudited: false, // Default: Only show 100% Audited problems in Public Release!
             view_mode: ViewMode::Visualizer,
             completed_problems: std::collections::HashSet::new(),
             favorite_problems: std::collections::HashSet::new(),
@@ -241,6 +243,18 @@ impl Default for VisualizerApp {
 }
 
 impl VisualizerApp {
+    pub fn set_show_unaudited(&mut self, show: bool) {
+        self.show_unaudited = show;
+    }
+
+    pub fn visible_problems(&self) -> Vec<Problem> {
+        Problem::all()
+            .iter()
+            .copied()
+            .filter(|p| p.is_audited() || self.show_unaudited)
+            .collect()
+    }
+
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         #[cfg(target_arch = "wasm32")]
         if let Some(loading) = web_sys::window()
@@ -272,6 +286,9 @@ impl VisualizerApp {
             }
             if let Some(show_right) = eframe::get_value::<bool>(storage, "algobuddy_show_right_sidebar") {
                 app.show_right_sidebar = show_right;
+            }
+            if let Some(show_un) = eframe::get_value::<bool>(storage, "algobuddy_show_unaudited") {
+                app.show_unaudited = show_un;
             }
         }
         app
@@ -761,6 +778,16 @@ impl VisualizerApp {
                 ui.separator();
                 ui.add_space(8.0);
 
+                ui.heading(RichText::new("Developer & Release Mode").color(p.amber).strong().size(15.0));
+                ui.add_space(6.0);
+                ui.checkbox(&mut self.show_unaudited, "Show Unaudited / Experimental Problems (Dev Mode)");
+                ui.add_space(4.0);
+                if !self.show_unaudited {
+                    ui.label(RichText::new("Public Release Mode: Only showing 100% audited problems.").italics().font(egui::FontId::proportional(11.0)).color(p.emerald_text));
+                } else {
+                    ui.label(RichText::new("Dev Testing Mode: Showing all 134 problem visualizers.").italics().font(egui::FontId::proportional(11.0)).color(p.amber));
+                }
+
                 ui.horizontal(|ui| {
                     ui.label(RichText::new("Active Theme:").color(p.text_muted));
                     ui.label(RichText::new(self.theme.label()).color(p.text_primary).strong());
@@ -804,7 +831,7 @@ impl VisualizerApp {
 
                         ui.add_space(12.0);
                         egui::Frame::none().fill(p.cell_bg).rounding(Rounding::same(6.0)).inner_margin(8.0).show(ui, |ui| {
-                            ui.label(RichText::new(format!("Overall Progress: {} / 150 Solved ({:.1}%)", total_solved, overall_pct)).font(egui::FontId::monospace(13.0)).color(p.emerald_text).strong());
+                            ui.label(RichText::new(format!("Overall Progress: {} / {} Solved ({:.1}%)", total_solved, self.visible_problems().len(), overall_pct)).font(egui::FontId::monospace(13.0)).color(p.emerald_text).strong());
                         });
                     });
                 });
@@ -821,8 +848,8 @@ impl VisualizerApp {
 
                     egui::ScrollArea::vertical().id_source("cat_scroll").show(&mut cols[0], |ui| {
                         for &category in Category::all() {
-                            let total_in_cat = Problem::all().iter().filter(|p| p.category() == category).count().max(1);
-                            let solved_in_cat = Problem::all().iter().filter(|p| p.category() == category && self.completed_problems.contains(&p.id())).count();
+                            let total_in_cat = self.visible_problems().iter().filter(|p| p.category() == category).count().max(1);
+                            let solved_in_cat = self.visible_problems().iter().filter(|p| p.category() == category && self.completed_problems.contains(&p.id())).count();
                             let pct = (solved_in_cat as f32 / total_in_cat as f32) * 100.0;
                             let col = if solved_in_cat == total_in_cat && solved_in_cat > 0 { p.emerald_text } else if solved_in_cat > 0 { p.amber } else { p.text_dim };
 
@@ -853,7 +880,7 @@ impl VisualizerApp {
                             .striped(true)
                             .spacing([12.0, 8.0])
                             .show(ui, |ui| {
-                                for prob in Problem::all() {
+                                for prob in self.visible_problems() {
                                     let details = prob.details();
                                     let d_color = difficulty_color(details.difficulty, p);
                                     let mut is_completed = self.completed_problems.contains(&details.id);
@@ -867,7 +894,7 @@ impl VisualizerApp {
                                     }
 
                                     if ui.button(RichText::new(format!("#{} {}", details.id, details.title)).color(if is_completed { p.emerald_text } else { p.cyan }).strong()).clicked() {
-                                        prob_to_select = Some(*prob);
+                                        prob_to_select = Some(prob);
                                     }
                                     ui.label(RichText::new(details.difficulty.label()).color(d_color).strong());
                                     ui.label(RichText::new(details.category.name()).color(p.text_muted));
@@ -902,6 +929,7 @@ impl eframe::App for VisualizerApp {
         eframe::set_value(storage, "algobuddy_playback_speed_ms", &self.playback_speed_ms);
         eframe::set_value(storage, "algobuddy_show_roadmap_sidebar", &self.show_roadmap_sidebar);
         eframe::set_value(storage, "algobuddy_show_right_sidebar", &self.show_right_sidebar);
+        eframe::set_value(storage, "algobuddy_show_unaudited", &self.show_unaudited);
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -1030,9 +1058,8 @@ impl eframe::App for VisualizerApp {
 
                     egui::ScrollArea::vertical().show(ui, |ui| {
                         // ── ⭐ Favorites Category Section ──
-                        let fav_problems: Vec<Problem> = Problem::all()
-                            .iter()
-                            .copied()
+                        let fav_problems: Vec<Problem> = self.visible_problems()
+                            .into_iter()
                             .filter(|p| self.favorite_problems.contains(&p.id()))
                             .filter(|p| {
                                 if let Some(diff) = self.selected_difficulty { p.difficulty() == diff } else { true }
@@ -1059,6 +1086,7 @@ impl eframe::App for VisualizerApp {
                                     for prob in fav_problems {
                                         let is_selected = self.current_problem == prob;
                                         let diff_color = difficulty_color(prob.difficulty(), &p);
+                                        let exp_tag = if prob.is_audited() { "" } else { " [EXP]" };
 
                                         ui.horizontal(|ui| {
                                             let star_rt = RichText::new("★").font(egui::FontId::proportional(12.0)).color(p.amber).strong();
@@ -1066,7 +1094,7 @@ impl eframe::App for VisualizerApp {
                                                 self.favorite_problems.remove(&prob.id());
                                             }
 
-                                            let btn_rt = RichText::new(format!("#{} {}", prob.id(), prob.title()))
+                                            let btn_rt = RichText::new(format!("#{} {}{}", prob.id(), prob.title(), exp_tag))
                                                 .font(egui::FontId::proportional(12.0));
                                             let btn_text = if is_selected { btn_rt.color(egui::Color32::WHITE).strong() } else { btn_rt.color(p.text_primary) };
 
@@ -1087,9 +1115,8 @@ impl eframe::App for VisualizerApp {
                         ui.add_space(4.0);
 
                         for &category in Category::all() {
-                            let problems_in_cat: Vec<Problem> = Problem::all()
-                                .iter()
-                                .copied()
+                            let problems_in_cat: Vec<Problem> = self.visible_problems()
+                                .into_iter()
                                 .filter(|p| p.category() == category)
                                 .filter(|p| {
                                     if let Some(diff) = self.selected_difficulty { p.difficulty() == diff } else { true }
@@ -1104,7 +1131,7 @@ impl eframe::App for VisualizerApp {
                                 })
                                 .collect();
 
-                            let total_in_cat = Problem::all().iter().filter(|p| p.category() == category).count();
+                            let total_in_cat = self.visible_problems().iter().filter(|p| p.category() == category).count();
                             let header_text = format!("{} ({})", category.name(), problems_in_cat.len());
 
                             let is_active_cat = problems_in_cat.contains(&self.current_problem);
@@ -1133,7 +1160,8 @@ impl eframe::App for VisualizerApp {
                                                     else { self.favorite_problems.insert(prob.id()); }
                                                 }
 
-                                                let btn_rt = RichText::new(format!("#{} {}", prob.id(), prob.title()))
+                                                let exp_tag = if prob.is_audited() { "" } else { " [EXP]" };
+                                                let btn_rt = RichText::new(format!("#{} {}{}", prob.id(), prob.title(), exp_tag))
                                                     .font(egui::FontId::proportional(12.0));
                                                 let btn_text = if is_selected { btn_rt.color(egui::Color32::WHITE).strong() } else { btn_rt.color(p.text_primary) };
 
@@ -2625,7 +2653,7 @@ impl VisualizerApp {
         ui.group(|ui| {
             ui.label(RichText::new("NUMS ARRAY").font(egui::FontId::monospace((11.0 * z).max(8.0))).color(p.text_muted));
             ui.add_space(4.0 * z);
-            ui.with_layout(egui::Layout::left_to_right(egui::Align::Center).with_main_align(egui::Align::Center), |ui| {
+            ui.horizontal(|ui| {
                 for (i, &num) in nums.iter().enumerate() {
                     let is_found = found.map_or(false, |(a, b)| a == i || b == i);
                     let is_primary = active_idx == Some(i);
@@ -2649,8 +2677,10 @@ impl VisualizerApp {
 
                     egui::Frame::none().fill(fill).rounding(Rounding::same(8.0 * z)).stroke(Stroke::new(1.0_f32 * z, p.cell_border)).inner_margin(margin).show(ui, |ui| {
                         ui.vertical(|ui| {
-                            let label = if is_primary { "i" } else if is_sec { "j" } else { "" };
-                            ui.label(RichText::new(format!("i={} {}", i, label)).font(egui::FontId::proportional((11.0 * z).max(8.0))).color(label_color));
+                            let sec_name = if self.selected_approach_id == 0 { "prevMap[diff]" } else { "j" };
+                            let label = if is_primary { "i" } else if is_sec { sec_name } else { "" };
+                            let header = if label.is_empty() { format!("i={}", i) } else { format!("i={} ({})", i, label) };
+                            ui.label(RichText::new(header).font(egui::FontId::proportional((11.0 * z).max(8.0))).color(label_color));
                             ui.label(RichText::new(num.to_string()).font(egui::FontId::monospace(font_sz)).strong().color(val_color));
                         });
                     });
@@ -2664,7 +2694,7 @@ impl VisualizerApp {
             ui.group(|ui| {
                 ui.label(RichText::new("PREVMAP {value -> index}").font(egui::FontId::monospace((11.0 * z).max(8.0))).color(p.text_muted));
                 ui.add_space(4.0 * z);
-                ui.with_layout(egui::Layout::left_to_right(egui::Align::Center).with_main_align(egui::Align::Center), |ui| {
+                ui.horizontal(|ui| {
                     if map.is_empty() {
                         ui.label(RichText::new("Empty {}").italics().color(p.text_dim));
                     } else {
@@ -3468,4 +3498,127 @@ fn render_variable_scope_chips(ui: &mut egui::Ui, step: &Step, p: &ThemePalette)
                 });
         });
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_all_problems_recompute_steps() {
+        let mut app = VisualizerApp::default();
+        let all_problems = Problem::all();
+
+        // Verify the number of implemented problems dynamically
+        assert_eq!(all_problems.len(), 134, "Expected 134 problems in Problem::all()!");
+
+        let mut failed_problems = Vec::new();
+
+        for &problem in all_problems {
+            app.current_problem = problem;
+            // Test primary approach (0) and secondary approach (1)
+            for approach_id in 0..=1 {
+                app.selected_approach_id = approach_id;
+                app.recompute_steps();
+
+                if app.steps.is_empty() {
+                    failed_problems.push(format!("{:?} (approach {}): steps vector is empty", problem, approach_id));
+                    continue;
+                }
+
+                for (idx, step) in app.steps.iter().enumerate() {
+                    if step.description.trim().is_empty() {
+                        failed_problems.push(format!("{:?} (approach {}, step {}): empty description", problem, approach_id, idx));
+                    }
+                }
+            }
+        }
+
+        if !failed_problems.is_empty() {
+            panic!(
+                "Problem step generation failed for {} problem/approach combinations:\n{}",
+                failed_problems.len(),
+                failed_problems.join("\n")
+            );
+        }
+    }
+
+    #[test]
+    fn test_two_sum_logic_correctness() {
+        let mut app = VisualizerApp::default();
+        app.current_problem = Problem::TwoSum;
+        app.two_sum_nums_input = "2, 7, 11, 15".to_string();
+        app.two_sum_target_input = 9;
+        app.selected_approach_id = 0; // Hash map
+        app.recompute_steps();
+
+        let last_step = app.steps.last().expect("Steps should not be empty");
+        if let VisualState::TwoSum { found_indices, .. } = &last_step.visual {
+            assert_eq!(*found_indices, Some((0, 1)), "Two Sum failed to find solution pair (0, 1)");
+        } else {
+            panic!("Expected VisualState::TwoSum");
+        }
+    }
+
+    #[test]
+    fn test_contains_duplicate_logic_correctness() {
+        let mut app = VisualizerApp::default();
+        app.current_problem = Problem::ContainsDuplicate;
+        app.contains_dup_nums_input = "1, 2, 3, 1".to_string();
+        app.recompute_steps();
+
+        let last_step = app.steps.last().expect("Steps should not be empty");
+        if let VisualState::ContainsDuplicate { has_duplicate, duplicate_val, .. } = &last_step.visual {
+            assert_eq!(*has_duplicate, Some(true), "Contains Duplicate should return true for [1, 2, 3, 1]");
+            assert_eq!(*duplicate_val, Some(1), "Duplicate value should be 1");
+        } else {
+            panic!("Expected VisualState::ContainsDuplicate");
+        }
+    }
+
+    #[test]
+    fn test_valid_anagram_logic_correctness() {
+        let mut app = VisualizerApp::default();
+        app.current_problem = Problem::ValidAnagram;
+        app.valid_anagram_s_input = "anagram".to_string();
+        app.valid_anagram_t_input = "nagaram".to_string();
+        app.recompute_steps();
+
+        let last_step = app.steps.last().expect("Steps should not be empty");
+        assert!(last_step.description.contains("VALID") || last_step.description.contains("true") || last_step.description.contains("match"),
+            "Valid Anagram description should indicate a valid anagram match");
+    }
+
+    #[test]
+    fn test_boundary_and_edge_case_safety() {
+        let mut app = VisualizerApp::default();
+        
+        // Edge Case 1: Empty input string fallback for Contains Duplicate
+        app.current_problem = Problem::ContainsDuplicate;
+        app.contains_dup_nums_input = "".to_string();
+        app.recompute_steps();
+        assert!(!app.steps.is_empty(), "Contains Duplicate failed on empty input string");
+
+        // Edge Case 2: Target not found for Two Sum
+        app.current_problem = Problem::TwoSum;
+        app.two_sum_nums_input = "1, 2, 3".to_string();
+        app.two_sum_target_input = 999;
+        app.recompute_steps();
+        assert!(!app.steps.is_empty(), "Two Sum failed when target is missing");
+
+        // Edge Case 3: Empty string input for Valid Anagram
+        app.current_problem = Problem::ValidAnagram;
+        app.valid_anagram_s_input = "".to_string();
+        app.valid_anagram_t_input = "".to_string();
+        app.recompute_steps();
+        assert!(!app.steps.is_empty(), "Valid Anagram failed on empty string input");
+
+        // Edge Case 4: Length/Content mismatch for Valid Anagram
+        app.valid_anagram_s_input = "rat".to_string();
+        app.valid_anagram_t_input = "car".to_string();
+        app.recompute_steps();
+        assert!(!app.steps.is_empty(), "Valid Anagram failed on mismatch input");
+    }
+}
+
+
 

@@ -56,3 +56,38 @@ pub fn format_python_set<T: std::fmt::Display>(set: &std::collections::BTreeSet<
         format!("{{{}}}", items.join(", "))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::BTreeSet;
+
+    #[test]
+    fn test_parse_i32_vec() {
+        assert_eq!(parse_i32_vec("1, 2, 3, 4", &[0]), vec![1, 2, 3, 4]);
+        assert_eq!(parse_i32_vec(" 10 , -5 , 20 ", &[0]), vec![10, -5, 20]);
+        assert_eq!(parse_i32_vec("invalid, abc", &[1, 2]), vec![1, 2]);
+        assert_eq!(parse_i32_vec("", &[5]), vec![5]);
+    }
+
+    #[test]
+    fn test_parse_string_vec() {
+        assert_eq!(parse_string_vec("eat, tea, tan", &["default"]), vec!["eat", "tea", "tan"]);
+        assert_eq!(parse_string_vec("", &["a", "b"]), vec!["a", "b"]);
+    }
+
+    #[test]
+    fn test_parse_tree_nodes() {
+        assert_eq!(parse_tree_nodes("1, 2, null, 3", &[]), vec![Some(1), Some(2), None, Some(3)]);
+        assert_eq!(parse_tree_nodes("NULL, 4, Null", &[]), vec![None, Some(4), None]);
+    }
+
+    #[test]
+    fn test_format_python_set() {
+        let mut set = BTreeSet::new();
+        assert_eq!(format_python_set(&set), "set()");
+        set.insert(1);
+        set.insert(2);
+        assert_eq!(format_python_set(&set), "{1, 2}");
+    }
+}
