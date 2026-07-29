@@ -44,7 +44,8 @@ AlgoBuddy is a high-performance cross-platform application built in Rust using `
 <img width="610" height="66" alt="{85EEE829-7411-401E-B113-E7B097E4D2D0}" src="https://github.com/user-attachments/assets/cbe397fb-3b5d-478f-847e-09625ec63405" />
 
 - **Integrated Problem Specifications**: View problem statements, examples with input/output cases, operational constraints, and direct links to official LeetCode problems within the application context.
-<img width="587" height="754" alt="{AB95300A-3E54-4311-92FD-A1135F9804D3}" src="https://github.com/user-attachments/assets/c332be37-ec06-43c6-b683-0429ef9e45c4" />
+<img width="557" height="658" alt="{BEA0CC02-CACA-468F-8696-536D720BC2B6}" src="https://github.com/user-attachments/assets/1925b9eb-e70d-41ff-a08f-34d55ac13c74" />
+
 
 ---
 
