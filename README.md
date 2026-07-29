@@ -24,7 +24,13 @@ AlgoBuddy is a high-performance cross-platform application built in Rust using `
 <img width="400" height="556" alt="{61B1612F-DA34-4086-B8D1-5DB5E34FF24E}" src="https://github.com/user-attachments/assets/d5232cf6-e385-4916-86a5-4fa41fc9b555" />
 
 - **Progressive Problem Auditing**: Actively auditing problem logic and visual step renderers across the roadmap to ensure 100% mathematical and code-trace precision before public release.
+
+<img width="401" height="219" alt="{1B0B035B-083F-40E3-9708-333A14AACC74}" src="https://github.com/user-attachments/assets/6d18aeed-d9fe-401c-8336-a92fe54854fa" />
+
 - **Full-Screen NeetCode 150 Mastery Dashboard**: Interactive category progress breakdown with custom problem completion checkmarks, reset controls, and automatic cross-session state persistence.
+
+<img width="1907" height="1018" alt="git_ex" src="https://github.com/user-attachments/assets/2a7ebd79-3c5d-440f-9828-e32b60d93f50" />
+
 - **Interactive State Renderers**: Visualizes 2D DP memoization tables, graph vector topology canvas, grid flood fills, topological sorts, decision transitions, and step-by-step trace arrays.
 - **Theme & Colorblind Accessibility System**: Live switcher supporting **VS Code Midnight Dark**, **Cyber Navy**, **Clean Light**, and **Protan/Deuteran Red-Green Colorblind Safe** palettes.
 - **Multi-Approach Evaluation Engine**: Compare multiple valid solutions per problem with live execution updates.
