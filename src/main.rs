@@ -66,7 +66,17 @@ fn main() {
             .start(
                 "the_canvas_id",
                 web_options,
-                Box::new(|cc| Ok(Box::new(VisualizerApp::new(cc)))),
+                Box::new(|cc| {
+                    let mut app = VisualizerApp::new(cc);
+                    if let Some(window) = web_sys::window() {
+                        if let Ok(search) = window.location().search() {
+                            if search.contains("dev=true") || search.contains("all=true") {
+                                app.set_show_unaudited(true);
+                            }
+                        }
+                    }
+                    Ok(Box::new(app))
+                }),
             )
             .await;
     });
