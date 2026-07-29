@@ -19,8 +19,8 @@ AlgoBuddy is a high-performance cross-platform application built in Rust using `
 
 ## Key Features
 
-- **NeetCode 150 Category Taxonomy**: Navigation structured into 18 algorithmic topic categories including Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Tries, Backtracking, Heap / Priority Queue, 1D Dynamic Programming, Bit Manipulation, Math & Geometry, Greedy, Intervals, Graphs, 2D Dynamic Programming, and Advanced Graphs.
-
+- **18 Core Categories (Complete NeetCode 150 roadmap)**: Navigation structured into 18 algorithmic topic categories including Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Tries, Backtracking, Heap / Priority Queue, 1D Dynamic Programming, Bit Manipulation, Math & Geometry, Greedy, Intervals, Graphs, 2D Dynamic Programming, and Advanced Graphs.
+- 
 <img width="400" height="556" alt="{61B1612F-DA34-4086-B8D1-5DB5E34FF24E}" src="https://github.com/user-attachments/assets/d5232cf6-e385-4916-86a5-4fa41fc9b555" />
 
 - **Progressive Problem Auditing**: Actively auditing problem logic and visual step renderers across the roadmap to ensure 100% mathematical and code-trace precision before public release.
