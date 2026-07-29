@@ -46,3 +46,13 @@ pub fn parse_tree_nodes(input: &str, default: &[Option<i32>]) -> Vec<Option<i32>
         parsed
     }
 }
+
+/// Formats a set in authentic Python set syntax: set() when empty, or {1, 2, 3} when populated.
+pub fn format_python_set<T: std::fmt::Display>(set: &std::collections::BTreeSet<T>) -> String {
+    if set.is_empty() {
+        "set()".to_string()
+    } else {
+        let items: Vec<String> = set.iter().map(|x| x.to_string()).collect();
+        format!("{{{}}}", items.join(", "))
+    }
+}

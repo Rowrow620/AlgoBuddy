@@ -226,7 +226,7 @@ impl Default for VisualizerApp {
 
             current_step_idx: 0,
             is_playing: false,
-            playback_speed_ms: 600,
+            playback_speed_ms: 500,
             last_step_time: Instant::now(),
 
             canvas_zoom: 1.0,
@@ -257,6 +257,21 @@ impl VisualizerApp {
             }
             if let Some(saved_favs) = eframe::get_value::<std::collections::HashSet<u32>>(storage, "algobuddy_favorite_problems") {
                 app.favorite_problems = saved_favs;
+            }
+            if let Some(theme) = eframe::get_value::<Theme>(storage, "algobuddy_theme") {
+                app.theme = theme;
+            }
+            if let Some(mode) = eframe::get_value::<ColorblindMode>(storage, "algobuddy_colorblind_mode") {
+                app.colorblind_mode = mode;
+            }
+            if let Some(speed) = eframe::get_value::<u64>(storage, "algobuddy_playback_speed_ms") {
+                app.playback_speed_ms = speed;
+            }
+            if let Some(show_left) = eframe::get_value::<bool>(storage, "algobuddy_show_roadmap_sidebar") {
+                app.show_roadmap_sidebar = show_left;
+            }
+            if let Some(show_right) = eframe::get_value::<bool>(storage, "algobuddy_show_right_sidebar") {
+                app.show_right_sidebar = show_right;
             }
         }
         app
@@ -882,6 +897,11 @@ impl eframe::App for VisualizerApp {
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
         eframe::set_value(storage, "algobuddy_completed_problems", &self.completed_problems);
         eframe::set_value(storage, "algobuddy_favorite_problems", &self.favorite_problems);
+        eframe::set_value(storage, "algobuddy_theme", &self.theme);
+        eframe::set_value(storage, "algobuddy_colorblind_mode", &self.colorblind_mode);
+        eframe::set_value(storage, "algobuddy_playback_speed_ms", &self.playback_speed_ms);
+        eframe::set_value(storage, "algobuddy_show_roadmap_sidebar", &self.show_roadmap_sidebar);
+        eframe::set_value(storage, "algobuddy_show_right_sidebar", &self.show_right_sidebar);
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -1264,11 +1284,14 @@ impl eframe::App for VisualizerApp {
 
                     ui.separator();
                     ui.label(RichText::new("Speed:").strong().color(p.text_primary));
-                    ui.add(
-                        egui::Slider::new(&mut self.playback_speed_ms, 100..=1500)
-                            .step_by(50.0)
-                            .custom_formatter(|val, _| format!("{}ms", val))
-                    );
+                    let mut mult = (500.0 / self.playback_speed_ms as f32 * 100.0).round() / 100.0;
+                    if ui.add(
+                        egui::Slider::new(&mut mult, 0.25..=4.0)
+                            .step_by(0.25)
+                            .custom_formatter(|val, _| format!("{:.2}x", val))
+                    ).changed() {
+                        self.playback_speed_ms = (500.0 / mult).round() as u64;
+                    }
                 });
             });
 

@@ -3,7 +3,7 @@ use eframe::egui::Color32;
 
 // ── Themes & Accessibility ──
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum Theme {
     DarkVSCode,
     DarkCyber,
@@ -20,7 +20,7 @@ impl Theme {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum ColorblindMode {
     Off,
     RedGreenSafe,
@@ -1754,7 +1754,7 @@ impl VisualState {
                         vars.push(("nums[i]", val.to_string()));
                     }
                 }
-                vars.push(("seen", format!("{:?}", seen_set.iter().cloned().collect::<Vec<_>>())));
+                vars.push(("seen", crate::utils::format_python_set(seen_set)));
                 if let Some(dup) = duplicate_val {
                     vars.push(("duplicate", dup.to_string()));
                 }
@@ -1851,8 +1851,9 @@ impl VisualState {
                 if let Some(v) = is_valid { vars.push(("is_valid", v.to_string())); }
                 vars
             }
-            VisualState::LongestConsecutive { current_num, current_seq, max_length, .. } => {
+            VisualState::LongestConsecutive { num_set, current_num, current_seq, max_length, .. } => {
                 let mut vars = Vec::new();
+                vars.push(("numSet", crate::utils::format_python_set(num_set)));
                 if let Some(n) = current_num { vars.push(("num", n.to_string())); }
                 vars.push(("curr_streak", current_seq.len().to_string()));
                 vars.push(("max_streak", max_length.to_string()));
