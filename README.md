@@ -32,6 +32,9 @@ AlgoBuddy is a high-performance cross-platform application built in Rust using `
 <img width="1907" height="1018" alt="git_ex" src="https://github.com/user-attachments/assets/2a7ebd79-3c5d-440f-9828-e32b60d93f50" />
 
 - **Interactive State Renderers**: Visualizes 2D DP memoization tables, graph vector topology canvas, grid flood fills, topological sorts, decision transitions, and step-by-step trace arrays.
+
+<img width="380" height="371" alt="settings_colors" src="https://github.com/user-attachments/assets/d7357a49-c746-418f-a375-7d51ba5eb44a" />
+
 - **Theme & Colorblind Accessibility System**: Live switcher supporting **VS Code Midnight Dark**, **Cyber Navy**, **Clean Light**, and **Protan/Deuteran Red-Green Colorblind Safe** palettes.
 - **Multi-Approach Evaluation Engine**: Compare multiple valid solutions per problem with live execution updates.
 - **Deterministic State Engine**: Models algorithm steps as discrete state snapshots, enabling forward and backward timeline scrubbing, variable speed multipliers (0.25x - 4.00x), and synchronized source line highlighting.
