@@ -1,6 +1,7 @@
 mod algorithms;
 mod app;
 mod model;
+mod utils;
 
 use app::VisualizerApp;
 

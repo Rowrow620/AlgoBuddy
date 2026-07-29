@@ -16,16 +16,18 @@ use crate::algorithms::{
     reverse_linked_list::generate_reverse_linked_list_steps,
     merge_two_lists::generate_merge_two_lists_steps,
     linked_list_cycle::generate_linked_list_cycle_steps,
-    invert_tree::generate_invert_tree_steps,
-    max_depth_tree::generate_max_depth_tree_steps,
-    diameter_tree::generate_diameter_tree_steps,
+    trees::{
+        generate_invert_tree_steps,
+        generate_max_depth_tree_steps,
+        generate_diameter_tree_steps,
+        generate_balanced_tree_steps,
+        generate_same_tree_steps,
+        generate_subtree_steps,
+    },
     valid_sudoku::generate_valid_sudoku_steps,
     longest_consecutive::generate_longest_consecutive_steps,
     contains_duplicate::generate_contains_duplicate_steps,
     group_anagrams::generate_group_anagrams_steps,
-    balanced_tree::generate_balanced_tree_steps,
-    same_tree::generate_same_tree_steps,
-    subtree::generate_subtree_steps,
     climbing_stairs::generate_climbing_stairs_steps,
     min_cost_stairs::generate_min_cost_stairs_steps,
     kth_largest_stream::generate_kth_largest_stream_steps,
@@ -33,8 +35,6 @@ use crate::algorithms::{
     happy_number::generate_happy_number_steps,
     plus_one::generate_plus_one_steps,
     single_number::generate_single_number_steps,
-    count_bits::generate_count_bits_steps,
-    counting_bits::generate_counting_bits_array_steps,
     reverse_bits::generate_reverse_bits_steps,
     missing_number::generate_missing_number_steps,
     two_sum_ii::generate_two_sum_ii_steps,
@@ -91,6 +91,7 @@ pub struct VisualizerApp {
     show_settings_modal: bool,
     view_mode: ViewMode,
     completed_problems: std::collections::HashSet<u32>,
+    favorite_problems: std::collections::HashSet<u32>,
 
     // Navigation state & Sidebar Visibility
     show_roadmap_sidebar: bool,
@@ -114,14 +115,10 @@ pub struct VisualizerApp {
 
     topk_nums_input: String,
     topk_k_input: usize,
-    topk_nums: Vec<i32>,
-    topk_k: usize,
 
     ed_strs_input: String,
-    ed_strs: Vec<String>,
 
     prod_nums_input: String,
-    prod_nums: Vec<i32>,
 
     palindrome_s_input: String,
     parentheses_s_input: String,
@@ -155,12 +152,11 @@ pub struct VisualizerApp {
     current_step_idx: usize,
     is_playing: bool,
     playback_speed_ms: u64,
-    playback_speed_mult: f32,
     last_step_time: Instant,
-
 
     canvas_zoom: f32,
     last_focused_step_idx: Option<usize>,
+    #[cfg(not(target_arch = "wasm32"))]
     is_fullscreen: bool,
 }
 
@@ -172,7 +168,8 @@ impl Default for VisualizerApp {
             colorblind_mode: ColorblindMode::Off,
             show_settings_modal: false,
             view_mode: ViewMode::Visualizer,
-            completed_problems: Problem::all().iter().map(|p| p.id()).collect(),
+            completed_problems: std::collections::HashSet::new(),
+            favorite_problems: std::collections::HashSet::new(),
 
             show_roadmap_sidebar: true,
             show_right_sidebar: true,
@@ -194,14 +191,10 @@ impl Default for VisualizerApp {
 
             topk_nums_input: "1, 1, 1, 2, 2, 3".to_string(),
             topk_k_input: 2,
-            topk_nums: vec![1, 1, 1, 2, 2, 3],
-            topk_k: 2,
 
             ed_strs_input: "Hello, World".to_string(),
-            ed_strs: vec!["Hello".to_string(), "World".to_string()],
 
             prod_nums_input: "1, 2, 4, 6".to_string(),
-            prod_nums: vec![1, 2, 4, 6],
 
             palindrome_s_input: "Was it a car or a cat I saw?".to_string(),
             parentheses_s_input: "([{}])".to_string(),
@@ -234,12 +227,11 @@ impl Default for VisualizerApp {
             current_step_idx: 0,
             is_playing: false,
             playback_speed_ms: 600,
-            playback_speed_mult: 1.0,
             last_step_time: Instant::now(),
-
 
             canvas_zoom: 1.0,
             last_focused_step_idx: None,
+            #[cfg(not(target_arch = "wasm32"))]
             is_fullscreen: false,
         };
 
@@ -263,6 +255,9 @@ impl VisualizerApp {
             if let Some(saved_completed) = eframe::get_value::<std::collections::HashSet<u32>>(storage, "algobuddy_completed_problems") {
                 app.completed_problems = saved_completed;
             }
+            if let Some(saved_favs) = eframe::get_value::<std::collections::HashSet<u32>>(storage, "algobuddy_favorite_problems") {
+                app.favorite_problems = saved_favs;
+            }
         }
         app
     }
@@ -273,16 +268,7 @@ impl VisualizerApp {
     }
 
     fn parse_tree_input(&self) -> Vec<Option<i32>> {
-        self.tree_nodes_input.split(',')
-            .map(|s| {
-                let trimmed = s.trim();
-                if trimmed.eq_ignore_ascii_case("null") || trimmed.is_empty() {
-                    None
-                } else {
-                    trimmed.parse::<i32>().ok()
-                }
-            })
-            .collect()
+        crate::utils::parse_tree_nodes(&self.tree_nodes_input, &[Some(4), Some(2), Some(7), Some(1), Some(3), Some(6), Some(9)])
     }
 
     fn get_sudoku_board(&self) -> [[char; 9]; 9] {
@@ -342,30 +328,30 @@ impl VisualizerApp {
             Problem::TopKFrequent => {
                 let parsed: Vec<i32> = self.topk_nums_input.split(',')
                     .filter_map(|s| s.trim().parse().ok()).collect();
-                if !parsed.is_empty() { self.topk_nums = parsed; }
-                let unique = self.topk_nums.iter().collect::<std::collections::HashSet<_>>().len();
-                self.topk_k = self.topk_k_input.clamp(1, unique.max(1));
-                self.topk_k_input = self.topk_k;
+                let nums = if parsed.is_empty() { vec![1, 1, 1, 2, 2, 3] } else { parsed };
+                let unique = nums.iter().collect::<std::collections::HashSet<_>>().len();
+                let k = self.topk_k_input.clamp(1, unique.max(1));
+                self.topk_k_input = k;
 
                 match app_id {
-                    0 => generate_bucket_sort_steps(&self.topk_nums, self.topk_k),
-                    1 => generate_min_heap_steps(&self.topk_nums, self.topk_k),
-                    _ => generate_sorting_steps(&self.topk_nums, self.topk_k),
+                    0 => generate_bucket_sort_steps(&nums, k),
+                    1 => generate_min_heap_steps(&nums, k),
+                    _ => generate_sorting_steps(&nums, k),
                 }
             }
             Problem::ProductExceptSelf => {
                 let parsed: Vec<i32> = self.prod_nums_input.split(',')
                     .filter_map(|s| s.trim().parse().ok()).collect();
-                if !parsed.is_empty() { self.prod_nums = parsed; }
-                generate_product_steps(&self.prod_nums)
+                let nums = if parsed.is_empty() { vec![1, 2, 4, 6] } else { parsed };
+                generate_product_steps(&nums)
             }
             Problem::EncodeDecode => {
-                self.ed_strs = self.ed_strs_input.split(',')
+                let parsed: Vec<String> = self.ed_strs_input.split(',')
                     .map(|s| s.trim().to_string())
                     .filter(|s| !s.is_empty())
                     .collect();
-                if self.ed_strs.is_empty() { self.ed_strs = vec!["".to_string()]; }
-                generate_encode_decode_steps(&self.ed_strs)
+                let strs = if parsed.is_empty() { vec!["Hello".into(), "World".into()] } else { parsed };
+                generate_encode_decode_steps(&strs)
             }
             Problem::ValidSudoku => {
                 let board = self.get_sudoku_board();
@@ -895,10 +881,12 @@ fn difficulty_color(d: Difficulty, p: &ThemePalette) -> Color32 {
 impl eframe::App for VisualizerApp {
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
         eframe::set_value(storage, "algobuddy_completed_problems", &self.completed_problems);
+        eframe::set_value(storage, "algobuddy_favorite_problems", &self.favorite_problems);
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // ── Keyboard Shortcuts (Only active when not typing in text fields) ──
+        #[cfg(not(target_arch = "wasm32"))]
         let mut toggle_fs = false;
         if !ctx.wants_keyboard_input() {
             ctx.input(|i| {
@@ -1021,6 +1009,63 @@ impl eframe::App for VisualizerApp {
                     ui.add_space(6.0);
 
                     egui::ScrollArea::vertical().show(ui, |ui| {
+                        // ── ⭐ Favorites Category Section ──
+                        let fav_problems: Vec<Problem> = Problem::all()
+                            .iter()
+                            .copied()
+                            .filter(|p| self.favorite_problems.contains(&p.id()))
+                            .filter(|p| {
+                                if let Some(diff) = self.selected_difficulty { p.difficulty() == diff } else { true }
+                            })
+                            .filter(|p| {
+                                if self.search_query.trim().is_empty() {
+                                    true
+                                } else {
+                                    let q = self.search_query.to_lowercase();
+                                    p.title().to_lowercase().contains(&q) || p.id().to_string().contains(&q)
+                                }
+                            })
+                            .collect();
+
+                        let is_fav_active = fav_problems.contains(&self.current_problem);
+                        let fav_header_text = format!("⭐ Favorites ({})", fav_problems.len());
+
+                        egui::CollapsingHeader::new(RichText::new(fav_header_text).color(p.amber).strong())
+                            .default_open(is_fav_active || !fav_problems.is_empty())
+                            .show(ui, |ui| {
+                                if fav_problems.is_empty() {
+                                    ui.label(RichText::new("  (No favorites starred yet)").italics().font(egui::FontId::proportional(11.0)).color(p.text_dim));
+                                } else {
+                                    for prob in fav_problems {
+                                        let is_selected = self.current_problem == prob;
+                                        let diff_color = difficulty_color(prob.difficulty(), &p);
+
+                                        ui.horizontal(|ui| {
+                                            let star_rt = RichText::new("★").font(egui::FontId::proportional(12.0)).color(p.amber).strong();
+                                            if ui.button(star_rt).on_hover_text("Remove from Favorites").clicked() {
+                                                self.favorite_problems.remove(&prob.id());
+                                            }
+
+                                            let btn_rt = RichText::new(format!("#{} {}", prob.id(), prob.title()))
+                                                .font(egui::FontId::proportional(12.0));
+                                            let btn_text = if is_selected { btn_rt.color(egui::Color32::WHITE).strong() } else { btn_rt.color(p.text_primary) };
+
+                                            if ui.selectable_label(is_selected, btn_text).clicked() {
+                                                self.select_problem(prob);
+                                            }
+
+                                            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                                ui.label(RichText::new(prob.difficulty().label()).font(egui::FontId::monospace(10.0)).color(diff_color));
+                                            });
+                                        });
+                                    }
+                                }
+                            });
+
+                        ui.add_space(4.0);
+                        ui.separator();
+                        ui.add_space(4.0);
+
                         for &category in Category::all() {
                             let problems_in_cat: Vec<Problem> = Problem::all()
                                 .iter()
@@ -1058,32 +1103,28 @@ impl eframe::App for VisualizerApp {
                                         for prob in problems_in_cat {
                                             let is_selected = self.current_problem == prob;
                                             let diff_color = difficulty_color(prob.difficulty(), &p);
+                                            let is_fav = self.favorite_problems.contains(&prob.id());
 
                                             ui.horizontal(|ui| {
+                                                let (star_char, star_color) = if is_fav { ("★", p.amber) } else { ("☆", p.text_muted) };
+                                                let star_rt = RichText::new(star_char).font(egui::FontId::proportional(12.0)).color(star_color).strong();
+                                                if ui.button(star_rt).on_hover_text(if is_fav { "Remove from Favorites" } else { "Add to Favorites" }).clicked() {
+                                                    if is_fav { self.favorite_problems.remove(&prob.id()); }
+                                                    else { self.favorite_problems.insert(prob.id()); }
+                                                }
+
+                                                let btn_rt = RichText::new(format!("#{} {}", prob.id(), prob.title()))
+                                                    .font(egui::FontId::proportional(12.0));
+                                                let btn_text = if is_selected { btn_rt.color(egui::Color32::WHITE).strong() } else { btn_rt.color(p.text_primary) };
+
+                                                if ui.selectable_label(is_selected, btn_text).clicked() {
+                                                    self.select_problem(prob);
+                                                }
+
                                                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                                                     ui.label(RichText::new(prob.difficulty().label()).font(egui::FontId::monospace(10.0)).color(diff_color));
-
-                                                    ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
-                                                        ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Truncate);
-
-                                                        let btn_rt = RichText::new(format!("#{} {}", prob.id(), prob.title()))
-                                                            .font(egui::FontId::proportional(12.0));
-                                                        let btn_text = if is_selected {
-                                                            btn_rt.color(p.cyan).strong()
-                                                        } else {
-                                                            btn_rt.color(p.text_primary)
-
-                                                        };
-
-                                                        let resp = ui.selectable_label(is_selected, btn_text);
-                                                        if resp.clicked() {
-                                                            self.select_problem(prob);
-                                                        }
-                                                        resp.on_hover_text(format!("#{} {} ({})", prob.id(), prob.title(), prob.difficulty().label()));
-                                                    });
                                                 });
                                             });
-
                                         }
                                     }
                                 });
@@ -1121,6 +1162,17 @@ impl eframe::App for VisualizerApp {
                     });
 
                     ui.label(RichText::new(format!("Category: {}", prob.category().name())).font(egui::FontId::proportional(12.0)).color(p.text_muted));
+
+                    let is_fav = self.favorite_problems.contains(&details.id);
+                    let fav_label = if is_fav { "★ Favorited" } else { "☆ Favorite" };
+                    let fav_color = if is_fav { p.amber } else { p.text_muted };
+                    if ui.button(RichText::new(fav_label).font(egui::FontId::proportional(11.0)).strong().color(fav_color)).clicked() {
+                        if is_fav {
+                            self.favorite_problems.remove(&details.id);
+                        } else {
+                            self.favorite_problems.insert(details.id);
+                        }
+                    }
 
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         if !self.show_right_sidebar {
@@ -1212,14 +1264,11 @@ impl eframe::App for VisualizerApp {
 
                     ui.separator();
                     ui.label(RichText::new("Speed:").strong().color(p.text_primary));
-                    let slider_resp = ui.add(
-                        egui::Slider::new(&mut self.playback_speed_mult, 0.25..=4.0)
-                            .step_by(0.05)
-                            .custom_formatter(|val, _| format!("{:.2}x", val))
+                    ui.add(
+                        egui::Slider::new(&mut self.playback_speed_ms, 100..=1500)
+                            .step_by(50.0)
+                            .custom_formatter(|val, _| format!("{}ms", val))
                     );
-                    if slider_resp.changed() {
-                        self.playback_speed_ms = (600.0 / self.playback_speed_mult.max(0.1)).round() as u64;
-                    }
                 });
             });
 
@@ -1272,6 +1321,20 @@ impl eframe::App for VisualizerApp {
                                                 );
                                                 ui.add_space(4.0);
                                                 ui.label(RichText::new(&step.description).font(egui::FontId::proportional(13.0)).color(p.text_primary));
+
+                                                if let Some(formula) = self.current_problem.formula() {
+                                                    ui.add_space(6.0);
+                                                    egui::Frame::none()
+                                                        .fill(p.cell_bg)
+                                                        .rounding(Rounding::same(4.0))
+                                                        .inner_margin(egui::Margin::symmetric(6.0, 3.0))
+                                                        .show(ui, |ui| {
+                                                            ui.horizontal(|ui| {
+                                                                ui.label(RichText::new("⚡ Invariant:").font(egui::FontId::monospace(10.0)).color(p.amber).strong());
+                                                                ui.label(RichText::new(formula).font(egui::FontId::monospace(11.0)).color(p.cyan).strong());
+                                                            });
+                                                        });
+                                                }
                                             });
 
                                         ui.add_space(6.0);
@@ -1532,6 +1595,9 @@ impl eframe::App for VisualizerApp {
                             VisualState::NodeGraph { nodes, node_labels, edges, active_node, active_edge, visited_nodes, cycle_edges, topo_order, message } => {
                                 self.render_node_graph(ui, &p, nodes, node_labels, edges, *active_node, *active_edge, visited_nodes, cycle_edges, topo_order, message);
                             }
+                            VisualState::Array1D { title, elements, active_idx, secondary_idx, pointers, status_message, is_success } => {
+                                self.render_array_1d(ui, &p, title, elements, *active_idx, *secondary_idx, pointers, status_message, *is_success);
+                            }
                         }
 
                     });
@@ -1546,6 +1612,73 @@ impl eframe::App for VisualizerApp {
 // ── Visual Canvas Renderers ──
 
 impl VisualizerApp {
+    fn render_array_1d(
+        &self,
+        ui: &mut egui::Ui,
+        p: &ThemePalette,
+        title: &str,
+        elements: &[i32],
+        active_idx: Option<usize>,
+        secondary_idx: Option<usize>,
+        pointers: &[(&'static str, usize)],
+        status_message: &str,
+        is_success: Option<bool>,
+    ) {
+        let z = self.canvas_zoom;
+        ui.heading(RichText::new(title).color(p.amber).size(16.0 * z));
+        ui.add_space(12.0 * z);
+
+        ui.horizontal(|ui| {
+            for (idx, &val) in elements.iter().enumerate() {
+                let is_active = active_idx == Some(idx);
+                let is_secondary = secondary_idx == Some(idx);
+                let bg_color = if is_active {
+                    p.amber
+                } else if is_secondary {
+                    p.cyan
+                } else {
+                    p.cell_bg
+                };
+
+                let text_color = if is_active || is_secondary { p.sidebar_bg } else { p.text_primary };
+
+                ui.vertical(|ui| {
+                    let ptr_text = pointers.iter()
+                        .filter(|(_, p_idx)| *p_idx == idx)
+                        .map(|(name, _)| *name)
+                        .collect::<Vec<_>>()
+                        .join(",");
+
+                    if !ptr_text.is_empty() {
+                        ui.label(RichText::new(&ptr_text).font(egui::FontId::monospace(10.0 * z)).color(p.amber).strong());
+                    } else {
+                        ui.label(RichText::new(" ").font(egui::FontId::monospace(10.0 * z)));
+                    }
+
+                    egui::Frame::none()
+                        .fill(bg_color)
+                        .rounding(Rounding::same(8.0 * z))
+                        .inner_margin(egui::Margin::symmetric(10.0 * z, 8.0 * z))
+                        .show(ui, |ui| {
+                            ui.label(RichText::new(val.to_string()).font(egui::FontId::monospace(14.0 * z)).color(text_color).strong());
+                        });
+
+                    ui.label(RichText::new(format!("i={}", idx)).font(egui::FontId::monospace(10.0 * z)).color(p.text_muted));
+                });
+                ui.add_space(4.0 * z);
+            }
+        });
+
+        if !status_message.is_empty() {
+            ui.add_space(16.0 * z);
+            let status_color = match is_success {
+                Some(true) => p.emerald_text,
+                Some(false) => p.red,
+                None => p.text_primary,
+            };
+            ui.label(RichText::new(status_message).font(egui::FontId::proportional(13.0 * z)).color(status_color).strong());
+        }
+    }
     fn render_heap_visualizer(&self, ui: &mut egui::Ui, p: &ThemePalette, heap: &[i32], active_idx: Option<usize>, swapped: Option<(usize, usize)>, label: &str) {
         let z = self.canvas_zoom;
         ui.heading(RichText::new(format!("Dual Tree & Array Heap View: {}", label)).color(p.amber).size(16.0 * z));
@@ -2833,7 +2966,7 @@ impl VisualizerApp {
 
         ui.add_space(24.0 * z);
 
-        ui.heading(RichText::new(format!("3. Result Collector (Target k = {})", self.topk_k)).color(p.emerald_text).size(font_title));
+        ui.heading(RichText::new(format!("3. Result Collector (Target k = {})", self.topk_k_input)).color(p.emerald_text).size(font_title));
         ui.add_space(8.0 * z);
         ui.horizontal(|ui| {
             if result.is_empty() {

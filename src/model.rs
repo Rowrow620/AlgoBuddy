@@ -552,6 +552,82 @@ impl Problem {
         self.details().category
     }
 
+    pub fn formula(&self) -> Option<&'static str> {
+        match self {
+            Problem::ContainsDuplicate => Some("if n ∈ seen ➔ duplicate found"),
+            Problem::TwoSum => Some("diff = target - num  ➔  map[diff]"),
+            Problem::ValidAnagram => Some("count_S[char] == count_T[char]"),
+            Problem::GroupAnagrams => Some("key = tuple(count_26_chars)"),
+            Problem::TopKFrequent => Some("freq[num]++ ➔ bucket[cnt].append(num)"),
+            Problem::ProductExceptSelf => Some("out[i] = prefix[i-1] × suffix[i+1]"),
+            Problem::EncodeDecode => Some("encoded = str.len() + '#' + str"),
+            Problem::ValidSudoku => Some("val ∉ row[r] ∩ col[c] ∩ box[r//3, c//3]"),
+            Problem::LongestConsecutive => Some("if (num - 1) ∉ set ➔ streak start"),
+            Problem::ValidPalindrome => Some("s[left].lower() == s[right].lower()"),
+            Problem::BestTimeStock => Some("profit = max(0, prices[r] - prices[l])"),
+            Problem::ValidParentheses => Some("open ➔ push(c), close ➔ pop() == match(c)"),
+            Problem::BinarySearch => Some("mid = left + (right - left) // 2"),
+            Problem::ReverseLinkedList => Some("curr.next = prev; prev = curr; curr = nxt"),
+            Problem::MergeTwoLists => Some("tail.next = min(l1.val, l2.val)"),
+            Problem::LinkedListCycle => Some("slow = slow.next; fast = fast.next.next"),
+            Problem::InvertTree => Some("swap(root.left, root.right)"),
+            Problem::MaxDepthTree => Some("depth = 1 + max(depth(L), depth(R))"),
+            Problem::DiameterTree => Some("diameter = max(d, height(L) + height(R))"),
+            Problem::BalancedTree => Some("abs(height(L) - height(R)) ≤ 1"),
+            Problem::SameTree => Some("p.val == q.val ∧ same(p.L, q.L) ∧ same(p.R, q.R)"),
+            Problem::Subtree => Some("isSameTree(root, subRoot) ∨ isSubtree(root.L) ∨ isSubtree(root.R)"),
+            Problem::ClimbingStairs => Some("dp[i] = dp[i-1] + dp[i-2]"),
+            Problem::MinCostStairs => Some("dp[i] = cost[i] + min(dp[i+1], dp[i+2])"),
+            Problem::KthLargestStream => Some("heapq.heappush(val); if len > k ➔ pop()"),
+            Problem::LastStone => Some("stone_1 - stone_2 ➔ max_heap"),
+            Problem::MeetingRooms => Some("interval[i].start < interval[i-1].end"),
+            Problem::HappyNumber => Some("n = ∑(digit²)  ➔  detect cycle in HashSet"),
+            Problem::PlusOne => Some("digits[i] = (digits[i] + 1) % 10"),
+            Problem::SingleNumber => Some("a ⊕ a = 0  ➔  res ^= n"),
+            Problem::CountBits | Problem::Number1Bits => Some("n = n & (n - 1)  ➔  clears lowest set bit"),
+            Problem::CountingBits => Some("dp[i] = 1 + dp[i - offset]"),
+            Problem::ReverseBits => Some("bit = (n >> i) & 1  ➔  res |= bit << (31 - i)"),
+            Problem::MissingNumber => Some("∑(0..n) - ∑(nums)  ➔  res ^= i ⊕ nums[i]"),
+            Problem::TwoSumII => Some("sum = nums[l] + nums[r]  ➔  adjust l, r"),
+            Problem::ThreeSum => Some("a + nums[l] + nums[r] == 0"),
+            Problem::ContainerWater => Some("area = (r - l) × min(h[l], h[r])"),
+            Problem::TrappingRain => Some("water[i] = min(max_L, max_R) - height[i]"),
+            Problem::MinStack => Some("min_stack.push(min(val, min_stack[-1]))"),
+            Problem::EvalRPN => Some("b = pop(), a = pop() ➔ push(a op b)"),
+            Problem::LongestSubstring => Some("while s[r] ∈ set ➔ set.remove(s[l]); l++"),
+            Problem::Search2DMatrix => Some("val = matrix[m // COLS][m % COLS]"),
+            Problem::HouseRobber => Some("rob[i] = max(rob[i-1], rob[i-2] + nums[i])"),
+            Problem::GenerateParentheses => Some("open < n ➔ '(', closed < open ➔ ')'"),
+            Problem::DailyTemperatures => Some("while t > stack[-1].val ➔ pop() & dist = i - idx"),
+            Problem::CarFleet => Some("time = (target - p) / s; if t ≤ prev ➔ fleet merge"),
+            Problem::LargestRectangle => Some("area = height × (i - start_index)"),
+            Problem::CharacterReplacement => Some("window_len - max_freq ≤ k"),
+            Problem::PermutationInString => Some("s1_count == s2_window_count"),
+            Problem::MinWindowSubstring => Some("have == need ➔ shrink left window"),
+            Problem::SlidingWindowMax => Some("deque monotonic decreasing indices"),
+            Problem::SearchRotatedArray => Some("if nums[l] ≤ nums[m] ➔ left half sorted"),
+            Problem::FindMinRotated => Some("if nums[m] > nums[r] ➔ min in right half"),
+            Problem::TimeKeyValueStore => Some("binary search timestamp in key values"),
+            Problem::FindMedianSortedArrays => Some("Aleft ≤ Bright ∧ Bleft ≤ Aright"),
+            Problem::RotateImage => Some("transpose(matrix) ➔ reverse_rows(matrix)"),
+            Problem::SpiralMatrix => Some("traverse(right, down, left, up) ➔ shrink bounds"),
+            Problem::SetMatrixZeroes => Some("if cell == 0 ➔ mark row_flag[r] & col_flag[c]"),
+            Problem::PowXN => Some("if N is odd ➔ res *= x; x *= x; N //= 2"),
+            Problem::MultiplyStrings => Some("pos[i + j + 1] += d1 × d2 ➔ handle carry"),
+            Problem::DetectSquares => Some("count += freq[p1] × freq[p2] × freq[p3]"),
+            Problem::MaximumSubarray => Some("cur_sum = max(n, cur_sum + n)"),
+            Problem::JumpGame => Some("max_reach = max(max_reach, i + nums[i])"),
+            Problem::JumpGameII => Some("farthest = max(farthest, i + nums[i])"),
+            Problem::GasStation => Some("total_tank += gas[i] - cost[i]"),
+            Problem::CourseSchedule => Some("topological sort ➔ in_degree == 0"),
+            Problem::UniquePaths => Some("dp[r][c] = dp[r+1][c] + dp[r][c+1]"),
+            Problem::LongestCommonSubsequence => Some("if s1[i] == s2[j] ➔ 1 + dp[i+1][j+1]"),
+            Problem::CoinChange => Some("dp[a] = min(dp[a], 1 + dp[a - coin])"),
+            Problem::LongestIncreasingSubsequence => Some("if nums[j] < nums[i] ➔ dp[i] = max(1 + dp[j])"),
+            _ => None,
+        }
+    }
+
     pub fn details(&self) -> ProblemDetails {
         match self {
             Problem::ContainsDuplicate => ProblemDetails {
@@ -1656,6 +1732,15 @@ pub enum VisualState {
         topo_order: Vec<usize>,
         message: String,
     },
+    Array1D {
+        title: String,
+        elements: Vec<i32>,
+        active_idx: Option<usize>,
+        secondary_idx: Option<usize>,
+        pointers: Vec<(&'static str, usize)>,
+        status_message: String,
+        is_success: Option<bool>,
+    },
 }
 
 impl VisualState {
@@ -1887,6 +1972,25 @@ impl VisualState {
                 vars.push(("status", message.clone()));
                 vars
             }
+            VisualState::Array1D { active_idx, secondary_idx, pointers, elements, status_message, .. } => {
+                let mut vars = Vec::new();
+                if let Some(i) = active_idx {
+                    vars.push(("idx", i.to_string()));
+                    if let Some(val) = elements.get(*i) {
+                        vars.push(("elements[idx]", val.to_string()));
+                    }
+                }
+                if let Some(j) = secondary_idx {
+                    vars.push(("secondary_idx", j.to_string()));
+                }
+                for (ptr_name, ptr_val) in pointers {
+                    vars.push((ptr_name, ptr_val.to_string()));
+                }
+                if !status_message.is_empty() {
+                    vars.push(("status", status_message.clone()));
+                }
+                vars
+            }
         }
     }
 }
@@ -1931,6 +2035,23 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (7, "            seen.add(n)"),
             (8, "        return False"),
         ],
+        (Problem::ContainsDuplicate, 1) => vec![
+            (1, "class Solution:"),
+            (2, "    def containsDuplicate(self, nums: List[int]) -> bool:"),
+            (3, "        nums.sort()"),
+            (4, "        for i in range(len(nums) - 1):"),
+            (5, "            if nums[i] == nums[i + 1]:"),
+            (6, "                return True"),
+            (7, "        return False"),
+        ],
+        (Problem::ContainsDuplicate, _) => vec![
+            (1, "class Solution:"),
+            (2, "    def containsDuplicate(self, nums: List[int]) -> bool:"),
+            (3, "        for i in range(len(nums)):"),
+            (4, "            for j in range(i + 1, len(nums)):"),
+            (5, "                if nums[i] == nums[j]: return True"),
+            (6, "        return False"),
+        ],
         (Problem::TwoSum, 0) => vec![
             (1, "class Solution:"),
             (2, "    def twoSum(self, nums: List[int], target: int) -> List[int]:"),
@@ -1942,6 +2063,25 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (8, "            prevMap[n] = i"),
             (9, "        return []"),
         ],
+        (Problem::TwoSum, 1) => vec![
+            (1, "class Solution:"),
+            (2, "    def twoSum(self, numbers: List[int], target: int) -> List[int]:"),
+            (3, "        l, r = 0, len(numbers) - 1"),
+            (4, "        while l < r:"),
+            (5, "            curSum = numbers[l] + numbers[r]"),
+            (6, "            if curSum == target: return [l + 1, r + 1]"),
+            (7, "            elif curSum < target: l += 1"),
+            (8, "            else: r -= 1"),
+            (9, "        return []"),
+        ],
+        (Problem::TwoSum, _) => vec![
+            (1, "class Solution:"),
+            (2, "    def twoSum(self, nums: List[int], target: int) -> List[int]:"),
+            (3, "        for i in range(len(nums)):"),
+            (4, "            for j in range(i + 1, len(nums)):"),
+            (5, "                if nums[i] + nums[j] == target: return [i, j]"),
+            (6, "        return []"),
+        ],
         (Problem::ValidAnagram, 0) => vec![
             (1, "class Solution:"),
             (2, "    def isAnagram(self, s: str, t: str) -> bool:"),
@@ -1951,6 +2091,12 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (6, "            countS[s[i]] = 1 + countS.get(s[i], 0)"),
             (7, "            countT[t[i]] = 1 + countT.get(t[i], 0)"),
             (8, "        return countS == countT"),
+        ],
+        (Problem::ValidAnagram, _) => vec![
+            (1, "class Solution:"),
+            (2, "    def isAnagram(self, s: str, t: str) -> bool:"),
+            (3, "        if len(s) != len(t): return False"),
+            (4, "        return sorted(s) == sorted(t)"),
         ],
         (Problem::GroupAnagrams, 0) => vec![
             (1, "class Solution:"),
@@ -1963,6 +2109,23 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
             (8, "        return list(res.values())"),
         ],
         (Problem::TopKFrequent, 0) => crate::model::topk_code_lines(),
+        (Problem::TopKFrequent, 1) => vec![
+            (1, "class Solution:"),
+            (2, "    def topKFrequent(self, nums: List[int], k: int) -> List[int]:"),
+            (3, "        count = Counter(nums)"),
+            (4, "        heap = []"),
+            (5, "        for val, freq in count.items():"),
+            (6, "            heapq.heappush(heap, (freq, val))"),
+            (7, "            if len(heap) > k: heapq.heappop(heap)"),
+            (8, "        return [val for freq, val in heap]"),
+        ],
+        (Problem::TopKFrequent, _) => vec![
+            (1, "class Solution:"),
+            (2, "    def topKFrequent(self, nums: List[int], k: int) -> List[int]:"),
+            (3, "        count = Counter(nums)"),
+            (4, "        sorted_items = sorted(count.items(), key=lambda x: x[1], reverse=True)"),
+            (5, "        return [val for val, freq in sorted_items[:k]]"),
+        ],
         (Problem::ProductExceptSelf, _) => crate::model::product_code_lines(),
         (Problem::EncodeDecode, _) => crate::model::encode_decode_code_lines(),
         (Problem::ValidSudoku, _) => vec![
