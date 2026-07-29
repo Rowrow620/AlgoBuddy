@@ -32,13 +32,19 @@ AlgoBuddy is a high-performance cross-platform application built in Rust using `
 <img width="1907" height="1018" alt="git_ex" src="https://github.com/user-attachments/assets/2a7ebd79-3c5d-440f-9828-e32b60d93f50" />
 
 - **Interactive State Renderers**: Visualizes 2D DP memoization tables, graph vector topology canvas, grid flood fills, topological sorts, decision transitions, and step-by-step trace arrays.
-
-<img width="380" height="371" alt="settings_colors" src="https://github.com/user-attachments/assets/d7357a49-c746-418f-a375-7d51ba5eb44a" />
+<img width="455" height="262" alt="graph_example" src="https://github.com/user-attachments/assets/21e6540e-4fe5-4ba3-9913-7e1e002c7594" />
 
 - **Theme & Colorblind Accessibility System**: Live switcher supporting **VS Code Midnight Dark**, **Cyber Navy**, **Clean Light**, and **Protan/Deuteran Red-Green Colorblind Safe** palettes.
+<img width="380" height="371" alt="settings_colors" src="https://github.com/user-attachments/assets/959de73b-5e05-42ca-a7c2-004b6af991c8" />
+
 - **Multi-Approach Evaluation Engine**: Compare multiple valid solutions per problem with live execution updates.
+
+<img width="628" height="387" alt="multiple_ex_example" src="https://github.com/user-attachments/assets/267fe985-6f0b-446c-8f11-18ed140b5082" />
 - **Deterministic State Engine**: Models algorithm steps as discrete state snapshots, enabling forward and backward timeline scrubbing, variable speed multipliers (0.25x - 4.00x), and synchronized source line highlighting.
+<img width="610" height="66" alt="{85EEE829-7411-401E-B113-E7B097E4D2D0}" src="https://github.com/user-attachments/assets/cbe397fb-3b5d-478f-847e-09625ec63405" />
+
 - **Integrated Problem Specifications**: View problem statements, examples with input/output cases, operational constraints, and direct links to official LeetCode problems within the application context.
+<img width="587" height="754" alt="{AB95300A-3E54-4311-92FD-A1135F9804D3}" src="https://github.com/user-attachments/assets/c332be37-ec06-43c6-b683-0429ef9e45c4" />
 
 ---
 
