@@ -1,4 +1,3 @@
-<img width="305" height="300" alt="ste" src="https://github.com/user-attachments/assets/f88fee63-3628-4194-b4a1-30b892f022a0" />
 # AlgoBuddy
 
 [![Live Web Demo](https://img.shields.io/badge/Live%20Web%20Demo-Try%20in%20Browser-brightgreen.svg?style=for-the-badge&logo=webassembly)](https://rowrow620.github.io/AlgoBuddy)
@@ -12,9 +11,11 @@
 
 AlgoBuddy is a cross-platform algorithm visualizer built in Rust using `eframe` and `egui`. It provides step-by-step interactive visualizations formatted according to the NeetCode 150 learning roadmap across 18 algorithmic categories. Available natively on Windows, macOS, and Linux, or live in your browser via WebAssembly.
 138 Neetcode problems from the 18 categories are in the audit phase, and can be accessed anytime by enabling Developer Mode, while fully verified problems are available in the default public release.
-<img width="445" height="372" alt="algoex" src="https://github.com/user-attachments/assets/5b9a676e-4dd2-405e-91ae-cb3496d280bc" />
 
-<img width="305" height="300" alt="ste" src="https://github.com/user-attachments/assets/a978e0c4-a7fa-4d5c-b6d4-ca172c07f8ff" />
+<img width="305" height="300" alt="ste" src="https://github.com/user-attachments/assets/a978e0c4-a7fa-4d5c-b6d4-ca172c07f8ff" /><br>
+
+<img width="532" height="608" alt="steps" src="https://github.com/user-attachments/assets/b0fd306f-5024-4aa8-b4ba-7e8a9d80b25d" />
+
 
 
 ---
