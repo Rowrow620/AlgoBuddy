@@ -1614,6 +1614,11 @@ impl eframe::App for VisualizerApp {
                                 .hint_text("Search problem...")
                                 .desired_width(180.0),
                         );
+                        if !self.search_query.is_empty() {
+                            if ui.small_button("x").on_hover_text("Clear search").clicked() {
+                                self.search_query.clear();
+                            }
+                        }
                     });
 
                     ui.add_space(4.0);
