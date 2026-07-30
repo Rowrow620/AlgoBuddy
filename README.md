@@ -10,7 +10,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20WebAssembly-lightgrey.svg)]()
 
 AlgoBuddy is a cross-platform algorithm visualizer built in Rust using `eframe` and `egui`. It provides step-by-step interactive visualizations formatted according to the NeetCode 150 learning roadmap across 18 algorithmic categories. Available natively on Windows, macOS, and Linux, or live in your browser via WebAssembly.
-138 Neetcode problems from the 18 categories are in the audit phase, and can be accessed anytime by enabling Developer Mode, while fully verified problems are available in the default public release.
+147 Neetcode problems from the 18 categories are in the audit phase, and can be accessed anytime by enabling Developer Mode, while fully verified problems are available in the default public release.
 
 <img width="305" height="300" alt="ste" src="https://github.com/user-attachments/assets/a978e0c4-a7fa-4d5c-b6d4-ca172c07f8ff" /><br>
 
@@ -43,7 +43,7 @@ AlgoBuddy is a cross-platform algorithm visualizer built in Rust using `eframe` 
 Try AlgoBuddy directly in your browser without installation:
 
 - **Public Release Demo**: [https://rowrow620.github.io/AlgoBuddy](https://rowrow620.github.io/AlgoBuddy)
-- **Developer Demo (All 135 Problems)**: [https://rowrow620.github.io/AlgoBuddy/?dev=true](https://rowrow620.github.io/AlgoBuddy/?dev=true)
+- **Developer Demo (All 150 Problems)**: [https://rowrow620.github.io/AlgoBuddy/?dev=true](https://rowrow620.github.io/AlgoBuddy/?dev=true)
 
 ### Build from Source
 
@@ -57,7 +57,7 @@ cd AlgoBuddy
 # Launch Public Release Mode
 cargo run
 
-# Launch Developer Mode (All 135 Problems Unlocked)
+# Launch Developer Mode (All 150 Problems Unlocked)
 cargo run -- --dev
 
 # Execute Automated Test Suite
