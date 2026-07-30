@@ -324,25 +324,37 @@ impl VisualizerApp {
     }
 
     fn render_reset_confirm_modal(&mut self, ctx: &egui::Context) {
-        if self.show_reset_confirm_modal {
-            egui::Window::new("Confirm Reset")
-                .collapsible(false)
-                .resizable(false)
-                .show(ctx, |ui| {
-                    ui.label("Are you sure you want to reset all completed problem checkmarks?");
-
-                    ui.horizontal(|ui| {
-                        if ui.button("Cancel").clicked() {
-                            self.show_reset_confirm_modal = false;
-                        }
-
-                        if ui.button("Confirm Reset").clicked() {
-                            self.completed_problems.clear();
-                            self.show_reset_confirm_modal = false;
-                        }
-                    });
-                });
+        if !self.show_reset_confirm_modal {
+            return;
         }
+
+        egui::Window::new("Confirm Reset")
+            .collapsible(false)
+            .resizable(false)
+            .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
+            .show(ctx, |ui| {
+                ui.label("Are you sure you want to reset all completed problem checkmarks?");
+                ui.add_space(8.0);
+
+                ui.horizontal(|ui| {
+                    if ui.button("Cancel").clicked() {
+                        self.show_reset_confirm_modal = false;
+                    }
+
+                    let dark_red = Color32::from_rgb(210, 40, 65);
+                    let confirm_btn = egui::Button::new(
+                        RichText::new("Confirm Reset")
+                            .color(Color32::WHITE)
+                            .strong(),
+                    )
+                    .fill(dark_red);
+
+                    if ui.add(confirm_btn).clicked() {
+                        self.completed_problems.clear();
+                        self.show_reset_confirm_modal = false;
+                    }
+                });
+            });
     }
 
     fn recompute_steps(&mut self) {
@@ -3027,7 +3039,6 @@ impl eframe::App for VisualizerApp {
                     });
                 }
             });
-        self.render_reset_confirm_modal(ctx);
     }
 }
 
