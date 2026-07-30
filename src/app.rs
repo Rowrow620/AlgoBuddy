@@ -58,6 +58,7 @@ use crate::algorithms::{
     find_min_rotated::generate_find_min_rotated_steps,
     time_key_value_store::generate_time_key_value_store_steps,
     find_median_sorted_arrays::generate_find_median_sorted_arrays_steps,
+    koko_bananas::generate_koko_eating_bananas_steps,
     trie::*,
     heap::*,
     backtracking::*,
@@ -543,6 +544,13 @@ impl VisualizerApp {
             }
             Problem::TimeKeyValueStore => generate_time_key_value_store_steps(),
             Problem::FindMedianSortedArrays => generate_find_median_sorted_arrays_steps(&[1, 3], &[2, 4]),
+            Problem::KokoEatingBananas => {
+                let parsed: Vec<i32> = self.binary_search_nums_input.split(',')
+                    .filter_map(|s| s.trim().parse().ok()).collect();
+                let piles = if parsed.is_empty() { vec![3, 6, 7, 11] } else { parsed };
+                let target_h = if self.binary_search_target_input <= 0 { 8 } else { self.binary_search_target_input };
+                generate_koko_eating_bananas_steps(&piles, target_h)
+            }
             Problem::ImplementTrie => {
                 let insert_words: Vec<String> = self.trie_words_input.split(',')
                     .map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect();
@@ -1078,7 +1086,7 @@ impl eframe::App for VisualizerApp {
                         let fav_header_text = format!("⭐ Favorites ({})", fav_problems.len());
 
                         egui::CollapsingHeader::new(RichText::new(fav_header_text).color(p.amber).strong())
-                            .default_open(is_fav_active || !fav_problems.is_empty())
+                            .default_open(is_fav_active)
                             .show(ui, |ui| {
                                 if fav_problems.is_empty() {
                                     ui.label(RichText::new("  (No favorites starred yet)").italics().font(egui::FontId::proportional(11.0)).color(p.text_dim));
@@ -1089,16 +1097,18 @@ impl eframe::App for VisualizerApp {
                                         let exp_tag = if prob.is_audited() { "" } else { " [EXP]" };
 
                                         ui.horizontal(|ui| {
+                                            ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Truncate);
+
                                             let star_rt = RichText::new("★").font(egui::FontId::proportional(12.0)).color(p.amber).strong();
                                             if ui.button(star_rt).on_hover_text("Remove from Favorites").clicked() {
                                                 self.favorite_problems.remove(&prob.id());
                                             }
 
-                                            let btn_rt = RichText::new(format!("#{} {}{}", prob.id(), prob.title(), exp_tag))
-                                                .font(egui::FontId::proportional(12.0));
+                                            let title_text = format!("#{} {}{}", prob.id(), prob.title(), exp_tag);
+                                            let btn_rt = RichText::new(&title_text).font(egui::FontId::proportional(12.0));
                                             let btn_text = if is_selected { btn_rt.color(egui::Color32::WHITE).strong() } else { btn_rt.color(p.text_primary) };
 
-                                            if ui.selectable_label(is_selected, btn_text).clicked() {
+                                            if ui.selectable_label(is_selected, btn_text).on_hover_text(&title_text).clicked() {
                                                 self.select_problem(prob);
                                             }
 
@@ -1113,6 +1123,8 @@ impl eframe::App for VisualizerApp {
                         ui.add_space(4.0);
                         ui.separator();
                         ui.add_space(4.0);
+
+                        let has_active_filter = !self.search_query.trim().is_empty() || self.selected_difficulty.is_some();
 
                         for &category in Category::all() {
                             let problems_in_cat: Vec<Problem> = self.visible_problems()
@@ -1138,7 +1150,7 @@ impl eframe::App for VisualizerApp {
                             let header_color = if is_active_cat { p.cyan } else { p.text_primary };
 
                             egui::CollapsingHeader::new(RichText::new(header_text).color(header_color).strong())
-                                .default_open(is_active_cat || !problems_in_cat.is_empty())
+                                .default_open(is_active_cat || has_active_filter)
                                 .show(ui, |ui| {
                                     if problems_in_cat.is_empty() {
                                         if total_in_cat == 0 {
@@ -1153,6 +1165,8 @@ impl eframe::App for VisualizerApp {
                                             let is_fav = self.favorite_problems.contains(&prob.id());
 
                                             ui.horizontal(|ui| {
+                                                ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Truncate);
+
                                                 let (star_char, star_color) = if is_fav { ("★", p.amber) } else { ("☆", p.text_muted) };
                                                 let star_rt = RichText::new(star_char).font(egui::FontId::proportional(12.0)).color(star_color).strong();
                                                 if ui.button(star_rt).on_hover_text(if is_fav { "Remove from Favorites" } else { "Add to Favorites" }).clicked() {
@@ -1161,11 +1175,12 @@ impl eframe::App for VisualizerApp {
                                                 }
 
                                                 let exp_tag = if prob.is_audited() { "" } else { " [EXP]" };
-                                                let btn_rt = RichText::new(format!("#{} {}{}", prob.id(), prob.title(), exp_tag))
+                                                let title_text = format!("#{} {}{}", prob.id(), prob.title(), exp_tag);
+                                                let btn_rt = RichText::new(&title_text)
                                                     .font(egui::FontId::proportional(12.0));
                                                 let btn_text = if is_selected { btn_rt.color(egui::Color32::WHITE).strong() } else { btn_rt.color(p.text_primary) };
 
-                                                if ui.selectable_label(is_selected, btn_text).clicked() {
+                                                if ui.selectable_label(is_selected, btn_text).on_hover_text(&title_text).clicked() {
                                                     self.select_problem(prob);
                                                 }
 
@@ -3509,7 +3524,7 @@ mod tests {
         let all_problems = Problem::all();
 
         // Verify the number of implemented problems dynamically
-        assert_eq!(all_problems.len(), 134, "Expected 134 problems in Problem::all()!");
+        assert_eq!(all_problems.len(), 135, "Expected 135 problems in Problem::all()!");
 
         let mut failed_problems = Vec::new();
 
