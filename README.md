@@ -76,10 +76,10 @@ For detailed architecture diagrams, model definitions, and problem auditing work
 
 We welcome community contributions! Please review our community guidelines:
 
-- **Contributing Guide**: [CONTRIBUTING.md](CONTRIBUTING.md)
-- **Changelog**: [CHANGELOG.md](CHANGELOG.md)
-- **Code of Conduct**: [CONTRIBUTING.md#code-of-conduct](CONTRIBUTING.md#code-of-conduct)
-- **Security Policy**: [CONTRIBUTING.md#security-policy](CONTRIBUTING.md#security-policy)
+- **Contributing Guide**: [CONTRIBUTING](CONTRIBUTING.md)
+- **Changelog**: [CHANGELOG](CHANGELOG.md)
+- **Code of Conduct**: [Code of Conduct](CONTRIBUTING.md#code-of-conduct)
+- **Security Policy**: [**Security Policy**](CONTRIBUTING.md#security-policy)
 
 ---
 
