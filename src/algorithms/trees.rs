@@ -568,7 +568,10 @@ pub fn generate_count_good_nodes_steps(tree: &[Option<i32>]) -> Vec<Step> {
                 max_so_far = max_so_far.max(val);
                 steps.push(Step {
                     code_line: 5,
-                    description: format!("Node val={} >= max_so_far ({}). GOOD node! Total good = {}.", val, max_so_far, good_count),
+                    description: format!(
+                        "Node val={} >= max_so_far ({}). GOOD node! Total good = {}.",
+                        val, max_so_far, good_count
+                    ),
                     visual: VisualState::TreeVisual {
                         tree_nodes: nodes.clone(),
                         active_node_idx: Some(i),
@@ -591,11 +594,18 @@ pub fn generate_kth_smallest_bst_steps(tree: &[Option<i32>], k: usize) -> Vec<St
     let mut vals: Vec<i32> = nodes.iter().filter_map(|&n| n).collect();
     vals.sort_unstable();
 
-    let ans = if k > 0 && k <= vals.len() { vals[k - 1] } else { 0 };
+    let ans = if k > 0 && k <= vals.len() {
+        vals[k - 1]
+    } else {
+        0
+    };
 
     steps.push(Step {
         code_line: 1,
-        description: format!("Perform In-Order traversal of BST to find k={} smallest element.", k),
+        description: format!(
+            "Perform In-Order traversal of BST to find k={} smallest element.",
+            k
+        ),
         visual: VisualState::TreeVisual {
             tree_nodes: nodes.clone(),
             active_node_idx: Some(0),
@@ -630,7 +640,8 @@ pub fn generate_construct_tree_pre_in_steps(preorder: &[i32], _inorder: &[i32]) 
 
     steps.push(Step {
         code_line: 1,
-        description: "Reconstruct binary tree from preorder root picks and inorder splits.".to_string(),
+        description: "Reconstruct binary tree from preorder root picks and inorder splits."
+            .to_string(),
         visual: VisualState::TreeVisual {
             tree_nodes: tree_nodes.clone(),
             active_node_idx: Some(0),
@@ -651,7 +662,10 @@ pub fn generate_tree_max_path_sum_steps(tree: &[Option<i32>]) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 1,
-        description: format!("Compute max path sum traversing post-order. Maximum path sum = {}.", max_sum),
+        description: format!(
+            "Compute max path sum traversing post-order. Maximum path sum = {}.",
+            max_sum
+        ),
         visual: VisualState::TreeVisual {
             tree_nodes: nodes,
             active_node_idx: Some(0),
@@ -671,7 +685,8 @@ pub fn generate_serialize_deserialize_tree_steps(tree: &[Option<i32>]) -> Vec<St
 
     steps.push(Step {
         code_line: 1,
-        description: "Serialize binary tree into preorder string string representation.".to_string(),
+        description: "Serialize binary tree into preorder string string representation."
+            .to_string(),
         visual: VisualState::TreeVisual {
             tree_nodes: nodes.clone(),
             active_node_idx: Some(0),
@@ -695,4 +710,3 @@ pub fn generate_serialize_deserialize_tree_steps(tree: &[Option<i32>]) -> Vec<St
 
     steps
 }
-

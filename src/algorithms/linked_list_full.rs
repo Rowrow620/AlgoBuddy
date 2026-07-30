@@ -131,7 +131,10 @@ pub fn generate_remove_nth_node_steps(nodes: &[i32], n: usize) -> Vec<Step> {
     }
 
     steps.push(Step {
-        description: format!("Initialize fast and slow pointers to remove {}th node from end.", n),
+        description: format!(
+            "Initialize fast and slow pointers to remove {}th node from end.",
+            n
+        ),
         code_line: 2,
         visual: VisualState::Array1D {
             title: "Remove Nth Node From End".to_string(),
@@ -163,7 +166,10 @@ pub fn generate_remove_nth_node_steps(nodes: &[i32], n: usize) -> Vec<Step> {
     });
 
     steps.push(Step {
-        description: format!("Move both pointers until fast reaches end. Slow points to node at index {}.", target_idx),
+        description: format!(
+            "Move both pointers until fast reaches end. Slow points to node at index {}.",
+            target_idx
+        ),
         code_line: 6,
         visual: VisualState::Array1D {
             title: "Remove Nth Node From End".to_string(),
@@ -177,7 +183,10 @@ pub fn generate_remove_nth_node_steps(nodes: &[i32], n: usize) -> Vec<Step> {
     });
 
     steps.push(Step {
-        description: format!("Bypass node at index {} (val={}).", target_idx, nodes[target_idx]),
+        description: format!(
+            "Bypass node at index {} (val={}).",
+            target_idx, nodes[target_idx]
+        ),
         code_line: 8,
         visual: VisualState::Array1D {
             title: "Resulting Linked List".to_string(),
@@ -276,7 +285,10 @@ pub fn generate_add_two_numbers_steps(l1: &[i32], l2: &[i32]) -> Vec<Step> {
         result.push(digit);
 
         steps.push(Step {
-            description: format!("Add v1={} + v2={} + carry -> sum={}, digit={}, new carry={}.", v1, v2, sum, digit, carry),
+            description: format!(
+                "Add v1={} + v2={} + carry -> sum={}, digit={}, new carry={}.",
+                v1, v2, sum, digit, carry
+            ),
             code_line: 6,
             visual: VisualState::Array1D {
                 title: "Add Two Numbers".to_string(),
@@ -313,10 +325,13 @@ pub fn generate_add_two_numbers_steps(l1: &[i32], l2: &[i32]) -> Vec<Step> {
 /// #287 Find The Duplicate Number
 pub fn generate_find_duplicate_number_steps(nums: &[i32]) -> Vec<Step> {
     let mut steps = Vec::new();
-    if nums.is_empty() { return steps; }
+    if nums.is_empty() {
+        return steps;
+    }
 
     steps.push(Step {
-        description: "Floyd's Tortoise and Hare algorithm to find duplicate in O(1) space.".to_string(),
+        description: "Floyd's Tortoise and Hare algorithm to find duplicate in O(1) space."
+            .to_string(),
         code_line: 1,
         visual: VisualState::Array1D {
             title: "Find Duplicate Number".to_string(),
@@ -341,7 +356,10 @@ pub fn generate_find_duplicate_number_steps(nums: &[i32]) -> Vec<Step> {
                 active_idx: Some(slow.min(nums.len() - 1)),
                 secondary_idx: Some(fast.min(nums.len() - 1)),
                 elements: nums.to_vec(),
-                pointers: vec![("slow", slow.min(nums.len() - 1)), ("fast", fast.min(nums.len() - 1))],
+                pointers: vec![
+                    ("slow", slow.min(nums.len() - 1)),
+                    ("fast", fast.min(nums.len() - 1)),
+                ],
                 status_message: format!("slow={}, fast={}", slow, fast),
                 is_success: None,
             },
@@ -404,7 +422,13 @@ pub fn generate_lru_cache_steps(capacity: usize, ops: &[(&str, i32, i32)]) -> Ve
                 }
                 let vals: Vec<i32> = cache.iter().map(|&(_, v)| v).collect();
                 steps.push(Step {
-                    description: format!("Put key={}, val={}. Cache size={}/{}.", key, val, cache.len(), capacity),
+                    description: format!(
+                        "Put key={}, val={}. Cache size={}/{}.",
+                        key,
+                        val,
+                        cache.len(),
+                        capacity
+                    ),
                     code_line: 6,
                     visual: VisualState::Array1D {
                         title: "LRU Cache State".to_string(),
@@ -425,7 +449,10 @@ pub fn generate_lru_cache_steps(capacity: usize, ops: &[(&str, i32, i32)]) -> Ve
                     cache.insert(0, item);
                     let vals: Vec<i32> = cache.iter().map(|&(_, v)| v).collect();
                     steps.push(Step {
-                        description: format!("Get key={} -> HIT (val={}). Promoted to MRU.", key, item.1),
+                        description: format!(
+                            "Get key={} -> HIT (val={}). Promoted to MRU.",
+                            key, item.1
+                        ),
                         code_line: 12,
                         visual: VisualState::Array1D {
                             title: "LRU Cache State".to_string(),
@@ -471,7 +498,10 @@ pub fn generate_merge_k_lists_steps(lists: &[Vec<i32>]) -> Vec<Step> {
     merged.sort_unstable();
 
     steps.push(Step {
-        description: format!("Merge {} sorted lists using Min-Heap / Divide & Conquer.", lists.len()),
+        description: format!(
+            "Merge {} sorted lists using Min-Heap / Divide & Conquer.",
+            lists.len()
+        ),
         code_line: 1,
         visual: VisualState::Array1D {
             title: "Merge K Sorted Lists".to_string(),

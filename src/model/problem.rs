@@ -200,8 +200,6 @@ impl Problem {
         }
     }
 
-
-
     pub fn is_audited(&self) -> bool {
         self.audit_status() == AuditStatus::Audited
     }
@@ -360,7 +358,6 @@ impl Problem {
             Problem::SerializeDeserializeBinaryTree,
         ]
     }
-
 
     pub fn id(&self) -> u32 {
         self.details().id
@@ -1508,7 +1505,6 @@ impl Problem {
             },
         }
     }
-
 }
 
 // ── Approach-Specific Code Lines Providers ──
