@@ -76,8 +76,8 @@ For detailed architecture diagrams, model definitions, and problem auditing work
 
 We welcome community contributions! Please review our community guidelines:
 
-- **Contributing Guide**: [CONTRIBUTING](CONTRIBUTING.md)
-- **Changelog**: [CHANGELOG](CHANGELOG.md)
+- **Contributing Guide**: [Contributing](CONTRIBUTING.md)
+- **Changelog**: [Changelog](CHANGELOG.md)
 - **Code of Conduct**: [Code of Conduct](CONTRIBUTING.md#code-of-conduct)
 - **Security Policy**: [**Security Policy**](CONTRIBUTING.md#security-policy)
 
