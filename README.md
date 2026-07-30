@@ -11,6 +11,10 @@
 
 AlgoBuddy is a high-performance, cross-platform algorithm visualizer built in Rust using `eframe` and `egui`. It provides step-by-step interactive visualizations formatted according to the NeetCode 150 learning roadmap across 18 algorithmic categories. Available natively on Windows, macOS, and Linux, or live in your browser via WebAssembly.
 
+<img width="445" height="372" alt="algoex" src="https://github.com/user-attachments/assets/5b9a676e-4dd2-405e-91ae-cb3496d280bc" />
+
+<img width="532" height="608" alt="steps" src="https://github.com/user-attachments/assets/7e179bc6-515b-4690-aaef-257dd7554e63" />
+
 ---
 
 ## Application Overview
