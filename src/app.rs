@@ -2293,18 +2293,27 @@ impl eframe::App for VisualizerApp {
                                             render_complexity_card(ui, app_meta, &p);
                                         }
 
-                                        ui.add_space(10.0);
-                                        ui.label(
-                                            RichText::new("Python Implementation")
-                                                .strong()
-                                                .color(p.text_muted),
-                                        );
-                                        ui.add_space(6.0);
-
                                         let code_lines = approach_code_lines(
                                             self.current_problem,
                                             self.selected_approach_id,
                                         );
+
+                                        ui.add_space(10.0);
+                                        ui.horizontal(|ui| {
+                                            ui.label(
+                                                RichText::new("Python Implementation")
+                                                    .strong()
+                                                    .color(p.text_muted),
+                                            );
+                                            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                                if ui.button(RichText::new("Copy Code").size(11.0)).on_hover_text("Copy full Python solution to clipboard").clicked() {
+                                                    let full_code = code_lines.iter().map(|(_, text)| *text).collect::<Vec<_>>().join("\n");
+                                                    ui.output_mut(|o| o.copied_text = full_code);
+                                                }
+                                            });
+                                        });
+                                        ui.add_space(6.0);
+
                                         let should_auto_focus = self.last_focused_step_idx
                                             != Some(self.current_step_idx);
 
