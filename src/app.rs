@@ -1017,7 +1017,7 @@ impl eframe::App for VisualizerApp {
                 .min_width(200.0)
                 .max_width(max_left_w)
                 .default_width(default_left_w)
-                .frame(Frame::none().inner_margin(12.0).fill(p.sidebar_bg))
+                .frame(Frame::none().stroke(egui::Stroke::NONE).inner_margin(12.0).fill(p.sidebar_bg))
                 .show(ctx, |ui| {
                     ui.horizontal(|ui| {
                         ui.heading(RichText::new("NeetCode Roadmap").color(p.cyan).strong().size(18.0));
@@ -1097,8 +1097,6 @@ impl eframe::App for VisualizerApp {
                                         let exp_tag = if prob.is_audited() { "" } else { " [EXP]" };
 
                                         ui.horizontal(|ui| {
-                                            ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Truncate);
-
                                             let star_rt = RichText::new("★").font(egui::FontId::proportional(12.0)).color(p.amber).strong();
                                             if ui.button(star_rt).on_hover_text("Remove from Favorites").clicked() {
                                                 self.favorite_problems.remove(&prob.id());
@@ -1108,9 +1106,14 @@ impl eframe::App for VisualizerApp {
                                             let btn_rt = RichText::new(&title_text).font(egui::FontId::proportional(12.0));
                                             let btn_text = if is_selected { btn_rt.color(egui::Color32::WHITE).strong() } else { btn_rt.color(p.text_primary) };
 
-                                            if ui.selectable_label(is_selected, btn_text).on_hover_text(&title_text).clicked() {
-                                                self.select_problem(prob);
-                                            }
+                                            let title_max_w = (ui.available_width() - 58.0).max(40.0);
+                                            ui.scope(|ui| {
+                                                ui.set_max_width(title_max_w);
+                                                ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Truncate);
+                                                if ui.selectable_label(is_selected, btn_text).on_hover_text(&title_text).clicked() {
+                                                    self.select_problem(prob);
+                                                }
+                                            });
 
                                             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                                                 ui.label(RichText::new(prob.difficulty().label()).font(egui::FontId::monospace(10.0)).color(diff_color));
@@ -1165,8 +1168,6 @@ impl eframe::App for VisualizerApp {
                                             let is_fav = self.favorite_problems.contains(&prob.id());
 
                                             ui.horizontal(|ui| {
-                                                ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Truncate);
-
                                                 let (star_char, star_color) = if is_fav { ("★", p.amber) } else { ("☆", p.text_muted) };
                                                 let star_rt = RichText::new(star_char).font(egui::FontId::proportional(12.0)).color(star_color).strong();
                                                 if ui.button(star_rt).on_hover_text(if is_fav { "Remove from Favorites" } else { "Add to Favorites" }).clicked() {
@@ -1180,9 +1181,14 @@ impl eframe::App for VisualizerApp {
                                                     .font(egui::FontId::proportional(12.0));
                                                 let btn_text = if is_selected { btn_rt.color(egui::Color32::WHITE).strong() } else { btn_rt.color(p.text_primary) };
 
-                                                if ui.selectable_label(is_selected, btn_text).on_hover_text(&title_text).clicked() {
-                                                    self.select_problem(prob);
-                                                }
+                                                let title_max_w = (ui.available_width() - 58.0).max(40.0);
+                                                ui.scope(|ui| {
+                                                    ui.set_max_width(title_max_w);
+                                                    ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Truncate);
+                                                    if ui.selectable_label(is_selected, btn_text).on_hover_text(&title_text).clicked() {
+                                                        self.select_problem(prob);
+                                                    }
+                                                });
 
                                                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                                                     ui.label(RichText::new(prob.difficulty().label()).font(egui::FontId::monospace(10.0)).color(diff_color));
@@ -1347,7 +1353,7 @@ impl eframe::App for VisualizerApp {
                 .min_width(240.0)
                 .max_width(max_right_w)
                 .default_width(default_right_w)
-                .frame(Frame::none().inner_margin(12.0).fill(p.sidebar_bg))
+                .frame(Frame::none().stroke(egui::Stroke::NONE).inner_margin(12.0).fill(p.sidebar_bg))
                 .show(ctx, |ui| {
                     ui.horizontal(|ui| {
                         if ui.selectable_label(self.right_tab == RightTab::CodeTrace, RichText::new("💻 Code Trace").strong()).clicked() {
@@ -1541,7 +1547,7 @@ impl eframe::App for VisualizerApp {
 
         // ── Central Canvas ──
         egui::CentralPanel::default()
-            .frame(Frame::none().inner_margin(16.0).fill(p.bg_dark))
+            .frame(Frame::none().stroke(egui::Stroke::NONE).inner_margin(16.0).fill(p.bg_dark))
             .show(ctx, |ui| {
                 // Ctrl + Mouse Wheel Zoom Listener
                 if ui.rect_contains_pointer(ui.max_rect()) {
