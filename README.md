@@ -71,8 +71,8 @@ We welcome community contributions! Please review our community guidelines:
 
 - **Contributing Guide**: [CONTRIBUTING.md](CONTRIBUTING.md)
 - **Changelog**: [CHANGELOG.md](CHANGELOG.md)
-- **Code of Conduct**: [.github/CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md)
-- **Security Policy**: [.github/SECURITY.md](.github/SECURITY.md)
+- **Code of Conduct**: [CONTRIBUTING.md#code-of-conduct](CONTRIBUTING.md#code-of-conduct)
+- **Security Policy**: [CONTRIBUTING.md#security-policy](CONTRIBUTING.md#security-policy)
 
 ---
 

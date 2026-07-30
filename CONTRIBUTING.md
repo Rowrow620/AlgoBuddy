@@ -9,7 +9,8 @@ Thank you for your interest in contributing to AlgoBuddy! We welcome contributio
 - [Architecture & Engine](#architecture--engine)
 - [Auditing & Promoting Problems](#auditing--promoting-problems)
 - [Quality Standards & Testing](#quality-standards--testing)
-- [Community Guidelines](#community-guidelines)
+- [Code of Conduct](#code-of-conduct)
+- [Security Policy](#security-policy)
 
 ---
 
@@ -102,10 +103,30 @@ Before submitting a Pull Request, ensure your changes adhere to these requiremen
 
 ---
 
-## Community Guidelines
+## Code of Conduct
 
-We want AlgoBuddy to be a welcoming project for all developers.
+### Our Pledge
 
-- **Code of Conduct**: Please review our [.github/CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md).
-- **Security Policy**: To report security vulnerabilities privately, refer to [.github/SECURITY.md](.github/SECURITY.md).
-- **License**: By contributing, you agree that your contributions will be licensed under the project's [MIT License](LICENSE).
+We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.
+
+### Standards & Enforcement
+
+- **Acceptable Behavior**: Demonstrating empathy, being respectful of differing viewpoints, gracefully accepting feedback, and focusing on the community's best interest.
+- **Unacceptable Behavior**: Sexualized language/imagery, trolling, derogatory comments, personal attacks, or public/private harassment.
+- **Reporting**: Instances of unacceptable behavior may be reported privately to fender620@gmail.com.
+
+---
+
+## Security Policy
+
+### Supported Versions
+
+Current release series `0.5.x` is actively supported with security updates.
+
+### Vulnerability Reporting
+
+If you discover a security defect or vulnerability, please report it privately:
+
+1. **Do Not File a Public Issue**: Please do not open public issues for security bugs.
+2. **Email**: Send vulnerability details privately to fender620@gmail.com.
+3. **Response**: We acknowledge security reports within 48 hours and release verified fixes in patch updates.
