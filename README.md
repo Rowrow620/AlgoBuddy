@@ -26,11 +26,13 @@ AlgoBuddy is a cross-platform algorithm visualizer built in Rust using `eframe` 
 
 ### Key Capabilities
 
-- **18 NeetCode Topic Categories**: Covers Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Tries, Backtracking, Heap / Priority Queue, 1D Dynamic Programming, Bit Manipulation, Math & Geometry, Greedy, Intervals, Graphs, 2D Dynamic Programming, and Advanced Graphs.
+- **18 Core Categories (100% Complete NeetCode 150 Roadmap)**: Navigation structured into 18 algorithmic topic categories featuring all **150 problems**: Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Tries, Backtracking, Heap / Priority Queue, 1D Dynamic Programming, Bit Manipulation, Math & Geometry, Greedy, Intervals, Graphs, 2D Dynamic Programming, and Advanced Graphs.
+- **Audit Gating System**: Public Release Mode presents verified, fully audited problem visualizers (**Contains Duplicate**, **Two Sum**, and **Valid Anagram**), while Developer Mode (`--dev` / `?dev=true`) unlocks all **150** implemented problem visualizers across 18 categories.
+
 - **Deterministic State Engine**: Models algorithm execution as discrete state snapshots, enabling forward and backward timeline scrubbing, variable speed playback (0.25x - 4.00x), and synchronized source line highlighting.
 - **Interactive Visual Renderers**: Features custom 2D DP memoization tables, matrix grid flood-fills, graph vector topology canvases, dual heap trees, and array trace renderers.
 - **Theme & Accessibility System**: Includes built-in dark/light themes alongside Protan/Deuteran Red-Green colorblind safe palettes.
-- **Audit Gating System**: Public Release Mode presents audited problem visualizers, while Developer Mode unlocks all 135 implemented problem visualizers for testing and contribution.
+- **Audit Gating System**: Public Release Mode presents audited problem visualizers, while Developer Mode unlocks all 150 implemented problem visualizers for testing and contribution.
 
 ---
 
