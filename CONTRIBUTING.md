@@ -41,7 +41,7 @@ Contributions generally fall into three categories:
    cd AlgoBuddy
    ```
 
-2. Run the application in **Developer Mode** (unlocks all 135 problem visualizers):
+2. Run the application in **Developer Mode** (unlocks all 150 problem visualizers):
    ```powershell
    cargo run -- --dev
    ```
@@ -75,7 +75,7 @@ Algorithms in AlgoBuddy do not execute asynchronously during playback. Generator
 
 Problems in AlgoBuddy carry an audit status (`is_audited(&self) -> bool`):
 - **Public Release Mode** (Default): Displays verified, fully audited problem visualizers.
-- **Developer Mode** (`cargo run -- --dev`): Unlocks all 135 implemented problem visualizers, marking unaudited implementations with an `[EXP]` tag.
+- **Developer Mode** (`cargo run -- --dev`): Unlocks all 150 implemented problem visualizers, marking unaudited implementations with an `[EXP]` tag.
 
 ---
 
