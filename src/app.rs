@@ -59,6 +59,7 @@ pub struct VisualizerApp {
     theme: Theme,
     colorblind_mode: ColorblindMode,
     show_settings_modal: bool,
+    show_reset_confirm_modal: bool,
     show_unaudited: bool,
     view_mode: ViewMode,
     completed_problems: std::collections::HashSet<u32>,
@@ -136,6 +137,7 @@ impl Default for VisualizerApp {
             theme: Theme::DarkVSCode, // Default to user's favorite VS Code Dark style!
             colorblind_mode: ColorblindMode::Off,
             show_settings_modal: false,
+            show_reset_confirm_modal: false,
             show_unaudited: false, // Default: Only show 100% Audited problems in Public Release!
             view_mode: ViewMode::Visualizer,
             completed_problems: std::collections::HashSet::new(),
@@ -318,6 +320,28 @@ impl VisualizerApp {
                 ['.', '.', '.', '4', '1', '9', '.', '.', '8'],
                 ['.', '.', '.', '.', '8', '.', '.', '7', '9'],
             ]
+        }
+    }
+
+    fn render_reset_confirm_modal(&mut self, ctx: &egui::Context) {
+        if self.show_reset_confirm_modal {
+            egui::Window::new("Confirm Reset")
+                .collapsible(false)
+                .resizable(false)
+                .show(ctx, |ui| {
+                    ui.label("Are you sure you want to reset all completed problem checkmarks?");
+
+                    ui.horizontal(|ui| {
+                        if ui.button("Cancel").clicked() {
+                            self.show_reset_confirm_modal = false;
+                        }
+
+                        if ui.button("Confirm Reset").clicked() {
+                            self.completed_problems.clear();
+                            self.show_reset_confirm_modal = false;
+                        }
+                    });
+                });
         }
     }
 
@@ -1285,7 +1309,7 @@ impl VisualizerApp {
                             .button(RichText::new("Reset All Progress").strong().color(p.red))
                             .clicked()
                         {
-                            self.completed_problems.clear();
+                            self.show_reset_confirm_modal = true;
                         }
 
                         ui.add_space(12.0);
@@ -1455,6 +1479,9 @@ impl VisualizerApp {
             self.select_problem(prob);
             self.view_mode = ViewMode::Visualizer;
         }
+
+        // Render the confirmation dialog on top of the dashboard
+        self.render_reset_confirm_modal(ctx);
     }
 }
 
@@ -2995,6 +3022,7 @@ impl eframe::App for VisualizerApp {
                     });
                 }
             });
+        self.render_reset_confirm_modal(ctx);
     }
 }
 
