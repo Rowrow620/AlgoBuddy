@@ -8,7 +8,10 @@ pub fn generate_climbing_stairs_steps(n: usize) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 3,
-        description: format!("Base cases for Climbing Stairs (n={}): dp[1]=1 way, dp[2]=2 ways.", n),
+        description: format!(
+            "Base cases for Climbing Stairs (n={}): dp[1]=1 way, dp[2]=2 ways.",
+            n
+        ),
         visual: VisualState::ContainsDuplicate {
             nums: dp.clone(),
             active_idx: Some(2),
@@ -22,7 +25,16 @@ pub fn generate_climbing_stairs_steps(n: usize) -> Vec<Step> {
         dp[i] = dp[i - 1] + dp[i - 2];
         steps.push(Step {
             code_line: 6,
-            description: format!("Step {}: dp[{}] = dp[{}] + dp[{}] = {} + {} = {} ways.", i, i, i - 1, i - 2, dp[i - 1], dp[i - 2], dp[i]),
+            description: format!(
+                "Step {}: dp[{}] = dp[{}] + dp[{}] = {} + {} = {} ways.",
+                i,
+                i,
+                i - 1,
+                i - 2,
+                dp[i - 1],
+                dp[i - 2],
+                dp[i]
+            ),
             visual: VisualState::ContainsDuplicate {
                 nums: dp.clone(),
                 active_idx: Some(i),

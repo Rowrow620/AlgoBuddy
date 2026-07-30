@@ -32,7 +32,10 @@ pub fn generate_linked_list_cycle_steps(nodes: &[i32], cycle_index: i32) -> Vec<
     // 1. Pointer init (code_line 3)
     steps.push(Step {
         code_line: 3,
-        description: format!("Initialized slow = index 0 (val={}) and fast = index 0 (val={}). Cycle target = {:?}.", nodes[0], nodes[0], cycle_target),
+        description: format!(
+            "Initialized slow = index 0 (val={}) and fast = index 0 (val={}). Cycle target = {:?}.",
+            nodes[0], nodes[0], cycle_target
+        ),
         visual: VisualState::LinkedListCycle {
             nodes: nodes_vec.clone(),
             cycle_target_idx: cycle_target,
@@ -90,7 +93,10 @@ pub fn generate_linked_list_cycle_steps(nodes: &[i32], cycle_index: i32) -> Vec<
         if slow == fast {
             steps.push(Step {
                 code_line: 8,
-                description: format!("Pointers met! slow == fast at index {} (val={}). Cycle detected! Return True.", slow, nodes[slow]),
+                description: format!(
+                    "Pointers met! slow == fast at index {} (val={}). Cycle detected! Return True.",
+                    slow, nodes[slow]
+                ),
                 visual: VisualState::LinkedListCycle {
                     nodes: nodes_vec.clone(),
                     cycle_target_idx: cycle_target,
@@ -105,7 +111,8 @@ pub fn generate_linked_list_cycle_steps(nodes: &[i32], cycle_index: i32) -> Vec<
 
     steps.push(Step {
         code_line: 9,
-        description: "Fast pointer reached null (end of list). No cycle exists. Return False.".to_string(),
+        description: "Fast pointer reached null (end of list). No cycle exists. Return False."
+            .to_string(),
         visual: VisualState::LinkedListCycle {
             nodes: nodes_vec,
             cycle_target_idx: cycle_target,

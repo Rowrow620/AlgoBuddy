@@ -6,7 +6,10 @@ pub fn generate_number_1_bits_steps(n: u32) -> Vec<Step> {
     let mut count = 0;
 
     steps.push(Step {
-        description: format!("Initialize Hamming Weight calculation for n = {} (binary: {:032b})", n, n),
+        description: format!(
+            "Initialize Hamming Weight calculation for n = {} (binary: {:032b})",
+            n, n
+        ),
         code_line: 3,
         visual: VisualState::ContainsDuplicate {
             nums: vec![val as i32, count],
@@ -64,7 +67,15 @@ pub fn generate_counting_bits_array_steps(n: usize) -> Vec<Step> {
         dp[i] = 1 + dp[i - offset];
         steps.push(Step {
             code_line: 6,
-            description: format!("i={} (offset={}): dp[{}] = 1 + dp[{}] = 1 + {} = {}.", i, offset, i, i - offset, dp[i - offset], dp[i]),
+            description: format!(
+                "i={} (offset={}): dp[{}] = 1 + dp[{}] = 1 + {} = {}.",
+                i,
+                offset,
+                i,
+                i - offset,
+                dp[i - offset],
+                dp[i]
+            ),
             visual: VisualState::ContainsDuplicate {
                 nums: dp.clone(),
                 active_idx: Some(i),
@@ -113,7 +124,10 @@ pub fn generate_sum_two_integers_steps(a: i32, b: i32) -> Vec<Step> {
         cur_b = carry;
 
         steps.push(Step {
-            description: format!("Sum without carry a = a ^ b = {}, Carry b = (a & b) << 1 = {}", cur_a, cur_b),
+            description: format!(
+                "Sum without carry a = a ^ b = {}, Carry b = (a & b) << 1 = {}",
+                cur_a, cur_b
+            ),
             code_line: 6,
             visual: VisualState::ContainsDuplicate {
                 nums: vec![cur_a, cur_b],
@@ -148,8 +162,12 @@ pub fn generate_reverse_integer_steps(x: i32) -> Vec<Step> {
     while val != 0 {
         let pop = val % 10;
         val /= 10;
-        if res > i32::MAX / 10 || (res == i32::MAX / 10 && pop > 7) { break; }
-        if res < i32::MIN / 10 || (res == i32::MIN / 10 && pop < -8) { break; }
+        if res > i32::MAX / 10 || (res == i32::MAX / 10 && pop > 7) {
+            break;
+        }
+        if res < i32::MIN / 10 || (res == i32::MIN / 10 && pop < -8) {
+            break;
+        }
         res = res * 10 + pop;
 
         steps.push(Step {
@@ -170,14 +188,22 @@ pub fn generate_reverse_integer_steps(x: i32) -> Vec<Step> {
 
 pub fn generate_rotate_image_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
     let mut steps = Vec::new();
-    if matrix.is_empty() || matrix[0].is_empty() { return steps; }
+    if matrix.is_empty() || matrix[0].is_empty() {
+        return steps;
+    }
     let mut mat = matrix.to_vec();
     let rows = mat.len();
     let cols = mat[0].len();
-    let mut grid: Vec<Vec<String>> = mat.iter().map(|row| row.iter().map(|v| v.to_string()).collect()).collect();
+    let mut grid: Vec<Vec<String>> = mat
+        .iter()
+        .map(|row| row.iter().map(|v| v.to_string()).collect())
+        .collect();
 
     steps.push(Step {
-        description: format!("Rotate {}x{} Image 90 degrees clockwise in-place", rows, cols),
+        description: format!(
+            "Rotate {}x{} Image 90 degrees clockwise in-place",
+            rows, cols
+        ),
         code_line: 3,
         visual: VisualState::GridGraph {
             rows,
@@ -200,7 +226,10 @@ pub fn generate_rotate_image_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
             grid[j][i] = mat[j][i].to_string();
 
             steps.push(Step {
-                description: format!("1. Transpose: Swap element ({}, {}) [{}] with ({}, {}) [{}]", i, j, mat[j][i], j, i, mat[i][j]),
+                description: format!(
+                    "1. Transpose: Swap element ({}, {}) [{}] with ({}, {}) [{}]",
+                    i, j, mat[j][i], j, i, mat[i][j]
+                ),
                 code_line: 7,
                 visual: VisualState::GridGraph {
                     rows,
@@ -253,11 +282,16 @@ pub fn generate_rotate_image_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
 
 pub fn generate_spiral_matrix_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
     let mut steps = Vec::new();
-    if matrix.is_empty() || matrix[0].is_empty() { return steps; }
+    if matrix.is_empty() || matrix[0].is_empty() {
+        return steps;
+    }
 
     let rows = matrix.len();
     let cols = matrix[0].len();
-    let grid: Vec<Vec<String>> = matrix.iter().map(|row| row.iter().map(|v| v.to_string()).collect()).collect();
+    let grid: Vec<Vec<String>> = matrix
+        .iter()
+        .map(|row| row.iter().map(|v| v.to_string()).collect())
+        .collect();
     let mut visited = std::collections::BTreeSet::new();
 
     let mut res = Vec::new();
@@ -267,7 +301,10 @@ pub fn generate_spiral_matrix_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
     let mut right = cols as i32 - 1;
 
     steps.push(Step {
-        description: format!("Initialize Spiral Matrix Traversal for {}x{} grid", rows, cols),
+        description: format!(
+            "Initialize Spiral Matrix Traversal for {}x{} grid",
+            rows, cols
+        ),
         code_line: 3,
         visual: VisualState::GridGraph {
             rows,
@@ -287,7 +324,10 @@ pub fn generate_spiral_matrix_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
             res.push(val);
             visited.insert((top as usize, i as usize));
             steps.push(Step {
-                description: format!("Traverse Right along top row {}: Add element {} at ({}, {})", top, val, top, i),
+                description: format!(
+                    "Traverse Right along top row {}: Add element {} at ({}, {})",
+                    top, val, top, i
+                ),
                 code_line: 5,
                 visual: VisualState::GridGraph {
                     rows,
@@ -308,7 +348,10 @@ pub fn generate_spiral_matrix_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
             res.push(val);
             visited.insert((i as usize, right as usize));
             steps.push(Step {
-                description: format!("Traverse Down along right column {}: Add element {} at ({}, {})", right, val, i, right),
+                description: format!(
+                    "Traverse Down along right column {}: Add element {} at ({}, {})",
+                    right, val, i, right
+                ),
                 code_line: 8,
                 visual: VisualState::GridGraph {
                     rows,
@@ -323,7 +366,9 @@ pub fn generate_spiral_matrix_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
         }
         right -= 1;
 
-        if !(top <= bottom && left <= right) { break; }
+        if !(top <= bottom && left <= right) {
+            break;
+        }
 
         // Traverse Left
         for i in (left..=right).rev() {
@@ -331,7 +376,10 @@ pub fn generate_spiral_matrix_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
             res.push(val);
             visited.insert((bottom as usize, i as usize));
             steps.push(Step {
-                description: format!("Traverse Left along bottom row {}: Add element {} at ({}, {})", bottom, val, bottom, i),
+                description: format!(
+                    "Traverse Left along bottom row {}: Add element {} at ({}, {})",
+                    bottom, val, bottom, i
+                ),
                 code_line: 12,
                 visual: VisualState::GridGraph {
                     rows,
@@ -352,7 +400,10 @@ pub fn generate_spiral_matrix_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
             res.push(val);
             visited.insert((i as usize, left as usize));
             steps.push(Step {
-                description: format!("Traverse Up along left column {}: Add element {} at ({}, {})", left, val, i, left),
+                description: format!(
+                    "Traverse Up along left column {}: Add element {} at ({}, {})",
+                    left, val, i, left
+                ),
                 code_line: 15,
                 visual: VisualState::GridGraph {
                     rows,
@@ -369,7 +420,10 @@ pub fn generate_spiral_matrix_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
     }
 
     steps.push(Step {
-        description: format!("Spiral matrix traversal complete! Output sequence: {:?}", res),
+        description: format!(
+            "Spiral matrix traversal complete! Output sequence: {:?}",
+            res
+        ),
         code_line: 17,
         visual: VisualState::GridGraph {
             rows,
@@ -387,17 +441,25 @@ pub fn generate_spiral_matrix_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
 
 pub fn generate_set_matrix_zeroes_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
     let mut steps = Vec::new();
-    if matrix.is_empty() || matrix[0].is_empty() { return steps; }
+    if matrix.is_empty() || matrix[0].is_empty() {
+        return steps;
+    }
 
     let mut mat = matrix.to_vec();
     let rows = mat.len();
     let cols = mat[0].len();
-    let mut grid: Vec<Vec<String>> = mat.iter().map(|row| row.iter().map(|v| v.to_string()).collect()).collect();
+    let mut grid: Vec<Vec<String>> = mat
+        .iter()
+        .map(|row| row.iter().map(|v| v.to_string()).collect())
+        .collect();
     let mut zero_rows = std::collections::BTreeSet::new();
     let mut zero_cols = std::collections::BTreeSet::new();
 
     steps.push(Step {
-        description: format!("Set Matrix Zeroes: Scan {}x{} matrix to identify rows & cols containing 0", rows, cols),
+        description: format!(
+            "Set Matrix Zeroes: Scan {}x{} matrix to identify rows & cols containing 0",
+            rows, cols
+        ),
         code_line: 3,
         visual: VisualState::GridGraph {
             rows,
@@ -417,7 +479,10 @@ pub fn generate_set_matrix_zeroes_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
                 zero_rows.insert(r);
                 zero_cols.insert(c);
                 steps.push(Step {
-                    description: format!("Found 0 at cell ({}, {}): Mark row {} and column {} to be zeroed", r, c, r, c),
+                    description: format!(
+                        "Found 0 at cell ({}, {}): Mark row {} and column {} to be zeroed",
+                        r, c, r, c
+                    ),
                     code_line: 6,
                     visual: VisualState::GridGraph {
                         rows,
@@ -444,7 +509,10 @@ pub fn generate_set_matrix_zeroes_steps(matrix: &[Vec<i32>]) -> Vec<Step> {
     }
 
     steps.push(Step {
-        description: format!("Zeroed out marked rows {:?} and columns {:?}: Matrix update complete!", zero_rows, zero_cols),
+        description: format!(
+            "Zeroed out marked rows {:?} and columns {:?}: Matrix update complete!",
+            zero_rows, zero_cols
+        ),
         code_line: 10,
         visual: VisualState::GridGraph {
             rows,
@@ -467,7 +535,10 @@ pub fn generate_pow_xn_steps(x: f64, n: i32) -> Vec<Step> {
     let mut res = 1.0f64;
 
     steps.push(Step {
-        description: format!("Binary exponentiation: compute pow({:.2}, {}) using Divide & Conquer", x, n),
+        description: format!(
+            "Binary exponentiation: compute pow({:.2}, {}) using Divide & Conquer",
+            x, n
+        ),
         code_line: 3,
         visual: VisualState::ContainsDuplicate {
             nums: vec![x as i32, n, 1],
@@ -482,7 +553,10 @@ pub fn generate_pow_xn_steps(x: f64, n: i32) -> Vec<Step> {
         if cur_n % 2 == 1 {
             res *= cur_x;
             steps.push(Step {
-                description: format!("N = {} is odd: Multiply result by x ({:.4}) -> new result = {:.4}", cur_n, cur_x, res),
+                description: format!(
+                    "N = {} is odd: Multiply result by x ({:.4}) -> new result = {:.4}",
+                    cur_n, cur_x, res
+                ),
                 code_line: 5,
                 visual: VisualState::ContainsDuplicate {
                     nums: vec![cur_x as i32, cur_n as i32, res as i32],
@@ -499,7 +573,10 @@ pub fn generate_pow_xn_steps(x: f64, n: i32) -> Vec<Step> {
 
         if cur_n > 0 {
             steps.push(Step {
-                description: format!("Square base x -> {:.4}, Halve exponent N -> {}", cur_x, cur_n),
+                description: format!(
+                    "Square base x -> {:.4}, Halve exponent N -> {}",
+                    cur_x, cur_n
+                ),
                 code_line: 7,
                 visual: VisualState::ContainsDuplicate {
                     nums: vec![cur_x as i32, cur_n as i32, res as i32],
@@ -550,7 +627,12 @@ pub fn generate_multiply_strings_steps(num1: &str, num2: &str) -> Vec<Step> {
     let mut pos = vec![0i32; n1.len() + n2.len()];
 
     steps.push(Step {
-        description: format!("Positional digit multiplication for '{}' * '{}': initialize result array of len {}", num1, num2, pos.len()),
+        description: format!(
+            "Positional digit multiplication for '{}' * '{}': initialize result array of len {}",
+            num1,
+            num2,
+            pos.len()
+        ),
         code_line: 4,
         visual: VisualState::ContainsDuplicate {
             nums: pos.clone(),
@@ -586,10 +668,17 @@ pub fn generate_multiply_strings_steps(num1: &str, num2: &str) -> Vec<Step> {
         }
     }
 
-    let result_str: String = pos.iter().skip_while(|&&x| x == 0).map(|x| x.to_string()).collect();
+    let result_str: String = pos
+        .iter()
+        .skip_while(|&&x| x == 0)
+        .map(|x| x.to_string())
+        .collect();
 
     steps.push(Step {
-        description: format!("Multiplication complete! '{}' * '{}' = '{}'", num1, num2, result_str),
+        description: format!(
+            "Multiplication complete! '{}' * '{}' = '{}'",
+            num1, num2, result_str
+        ),
         code_line: 11,
         visual: VisualState::ContainsDuplicate {
             nums: pos,
@@ -671,7 +760,8 @@ pub fn generate_detect_squares_steps() -> Vec<Step> {
     });
 
     steps.push(Step {
-        description: "Formed 1 valid axis-aligned square with side length 8! Total count = 1".into(),
+        description: "Formed 1 valid axis-aligned square with side length 8! Total count = 1"
+            .into(),
         code_line: 10,
         visual: VisualState::ContainsDuplicate {
             nums: vec![1],

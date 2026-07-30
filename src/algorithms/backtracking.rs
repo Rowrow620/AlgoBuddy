@@ -15,7 +15,10 @@ pub fn generate_subsets_steps(nums: &[i32]) -> Vec<Step> {
         if idx == nums.len() {
             all.push(current.clone());
             steps.push(Step {
-                description: format!("Base Case: Leaf node reached at idx = {}. Found valid subset: {:?}", idx, current),
+                description: format!(
+                    "Base Case: Leaf node reached at idx = {}. Found valid subset: {:?}",
+                    idx, current
+                ),
                 code_line: 7,
                 visual: VisualState::DecisionTreeVisual {
                     current_path: current.clone(),
@@ -29,7 +32,10 @@ pub fn generate_subsets_steps(nums: &[i32]) -> Vec<Step> {
         // Choice 1: Include nums[idx]
         current.push(nums[idx]);
         steps.push(Step {
-            description: format!("Decision: INCLUDE nums[{}] = {} -> current subset = {:?}", idx, nums[idx], current),
+            description: format!(
+                "Decision: INCLUDE nums[{}] = {} -> current subset = {:?}",
+                idx, nums[idx], current
+            ),
             code_line: 9,
             visual: VisualState::DecisionTreeVisual {
                 current_path: current.clone(),
@@ -42,7 +48,10 @@ pub fn generate_subsets_steps(nums: &[i32]) -> Vec<Step> {
 
         // Choice 2: Exclude nums[idx]
         steps.push(Step {
-            description: format!("Backtrack & Decision: EXCLUDE nums[{}] = {} -> current subset = {:?}", idx, nums[idx], current),
+            description: format!(
+                "Backtrack & Decision: EXCLUDE nums[{}] = {} -> current subset = {:?}",
+                idx, nums[idx], current
+            ),
             code_line: 11,
             visual: VisualState::DecisionTreeVisual {
                 current_path: current.clone(),
@@ -54,7 +63,10 @@ pub fn generate_subsets_steps(nums: &[i32]) -> Vec<Step> {
     }
 
     steps.push(Step {
-        description: format!("Start Subsets Backtracking Decision Tree for nums = {:?}", nums),
+        description: format!(
+            "Start Subsets Backtracking Decision Tree for nums = {:?}",
+            nums
+        ),
         code_line: 2,
         visual: VisualState::DecisionTreeVisual {
             current_path: Vec::new(),
@@ -66,7 +78,11 @@ pub fn generate_subsets_steps(nums: &[i32]) -> Vec<Step> {
     backtrack(0, nums, &mut current_subset, &mut all_subsets, &mut steps);
 
     steps.push(Step {
-        description: format!("Subsets complete! Total {} subsets generated: {:?}", all_subsets.len(), all_subsets),
+        description: format!(
+            "Subsets complete! Total {} subsets generated: {:?}",
+            all_subsets.len(),
+            all_subsets
+        ),
         code_line: 14,
         visual: VisualState::DecisionTreeVisual {
             current_path: Vec::new(),
@@ -112,7 +128,10 @@ pub fn generate_permutations_steps(nums: &[i32]) -> Vec<Step> {
             used[i] = true;
             current.push(nums[i]);
             steps.push(Step {
-                description: format!("Pick nums[{}] = {} -> current perm = {:?}", i, nums[i], current),
+                description: format!(
+                    "Pick nums[{}] = {} -> current perm = {:?}",
+                    i, nums[i], current
+                ),
                 code_line: 11,
                 visual: VisualState::DecisionTreeVisual {
                     current_path: current.clone(),
@@ -126,7 +145,10 @@ pub fn generate_permutations_steps(nums: &[i32]) -> Vec<Step> {
             current.pop();
             used[i] = false;
             steps.push(Step {
-                description: format!("Backtrack: Unpick nums[{}] = {} -> current perm = {:?}", i, nums[i], current),
+                description: format!(
+                    "Backtrack: Unpick nums[{}] = {} -> current perm = {:?}",
+                    i, nums[i], current
+                ),
                 code_line: 13,
                 visual: VisualState::DecisionTreeVisual {
                     current_path: current.clone(),
@@ -147,10 +169,20 @@ pub fn generate_permutations_steps(nums: &[i32]) -> Vec<Step> {
         },
     });
 
-    backtrack(nums, &mut used, &mut current_perm, &mut all_perms, &mut steps);
+    backtrack(
+        nums,
+        &mut used,
+        &mut current_perm,
+        &mut all_perms,
+        &mut steps,
+    );
 
     steps.push(Step {
-        description: format!("Permutations complete! Total {} permutations found: {:?}", all_perms.len(), all_perms),
+        description: format!(
+            "Permutations complete! Total {} permutations found: {:?}",
+            all_perms.len(),
+            all_perms
+        ),
         code_line: 16,
         visual: VisualState::DecisionTreeVisual {
             current_path: Vec::new(),
@@ -167,7 +199,15 @@ pub fn generate_combination_sum_steps(candidates: &[i32], target: i32) -> Vec<St
     let mut cur = Vec::new();
     let mut all = Vec::new();
 
-    fn dfs(i: usize, cur: &mut Vec<i32>, total: i32, candidates: &[i32], target: i32, all: &mut Vec<Vec<i32>>, steps: &mut Vec<Step>) {
+    fn dfs(
+        i: usize,
+        cur: &mut Vec<i32>,
+        total: i32,
+        candidates: &[i32],
+        target: i32,
+        all: &mut Vec<Vec<i32>>,
+        steps: &mut Vec<Step>,
+    ) {
         if total == target {
             all.push(cur.clone());
             steps.push(Step {
@@ -188,7 +228,12 @@ pub fn generate_combination_sum_steps(candidates: &[i32], target: i32) -> Vec<St
         // Choice 1: Include candidate i
         cur.push(candidates[i]);
         steps.push(Step {
-            description: format!("Pick candidate[{}] = {} -> current sum = {}", i, candidates[i], total + candidates[i]),
+            description: format!(
+                "Pick candidate[{}] = {} -> current sum = {}",
+                i,
+                candidates[i],
+                total + candidates[i]
+            ),
             code_line: 11,
             visual: VisualState::DecisionTreeVisual {
                 current_path: cur.clone(),
@@ -196,12 +241,23 @@ pub fn generate_combination_sum_steps(candidates: &[i32], target: i32) -> Vec<St
                 completed_results: all.clone(),
             },
         });
-        dfs(i, cur, total + candidates[i], candidates, target, all, steps);
+        dfs(
+            i,
+            cur,
+            total + candidates[i],
+            candidates,
+            target,
+            all,
+            steps,
+        );
 
         // Choice 2: Exclude candidate i and move next
         cur.pop();
         steps.push(Step {
-            description: format!("Backtrack candidate[{}] = {} -> skip to next candidate", i, candidates[i]),
+            description: format!(
+                "Backtrack candidate[{}] = {} -> skip to next candidate",
+                i, candidates[i]
+            ),
             code_line: 13,
             visual: VisualState::DecisionTreeVisual {
                 current_path: cur.clone(),
@@ -213,7 +269,10 @@ pub fn generate_combination_sum_steps(candidates: &[i32], target: i32) -> Vec<St
     }
 
     steps.push(Step {
-        description: format!("Start Combination Sum for candidates = {:?}, target = {}", candidates, target),
+        description: format!(
+            "Start Combination Sum for candidates = {:?}, target = {}",
+            candidates, target
+        ),
         code_line: 2,
         visual: VisualState::DecisionTreeVisual {
             current_path: Vec::new(),
@@ -233,7 +292,13 @@ pub fn generate_subsets_ii_steps(nums: &[i32]) -> Vec<Step> {
     let mut cur = Vec::new();
     let mut all = Vec::new();
 
-    fn backtrack(i: usize, cur: &mut Vec<i32>, nums: &[i32], all: &mut Vec<Vec<i32>>, steps: &mut Vec<Step>) {
+    fn backtrack(
+        i: usize,
+        cur: &mut Vec<i32>,
+        nums: &[i32],
+        all: &mut Vec<Vec<i32>>,
+        steps: &mut Vec<Step>,
+    ) {
         if i == nums.len() {
             all.push(cur.clone());
             steps.push(Step {
@@ -288,7 +353,14 @@ pub fn generate_combination_sum_ii_steps(candidates: &[i32], target: i32) -> Vec
     let mut cur = Vec::new();
     let mut all = Vec::new();
 
-    fn backtrack(pos: usize, cur: &mut Vec<i32>, rem_target: i32, candidates: &[i32], all: &mut Vec<Vec<i32>>, steps: &mut Vec<Step>) {
+    fn backtrack(
+        pos: usize,
+        cur: &mut Vec<i32>,
+        rem_target: i32,
+        candidates: &[i32],
+        all: &mut Vec<Vec<i32>>,
+        steps: &mut Vec<Step>,
+    ) {
         if rem_target == 0 {
             all.push(cur.clone());
             steps.push(Step {
@@ -302,14 +374,23 @@ pub fn generate_combination_sum_ii_steps(candidates: &[i32], target: i32) -> Vec
             });
             return;
         }
-        if rem_target < 0 { return; }
+        if rem_target < 0 {
+            return;
+        }
 
         let mut prev = -1;
         for i in pos..candidates.len() {
-            if candidates[i] == prev { continue; }
+            if candidates[i] == prev {
+                continue;
+            }
             cur.push(candidates[i]);
             steps.push(Step {
-                description: format!("Pick candidate[{}] = {} -> remaining target = {}", i, candidates[i], rem_target - candidates[i]),
+                description: format!(
+                    "Pick candidate[{}] = {} -> remaining target = {}",
+                    i,
+                    candidates[i],
+                    rem_target - candidates[i]
+                ),
                 code_line: 12,
                 visual: VisualState::DecisionTreeVisual {
                     current_path: cur.clone(),
@@ -317,7 +398,14 @@ pub fn generate_combination_sum_ii_steps(candidates: &[i32], target: i32) -> Vec
                     completed_results: all.clone(),
                 },
             });
-            backtrack(i + 1, cur, rem_target - candidates[i], candidates, all, steps);
+            backtrack(
+                i + 1,
+                cur,
+                rem_target - candidates[i],
+                candidates,
+                all,
+                steps,
+            );
             cur.pop();
             prev = candidates[i];
         }
@@ -362,7 +450,10 @@ pub fn generate_n_queens_steps(n: usize) -> Vec<Step> {
         },
     });
     steps.push(Step {
-        description: format!("Found non-attacking queen configurations on {}x{} board!", n, n),
+        description: format!(
+            "Found non-attacking queen configurations on {}x{} board!",
+            n, n
+        ),
         code_line: 8,
         visual: VisualState::DecisionTreeVisual {
             current_path: vec![0, 1, 2, 3],
@@ -413,7 +504,17 @@ pub fn generate_letter_combinations_steps(digits: &str) -> Vec<Step> {
         visual: VisualState::DecisionTreeVisual {
             current_path: vec![1, 2],
             active_choice: Some("Combinations Built".into()),
-            completed_results: vec![vec![1, 4], vec![1, 5], vec![1, 6], vec![2, 4], vec![2, 5], vec![2, 6], vec![3, 4], vec![3, 5], vec![3, 6]],
+            completed_results: vec![
+                vec![1, 4],
+                vec![1, 5],
+                vec![1, 6],
+                vec![2, 4],
+                vec![2, 5],
+                vec![2, 6],
+                vec![3, 4],
+                vec![3, 5],
+                vec![3, 6],
+            ],
         },
     });
     steps

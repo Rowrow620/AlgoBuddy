@@ -1,10 +1,16 @@
-use std::collections::BTreeSet;
 use crate::model::{Step, VisualState};
+use std::collections::BTreeSet;
 
 pub fn generate_reconstruct_itinerary_steps() -> Vec<Step> {
     let mut steps = Vec::new();
     let nodes = vec![0, 1, 2, 3, 4];
-    let labels = vec!["JFK".to_string(), "MUC".to_string(), "LHR".to_string(), "SFO".to_string(), "SJC".to_string()];
+    let labels = vec![
+        "JFK".to_string(),
+        "MUC".to_string(),
+        "LHR".to_string(),
+        "SFO".to_string(),
+        "SJC".to_string(),
+    ];
     let edges = vec![(0, 1), (1, 2), (2, 3), (3, 4)];
 
     let mut visited = BTreeSet::new();
@@ -51,7 +57,13 @@ pub fn generate_reconstruct_itinerary_steps() -> Vec<Step> {
 pub fn generate_min_cost_points_steps() -> Vec<Step> {
     let mut steps = Vec::new();
     let nodes = vec![0, 1, 2, 3, 4];
-    let labels = vec!["P0(0,0)".to_string(), "P1(2,2)".to_string(), "P2(3,10)".to_string(), "P3(5,2)".to_string(), "P4(7,0)".to_string()];
+    let labels = vec![
+        "P0(0,0)".to_string(),
+        "P1(2,2)".to_string(),
+        "P2(3,10)".to_string(),
+        "P3(5,2)".to_string(),
+        "P4(7,0)".to_string(),
+    ];
     let edges = vec![(0, 1), (1, 3), (3, 4), (1, 2)];
 
     let mut visited = BTreeSet::new();
@@ -75,7 +87,10 @@ pub fn generate_min_cost_points_steps() -> Vec<Step> {
     for &u in &nodes {
         visited.insert(u);
         steps.push(Step {
-            description: format!("Prim's MST: Add point P{} to MST, total cost accumulator updated", u),
+            description: format!(
+                "Prim's MST: Add point P{} to MST, total cost accumulator updated",
+                u
+            ),
             code_line: 14,
             visual: VisualState::NodeGraph {
                 nodes: nodes.clone(),
@@ -113,7 +128,12 @@ pub fn generate_min_cost_points_steps() -> Vec<Step> {
 pub fn generate_network_delay_steps() -> Vec<Step> {
     let mut steps = Vec::new();
     let nodes = vec![1, 2, 3, 4];
-    let labels = vec!["Node 1".to_string(), "Node 2".to_string(), "Node 3".to_string(), "Node 4".to_string()];
+    let labels = vec![
+        "Node 1".to_string(),
+        "Node 2".to_string(),
+        "Node 3".to_string(),
+        "Node 4".to_string(),
+    ];
     let edges = vec![(2, 1), (2, 3), (3, 4)];
 
     let mut visited = BTreeSet::new();
@@ -197,13 +217,20 @@ pub fn generate_swim_rising_water_steps() -> Vec<Step> {
 pub fn generate_alien_dictionary_steps() -> Vec<Step> {
     let mut steps = Vec::new();
     let nodes = vec![0, 1, 2, 3, 4];
-    let labels = vec!["w".to_string(), "e".to_string(), "r".to_string(), "t".to_string(), "f".to_string()];
+    let labels = vec![
+        "w".to_string(),
+        "e".to_string(),
+        "r".to_string(),
+        "t".to_string(),
+        "f".to_string(),
+    ];
     let edges = vec![(0, 1), (1, 2), (2, 3), (3, 4)];
 
     let mut visited = BTreeSet::new();
 
     steps.push(Step {
-        description: "Alien Dictionary DAG: Extract character precedence edges from word list".into(),
+        description: "Alien Dictionary DAG: Extract character precedence edges from word list"
+            .into(),
         code_line: 8,
         visual: VisualState::NodeGraph {
             nodes: nodes.clone(),
@@ -259,7 +286,12 @@ pub fn generate_alien_dictionary_steps() -> Vec<Step> {
 pub fn generate_cheapest_flights_steps() -> Vec<Step> {
     let mut steps = Vec::new();
     let nodes = vec![0, 1, 2, 3];
-    let labels = vec!["Src:0".to_string(), "1".to_string(), "2".to_string(), "Dst:3".to_string()];
+    let labels = vec![
+        "Src:0".to_string(),
+        "1".to_string(),
+        "2".to_string(),
+        "Dst:3".to_string(),
+    ];
     let edges = vec![(0, 1), (1, 2), (2, 0), (1, 3), (2, 3)];
 
     let mut visited = BTreeSet::new();

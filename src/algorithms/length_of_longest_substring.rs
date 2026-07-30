@@ -1,5 +1,5 @@
-use std::collections::BTreeSet;
 use crate::model::{Step, VisualState};
+use std::collections::BTreeSet;
 
 pub fn generate_longest_substring_steps(s: &str) -> Vec<Step> {
     let mut steps = Vec::new();
@@ -42,12 +42,22 @@ pub fn generate_longest_substring_steps(s: &str) -> Vec<Step> {
 
         char_set.insert(c);
         let curr_len = r - l + 1;
-        if curr_len > max_len { max_len = curr_len; }
+        if curr_len > max_len {
+            max_len = curr_len;
+        }
 
         steps.push(Step {
             code_line: 8,
-            description: format!("Added '{}' at r={}. Valid window [{}..={}] (\"{}\"), len = {}. maxLen = {}.",
-                c, r, l, r, chars[l..=r].iter().collect::<String>(), curr_len, max_len),
+            description: format!(
+                "Added '{}' at r={}. Valid window [{}..={}] (\"{}\"), len = {}. maxLen = {}.",
+                c,
+                r,
+                l,
+                r,
+                chars[l..=r].iter().collect::<String>(),
+                curr_len,
+                max_len
+            ),
             visual: VisualState::TwoPointers {
                 chars: chars.clone(),
                 left: l,
@@ -60,7 +70,10 @@ pub fn generate_longest_substring_steps(s: &str) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 9,
-        description: format!("Sliding window traversal complete. Maximum substring length = {}.", max_len),
+        description: format!(
+            "Sliding window traversal complete. Maximum substring length = {}.",
+            max_len
+        ),
         visual: VisualState::TwoPointers {
             chars: chars.clone(),
             left: l,

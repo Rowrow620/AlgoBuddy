@@ -72,14 +72,23 @@ mod tests {
 
     #[test]
     fn test_parse_string_vec() {
-        assert_eq!(parse_string_vec("eat, tea, tan", &["default"]), vec!["eat", "tea", "tan"]);
+        assert_eq!(
+            parse_string_vec("eat, tea, tan", &["default"]),
+            vec!["eat", "tea", "tan"]
+        );
         assert_eq!(parse_string_vec("", &["a", "b"]), vec!["a", "b"]);
     }
 
     #[test]
     fn test_parse_tree_nodes() {
-        assert_eq!(parse_tree_nodes("1, 2, null, 3", &[]), vec![Some(1), Some(2), None, Some(3)]);
-        assert_eq!(parse_tree_nodes("NULL, 4, Null", &[]), vec![None, Some(4), None]);
+        assert_eq!(
+            parse_tree_nodes("1, 2, null, 3", &[]),
+            vec![Some(1), Some(2), None, Some(3)]
+        );
+        assert_eq!(
+            parse_tree_nodes("NULL, 4, Null", &[]),
+            vec![None, Some(4), None]
+        );
     }
 
     #[test]

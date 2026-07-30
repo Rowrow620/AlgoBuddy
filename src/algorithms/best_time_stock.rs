@@ -26,7 +26,10 @@ pub fn generate_best_time_stock_steps(prices: &[i32]) -> Vec<Step> {
     // 1. Init pointers (code_line 3-4)
     steps.push(Step {
         code_line: 3,
-        description: format!("Initialized buy pointer l=0 (price={}) and sell pointer r=1 (price={}). maxP = 0.", prices[l], prices[r]),
+        description: format!(
+            "Initialized buy pointer l=0 (price={}) and sell pointer r=1 (price={}). maxP = 0.",
+            prices[l], prices[r]
+        ),
         visual: VisualState::BestTimeStock {
             prices: prices_vec.clone(),
             left_buy: l,
@@ -81,7 +84,10 @@ pub fn generate_best_time_stock_steps(prices: &[i32]) -> Vec<Step> {
         if r < prices.len() {
             steps.push(Step {
                 code_line: 11,
-                description: format!("Advanced sell pointer r to day {} (price={}).", r, prices[r]),
+                description: format!(
+                    "Advanced sell pointer r to day {} (price={}).",
+                    r, prices[r]
+                ),
                 visual: VisualState::BestTimeStock {
                     prices: prices_vec.clone(),
                     left_buy: l,
@@ -95,7 +101,10 @@ pub fn generate_best_time_stock_steps(prices: &[i32]) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 12,
-        description: format!("Completed scanning prices. Maximum achievable profit = {}.", max_p),
+        description: format!(
+            "Completed scanning prices. Maximum achievable profit = {}.",
+            max_p
+        ),
         visual: VisualState::BestTimeStock {
             prices: prices_vec,
             left_buy: l,

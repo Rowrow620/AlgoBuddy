@@ -28,7 +28,10 @@ pub fn generate_kth_largest_stream_steps(k: usize, nums: &[i32], val: i32) -> Ve
 
     steps.push(Step {
         code_line: 6,
-        description: format!("Added stream element {}. Updated min-heap of size {}: {:?}.", val, k, heap),
+        description: format!(
+            "Added stream element {}. Updated min-heap of size {}: {:?}.",
+            val, k, heap
+        ),
         visual: VisualState::ContainsDuplicate {
             nums: heap.clone(),
             active_idx: Some(0),

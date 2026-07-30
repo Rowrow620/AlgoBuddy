@@ -1,5 +1,5 @@
-use std::collections::BTreeMap;
 use crate::model::{Step, VisualState};
+use std::collections::BTreeMap;
 
 pub fn generate_two_sum_steps(nums: &[i32], target: i32, approach_id: usize) -> Vec<Step> {
     if approach_id == 1 {
@@ -17,7 +17,8 @@ fn generate_two_sum_hash_map(nums: &[i32], target: i32) -> Vec<Step> {
     // 1. Init map (code_line 3)
     steps.push(Step {
         code_line: 3,
-        description: "Initialized empty hash map prevMap = {} to store value -> index pairs.".to_string(),
+        description: "Initialized empty hash map prevMap = {} to store value -> index pairs."
+            .to_string(),
         visual: VisualState::TwoSum {
             nums: nums_vec.clone(),
             target,
@@ -48,7 +49,10 @@ fn generate_two_sum_hash_map(nums: &[i32], target: i32) -> Vec<Step> {
         if let Some(&prev_idx) = map.get(&diff) {
             steps.push(Step {
                 code_line: 7,
-                description: format!("Found complement diff={} in prevMap at index {}! Solution indices: [{}, {}].", diff, prev_idx, prev_idx, i),
+                description: format!(
+                    "Found complement diff={} in prevMap at index {}! Solution indices: [{}, {}].",
+                    diff, prev_idx, prev_idx, i
+                ),
                 visual: VisualState::TwoSum {
                     nums: nums_vec.clone(),
                     target,
@@ -143,7 +147,10 @@ fn generate_two_sum_brute_force(nums: &[i32], target: i32) -> Vec<Step> {
             if sum == target {
                 steps.push(Step {
                     code_line: 6,
-                    description: format!("Checking pair (i={}, j={}): nums[{}] ({}) + nums[{}] ({}) == {} MATCH!", i, j, i, nums[i], j, nums[j], target),
+                    description: format!(
+                        "Checking pair (i={}, j={}): nums[{}] ({}) + nums[{}] ({}) == {} MATCH!",
+                        i, j, i, nums[i], j, nums[j], target
+                    ),
                     visual: VisualState::TwoSum {
                         nums: nums_vec.clone(),
                         target,

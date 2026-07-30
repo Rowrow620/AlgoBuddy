@@ -2,7 +2,9 @@ use crate::model::{Step, VisualState};
 
 pub fn generate_house_robber_ii_steps(nums: &[i32]) -> Vec<Step> {
     let mut steps = Vec::new();
-    if nums.is_empty() { return steps; }
+    if nums.is_empty() {
+        return steps;
+    }
     if nums.len() == 1 {
         steps.push(Step {
             description: format!("Single house available: loot = {}", nums[0]),
@@ -19,7 +21,9 @@ pub fn generate_house_robber_ii_steps(nums: &[i32]) -> Vec<Step> {
     }
 
     steps.push(Step {
-        description: format!("House Robber II (Circular): Run Robber I on sub-arrays [1..N] and [0..N-1]"),
+        description: format!(
+            "House Robber II (Circular): Run Robber I on sub-arrays [1..N] and [0..N-1]"
+        ),
         code_line: 4,
         visual: VisualState::ContainsDuplicate {
             nums: nums.to_vec(),
@@ -133,7 +137,11 @@ pub fn generate_coin_change_steps(coins: &[i32], amount: i32) -> Vec<Step> {
     dp[0] = 0;
 
     steps.push(Step {
-        description: format!("Initialize 1D DP table of size {} for amount {} with INF", amt + 1, amount),
+        description: format!(
+            "Initialize 1D DP table of size {} for amount {} with INF",
+            amt + 1,
+            amount
+        ),
         code_line: 4,
         visual: VisualState::ContainsDuplicate {
             nums: dp.clone(),
@@ -151,7 +159,11 @@ pub fn generate_coin_change_steps(coins: &[i32], amount: i32) -> Vec<Step> {
             }
         }
         steps.push(Step {
-            description: format!("dp[{}] = min coins needed = {}", a, if dp[a] > amount { -1 } else { dp[a] }),
+            description: format!(
+                "dp[{}] = min coins needed = {}",
+                a,
+                if dp[a] > amount { -1 } else { dp[a] }
+            ),
             code_line: 8,
             visual: VisualState::ContainsDuplicate {
                 nums: dp.clone(),
@@ -233,7 +245,10 @@ pub fn generate_longest_increasing_subsequence_steps(nums: &[i32]) -> Vec<Step> 
             }
         }
         steps.push(Step {
-            description: format!("dp[{}] = LIS length starting at index {} is {}", i, i, dp[i]),
+            description: format!(
+                "dp[{}] = LIS length starting at index {} is {}",
+                i, i, dp[i]
+            ),
             code_line: 7,
             visual: VisualState::ContainsDuplicate {
                 nums: dp.clone(),

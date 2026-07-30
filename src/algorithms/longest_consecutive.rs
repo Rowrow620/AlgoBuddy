@@ -1,5 +1,5 @@
-use std::collections::BTreeSet;
 use crate::model::{Step, VisualState};
+use std::collections::BTreeSet;
 
 pub fn generate_longest_consecutive_steps(nums: &[i32]) -> Vec<Step> {
     let mut steps = Vec::new();
@@ -9,7 +9,10 @@ pub fn generate_longest_consecutive_steps(nums: &[i32]) -> Vec<Step> {
     // 1. Init numSet (code_line 3)
     steps.push(Step {
         code_line: 3,
-        description: format!("Created numSet with {} unique elements from input array.", num_set.len()),
+        description: format!(
+            "Created numSet with {} unique elements from input array.",
+            num_set.len()
+        ),
         visual: VisualState::LongestConsecutive {
             nums: num_vec.clone(),
             num_set: num_set.clone(),

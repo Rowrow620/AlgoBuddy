@@ -1,5 +1,5 @@
-use std::collections::BTreeMap;
 use crate::model::{Step, VisualState};
+use std::collections::BTreeMap;
 
 pub fn generate_bucket_sort_steps(nums: &[i32], k: usize) -> Vec<Step> {
     let mut steps = Vec::new();
@@ -96,7 +96,10 @@ pub fn generate_bucket_sort_steps(nums: &[i32], k: usize) -> Vec<Step> {
                 code_line: 14,
                 description: format!(
                     "Collected {} from bucket freq[{}] into result list. Progress: {}/{}.",
-                    num, i, result.len(), k
+                    num,
+                    i,
+                    result.len(),
+                    k
                 ),
                 visual: VisualState::TopK {
                     nums: nums.to_vec(),

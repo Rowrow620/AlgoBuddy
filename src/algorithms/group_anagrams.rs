@@ -1,5 +1,5 @@
-use std::collections::BTreeMap;
 use crate::model::{Step, VisualState};
+use std::collections::BTreeMap;
 
 pub fn generate_group_anagrams_steps(strs: &[String], approach_id: usize) -> Vec<Step> {
     let mut steps = Vec::new();
@@ -8,7 +8,9 @@ pub fn generate_group_anagrams_steps(strs: &[String], approach_id: usize) -> Vec
 
     steps.push(Step {
         code_line: 3,
-        description: "Initialized empty HashMap `res = defaultdict(list)` to store grouped anagrams.".to_string(),
+        description:
+            "Initialized empty HashMap `res = defaultdict(list)` to store grouped anagrams."
+                .to_string(),
         visual: VisualState::GroupAnagrams {
             input_strs: strs_vec.clone(),
             active_idx: None,
@@ -37,7 +39,10 @@ pub fn generate_group_anagrams_steps(strs: &[String], approach_id: usize) -> Vec
 
         steps.push(Step {
             code_line: 5,
-            description: format!("Processing string strs[{}] = \"{}\". Generated HashMap key signature: \"{}\".", i, s, key_str),
+            description: format!(
+                "Processing string strs[{}] = \"{}\". Generated HashMap key signature: \"{}\".",
+                i, s, key_str
+            ),
             visual: VisualState::GroupAnagrams {
                 input_strs: strs_vec.clone(),
                 active_idx: Some(i),
@@ -50,7 +55,10 @@ pub fn generate_group_anagrams_steps(strs: &[String], approach_id: usize) -> Vec
 
         steps.push(Step {
             code_line: 8,
-            description: format!("Appended \"{}\" to HashMap group matching key signature.", s),
+            description: format!(
+                "Appended \"{}\" to HashMap group matching key signature.",
+                s
+            ),
             visual: VisualState::GroupAnagrams {
                 input_strs: strs_vec.clone(),
                 active_idx: Some(i),
@@ -63,7 +71,11 @@ pub fn generate_group_anagrams_steps(strs: &[String], approach_id: usize) -> Vec
     let final_grouped: Vec<Vec<String>> = groups.values().cloned().collect();
     steps.push(Step {
         code_line: 9,
-        description: format!("Grouped all strings into {} anagram categories! Result: {:?}.", final_grouped.len(), final_grouped),
+        description: format!(
+            "Grouped all strings into {} anagram categories! Result: {:?}.",
+            final_grouped.len(),
+            final_grouped
+        ),
         visual: VisualState::GroupAnagrams {
             input_strs: strs_vec,
             active_idx: None,

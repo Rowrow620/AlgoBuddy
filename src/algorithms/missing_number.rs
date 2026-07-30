@@ -21,7 +21,10 @@ pub fn generate_missing_number_steps(nums: &[i32]) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 5,
-        description: format!("Expected sum(0..={}) = {}. Actual array sum = {}.", n, expected_sum, actual_sum),
+        description: format!(
+            "Expected sum(0..={}) = {}. Actual array sum = {}.",
+            n, expected_sum, actual_sum
+        ),
         visual: VisualState::ContainsDuplicate {
             nums: vec![expected_sum as i32, actual_sum],
             active_idx: Some(1),
@@ -33,7 +36,10 @@ pub fn generate_missing_number_steps(nums: &[i32]) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 7,
-        description: format!("Missing number = expected_sum - actual_sum = {} - {} = {}.", expected_sum, actual_sum, missing),
+        description: format!(
+            "Missing number = expected_sum - actual_sum = {} - {} = {}.",
+            expected_sum, actual_sum, missing
+        ),
         visual: VisualState::ContainsDuplicate {
             nums: vec![missing],
             active_idx: Some(0),

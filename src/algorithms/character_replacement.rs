@@ -12,7 +12,10 @@ pub fn generate_character_replacement_steps(s: &str, k: usize) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 3,
-        description: format!("Character Replacement: s = \"{}\", k = {}. Initialize l=0, maxFreq=0.", s, k),
+        description: format!(
+            "Character Replacement: s = \"{}\", k = {}. Initialize l=0, maxFreq=0.",
+            s, k
+        ),
         visual: VisualState::TwoPointers {
             chars: chars.clone(),
             left: 0,
@@ -48,12 +51,21 @@ pub fn generate_character_replacement_steps(s: &str, k: usize) -> Vec<Step> {
         }
 
         let curr_len = r - l + 1;
-        if curr_len > max_len { max_len = curr_len; }
+        if curr_len > max_len {
+            max_len = curr_len;
+        }
 
         steps.push(Step {
             code_line: 8,
-            description: format!("Valid window [{}..={}] (\"{}\"). maxFreq = {}, replacements = {}. maxLen = {}.",
-                l, r, chars[l..=r].iter().collect::<String>(), max_freq, (r - l + 1) - max_freq, max_len),
+            description: format!(
+                "Valid window [{}..={}] (\"{}\"). maxFreq = {}, replacements = {}. maxLen = {}.",
+                l,
+                r,
+                chars[l..=r].iter().collect::<String>(),
+                max_freq,
+                (r - l + 1) - max_freq,
+                max_len
+            ),
             visual: VisualState::TwoPointers {
                 chars: chars.clone(),
                 left: l,
@@ -66,7 +78,10 @@ pub fn generate_character_replacement_steps(s: &str, k: usize) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 9,
-        description: format!("Sliding window traversal complete. Maximum repeating substring length = {}.", max_len),
+        description: format!(
+            "Sliding window traversal complete. Maximum repeating substring length = {}.",
+            max_len
+        ),
         visual: VisualState::TwoPointers {
             chars: chars.clone(),
             left: l,

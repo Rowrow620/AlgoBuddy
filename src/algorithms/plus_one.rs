@@ -22,7 +22,10 @@ pub fn generate_plus_one_steps(digits: &[i32]) -> Vec<Step> {
             res[i] += 1;
             steps.push(Step {
                 code_line: 5,
-                description: format!("Digit at idx {} is {} (<9). Increment to {} and return.", i, digits[i], res[i]),
+                description: format!(
+                    "Digit at idx {} is {} (<9). Increment to {} and return.",
+                    i, digits[i], res[i]
+                ),
                 visual: VisualState::ContainsDuplicate {
                     nums: res.clone(),
                     active_idx: Some(i),

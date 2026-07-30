@@ -28,7 +28,10 @@ pub fn generate_find_min_rotated_steps(nums: &[i32]) -> Vec<Step> {
 
         steps.push(Step {
             code_line: 5,
-            description: format!("l={}, r={}: mid_idx={}, nums[mid]={}, nums[r]={}.", l, r, mid_idx, mid_val, r_val),
+            description: format!(
+                "l={}, r={}: mid_idx={}, nums[mid]={}, nums[r]={}.",
+                l, r, mid_idx, mid_val, r_val
+            ),
             visual: VisualState::BinarySearch {
                 nums: nums.to_vec(),
                 target: r_val,
@@ -42,7 +45,12 @@ pub fn generate_find_min_rotated_steps(nums: &[i32]) -> Vec<Step> {
         if mid_val > r_val {
             steps.push(Step {
                 code_line: 6,
-                description: format!("nums[mid] ({}) > nums[r] ({}) -> Minimum is in right half. Move l to {}.", mid_val, r_val, mid + 1),
+                description: format!(
+                    "nums[mid] ({}) > nums[r] ({}) -> Minimum is in right half. Move l to {}.",
+                    mid_val,
+                    r_val,
+                    mid + 1
+                ),
                 visual: VisualState::BinarySearch {
                     nums: nums.to_vec(),
                     target: r_val,
@@ -56,7 +64,10 @@ pub fn generate_find_min_rotated_steps(nums: &[i32]) -> Vec<Step> {
         } else {
             steps.push(Step {
                 code_line: 8,
-                description: format!("nums[mid] ({}) <= nums[r] ({}) -> Minimum is mid or to left. Move r to {}.", mid_val, r_val, mid),
+                description: format!(
+                    "nums[mid] ({}) <= nums[r] ({}) -> Minimum is mid or to left. Move r to {}.",
+                    mid_val, r_val, mid
+                ),
                 visual: VisualState::BinarySearch {
                     nums: nums.to_vec(),
                     target: r_val,
@@ -73,7 +84,10 @@ pub fn generate_find_min_rotated_steps(nums: &[i32]) -> Vec<Step> {
     let min_idx = l as usize;
     steps.push(Step {
         code_line: 10,
-        description: format!("Minimum found at index {} with value {}!", min_idx, nums[min_idx]),
+        description: format!(
+            "Minimum found at index {} with value {}!",
+            min_idx, nums[min_idx]
+        ),
         visual: VisualState::BinarySearch {
             nums: nums.to_vec(),
             target: nums[min_idx],

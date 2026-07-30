@@ -3,14 +3,22 @@ use crate::model::{Step, VisualState};
 pub fn generate_search_2d_matrix_steps(matrix: &[Vec<i32>], target: i32) -> Vec<Step> {
     let mut steps = Vec::new();
     let rows = matrix.len();
-    if rows == 0 || matrix[0].is_empty() { return steps; }
+    if rows == 0 || matrix[0].is_empty() {
+        return steps;
+    }
     let cols = matrix[0].len();
 
     let flat: Vec<i32> = matrix.iter().flatten().copied().collect();
 
     steps.push(Step {
         code_line: 3,
-        description: format!("Binary Search on {}x{} matrix for target {}. Virtual 1D array length = {}.", rows, cols, target, flat.len()),
+        description: format!(
+            "Binary Search on {}x{} matrix for target {}. Virtual 1D array length = {}.",
+            rows,
+            cols,
+            target,
+            flat.len()
+        ),
         visual: VisualState::BinarySearch {
             nums: flat.clone(),
             target,
@@ -33,7 +41,10 @@ pub fn generate_search_2d_matrix_steps(matrix: &[Vec<i32>], target: i32) -> Vec<
 
         steps.push(Step {
             code_line: 5,
-            description: format!("l={}, r={}: mid index {} maps to matrix[{}][{}] = {}. Target = {}.", l, r, mid_idx, row, col, val, target),
+            description: format!(
+                "l={}, r={}: mid index {} maps to matrix[{}][{}] = {}. Target = {}.",
+                l, r, mid_idx, row, col, val, target
+            ),
             visual: VisualState::BinarySearch {
                 nums: flat.clone(),
                 target,
@@ -47,7 +58,10 @@ pub fn generate_search_2d_matrix_steps(matrix: &[Vec<i32>], target: i32) -> Vec<
         if val == target {
             steps.push(Step {
                 code_line: 6,
-                description: format!("Found target {} at matrix[{}][{}] (flat index {})! Return True.", target, row, col, mid_idx),
+                description: format!(
+                    "Found target {} at matrix[{}][{}] (flat index {})! Return True.",
+                    target, row, col, mid_idx
+                ),
                 visual: VisualState::BinarySearch {
                     nums: flat,
                     target,
@@ -61,7 +75,14 @@ pub fn generate_search_2d_matrix_steps(matrix: &[Vec<i32>], target: i32) -> Vec<
         } else if val < target {
             steps.push(Step {
                 code_line: 7,
-                description: format!("matrix[{}][{}] = {} < target {}. Search right half: l = {}.", row, col, val, target, mid + 1),
+                description: format!(
+                    "matrix[{}][{}] = {} < target {}. Search right half: l = {}.",
+                    row,
+                    col,
+                    val,
+                    target,
+                    mid + 1
+                ),
                 visual: VisualState::BinarySearch {
                     nums: flat.clone(),
                     target,
@@ -75,7 +96,14 @@ pub fn generate_search_2d_matrix_steps(matrix: &[Vec<i32>], target: i32) -> Vec<
         } else {
             steps.push(Step {
                 code_line: 8,
-                description: format!("matrix[{}][{}] = {} > target {}. Search left half: r = {}.", row, col, val, target, mid - 1),
+                description: format!(
+                    "matrix[{}][{}] = {} > target {}. Search left half: r = {}.",
+                    row,
+                    col,
+                    val,
+                    target,
+                    mid - 1
+                ),
                 visual: VisualState::BinarySearch {
                     nums: flat.clone(),
                     target,

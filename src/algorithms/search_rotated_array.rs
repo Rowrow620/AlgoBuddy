@@ -6,7 +6,10 @@ pub fn generate_search_rotated_array_steps(nums: &[i32], target: i32) -> Vec<Ste
 
     steps.push(Step {
         code_line: 3,
-        description: format!("Search in Rotated Sorted Array: nums = {:?}, target = {}.", nums, target),
+        description: format!(
+            "Search in Rotated Sorted Array: nums = {:?}, target = {}.",
+            nums, target
+        ),
         visual: VisualState::BinarySearch {
             nums: nums.to_vec(),
             target,
@@ -27,7 +30,10 @@ pub fn generate_search_rotated_array_steps(nums: &[i32], target: i32) -> Vec<Ste
 
         steps.push(Step {
             code_line: 5,
-            description: format!("l={}, r={}: mid_idx={}, nums[mid]={}. Target = {}.", l, r, mid_idx, mid_val, target),
+            description: format!(
+                "l={}, r={}: mid_idx={}, nums[mid]={}. Target = {}.",
+                l, r, mid_idx, mid_val, target
+            ),
             visual: VisualState::BinarySearch {
                 nums: nums.to_vec(),
                 target,
@@ -41,7 +47,10 @@ pub fn generate_search_rotated_array_steps(nums: &[i32], target: i32) -> Vec<Ste
         if mid_val == target {
             steps.push(Step {
                 code_line: 6,
-                description: format!("Found target {} at index {}! Return {}.", target, mid_idx, mid_idx),
+                description: format!(
+                    "Found target {} at index {}! Return {}.",
+                    target, mid_idx, mid_idx
+                ),
                 visual: VisualState::BinarySearch {
                     nums: nums.to_vec(),
                     target,
@@ -91,8 +100,13 @@ pub fn generate_search_rotated_array_steps(nums: &[i32], target: i32) -> Vec<Ste
             if mid_val < target && target <= nums[r as usize] {
                 steps.push(Step {
                     code_line: 11,
-                    description: format!("Right half sorted (mid {} < target <= nums[{}]={}). Move l to {}.",
-                        mid_val, r, nums[r as usize], mid + 1),
+                    description: format!(
+                        "Right half sorted (mid {} < target <= nums[{}]={}). Move l to {}.",
+                        mid_val,
+                        r,
+                        nums[r as usize],
+                        mid + 1
+                    ),
                     visual: VisualState::BinarySearch {
                         nums: nums.to_vec(),
                         target,
@@ -106,7 +120,10 @@ pub fn generate_search_rotated_array_steps(nums: &[i32], target: i32) -> Vec<Ste
             } else {
                 steps.push(Step {
                     code_line: 12,
-                    description: format!("Right half sorted, but target not in right range. Move r to {}.", mid - 1),
+                    description: format!(
+                        "Right half sorted, but target not in right range. Move r to {}.",
+                        mid - 1
+                    ),
                     visual: VisualState::BinarySearch {
                         nums: nums.to_vec(),
                         target,
@@ -123,7 +140,10 @@ pub fn generate_search_rotated_array_steps(nums: &[i32], target: i32) -> Vec<Ste
 
     steps.push(Step {
         code_line: 14,
-        description: format!("Target {} not found in rotated sorted array. Return -1.", target),
+        description: format!(
+            "Target {} not found in rotated sorted array. Return -1.",
+            target
+        ),
         visual: VisualState::BinarySearch {
             nums: nums.to_vec(),
             target,

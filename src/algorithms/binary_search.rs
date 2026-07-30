@@ -43,7 +43,10 @@ pub fn generate_binary_search_steps(nums: &[i32], target: i32) -> Vec<Step> {
 
         steps.push(Step {
             code_line: 5,
-            description: format!("Calculated midpoint m = {} + ({} - {}) // 2 = {}. nums[{}] = {}.", l, r, l, m, m, nums[m]),
+            description: format!(
+                "Calculated midpoint m = {} + ({} - {}) // 2 = {}. nums[{}] = {}.",
+                l, r, l, m, m, nums[m]
+            ),
             visual: VisualState::BinarySearch {
                 nums: nums_vec.clone(),
                 target,
@@ -57,7 +60,10 @@ pub fn generate_binary_search_steps(nums: &[i32], target: i32) -> Vec<Step> {
         if nums[m] == target {
             steps.push(Step {
                 code_line: 11,
-                description: format!("Target {} MATCHED at midpoint index m={}! Return {}.", target, m, m),
+                description: format!(
+                    "Target {} MATCHED at midpoint index m={}! Return {}.",
+                    target, m, m
+                ),
                 visual: VisualState::BinarySearch {
                     nums: nums_vec.clone(),
                     target,
@@ -81,7 +87,9 @@ pub fn generate_binary_search_steps(nums: &[i32], target: i32) -> Vec<Step> {
                     found_idx: None,
                 },
             });
-            if m == 0 { break; }
+            if m == 0 {
+                break;
+            }
             r = m - 1;
         } else {
             steps.push(Step {
@@ -102,7 +110,10 @@ pub fn generate_binary_search_steps(nums: &[i32], target: i32) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 12,
-        description: format!("Search bounds crossed (l > r). Target {} not found in array. Return -1.", target),
+        description: format!(
+            "Search bounds crossed (l > r). Target {} not found in array. Return -1.",
+            target
+        ),
         visual: VisualState::BinarySearch {
             nums: nums_vec,
             target,

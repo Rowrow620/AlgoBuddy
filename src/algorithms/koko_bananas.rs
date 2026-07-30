@@ -122,7 +122,10 @@ pub fn generate_koko_eating_bananas_steps(piles: &[i32], h: i32) -> Vec<Step> {
             active_idx: None,
             secondary_idx: None,
             pointers: vec![("min speed k", res as usize)],
-            status_message: format!("Optimal minimum speed k = {} bananas/hr for piles {:?} and h = {}.", res, piles_vec, h),
+            status_message: format!(
+                "Optimal minimum speed k = {} bananas/hr for piles {:?} and h = {}.",
+                res, piles_vec, h
+            ),
             is_success: Some(true),
         },
     });

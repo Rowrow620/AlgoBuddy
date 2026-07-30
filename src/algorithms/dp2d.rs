@@ -1,5 +1,5 @@
-use std::collections::BTreeSet;
 use crate::model::{Step, VisualState};
+use std::collections::BTreeSet;
 
 pub fn generate_unique_paths_steps(m: usize, n: usize) -> Vec<Step> {
     let mut steps = Vec::new();
@@ -20,7 +20,14 @@ pub fn generate_unique_paths_steps(m: usize, n: usize) -> Vec<Step> {
             visited.insert((r, c));
 
             steps.push(Step {
-                description: format!("Compute dp[{}][{}] = {} unique paths to target ({}, {})", r, c, grid[r][c], m - 1, n - 1),
+                description: format!(
+                    "Compute dp[{}][{}] = {} unique paths to target ({}, {})",
+                    r,
+                    c,
+                    grid[r][c],
+                    m - 1,
+                    n - 1
+                ),
                 code_line: 7,
                 visual: VisualState::GridGraph {
                     rows: m,
@@ -36,7 +43,12 @@ pub fn generate_unique_paths_steps(m: usize, n: usize) -> Vec<Step> {
     }
 
     steps.push(Step {
-        description: format!("Unique Paths Complete! Total paths from (0,0) to ({},{}) = {}", m - 1, n - 1, grid[0][0]),
+        description: format!(
+            "Unique Paths Complete! Total paths from (0,0) to ({},{}) = {}",
+            m - 1,
+            n - 1,
+            grid[0][0]
+        ),
         code_line: 9,
         visual: VisualState::GridGraph {
             rows: m,
@@ -72,7 +84,10 @@ pub fn generate_lcs_steps(s1: &str, s2: &str) -> Vec<Step> {
             grid_str[i][j] = dp[i][j].to_string();
 
             steps.push(Step {
-                description: format!("Compare s1[{}]='{}' with s2[{}]='{}' -> dp[{}][{}] = {}", i, c1[i], j, c2[j], i, j, dp[i][j]),
+                description: format!(
+                    "Compare s1[{}]='{}' with s2[{}]='{}' -> dp[{}][{}] = {}",
+                    i, c1[i], j, c2[j], i, j, dp[i][j]
+                ),
                 code_line: 6,
                 visual: VisualState::GridGraph {
                     rows: m + 1,
@@ -88,7 +103,10 @@ pub fn generate_lcs_steps(s1: &str, s2: &str) -> Vec<Step> {
     }
 
     steps.push(Step {
-        description: format!("Longest Common Subsequence of '{}' and '{}' = {}", s1, s2, dp[0][0]),
+        description: format!(
+            "Longest Common Subsequence of '{}' and '{}' = {}",
+            s1, s2, dp[0][0]
+        ),
         code_line: 8,
         visual: VisualState::GridGraph {
             rows: m + 1,
@@ -111,19 +129,30 @@ pub fn generate_stock_cooldown_steps(prices: &[i32]) -> Vec<Step> {
 
     for i in (0..n).rev() {
         // Buy state (1)
-        let buy = if i + 1 <= n { grid[i + 1][0].parse::<i32>().unwrap_or(0) - prices[i] } else { -prices[i] };
+        let buy = if i + 1 <= n {
+            grid[i + 1][0].parse::<i32>().unwrap_or(0) - prices[i]
+        } else {
+            -prices[i]
+        };
         let cooldown_b = grid[i + 1][1].parse::<i32>().unwrap_or(0);
         let max_b = buy.max(cooldown_b);
         grid[i][1] = max_b.to_string();
 
         // Sell state (0)
-        let sell = if i + 2 <= n { grid[i + 2][1].parse::<i32>().unwrap_or(0) + prices[i] } else { prices[i] };
+        let sell = if i + 2 <= n {
+            grid[i + 2][1].parse::<i32>().unwrap_or(0) + prices[i]
+        } else {
+            prices[i]
+        };
         let cooldown_s = grid[i + 1][0].parse::<i32>().unwrap_or(0);
         let max_s = sell.max(cooldown_s);
         grid[i][0] = max_s.to_string();
 
         steps.push(Step {
-            description: format!("Day {}: Price = {}, Buy Max = {}, Sell Max = {}", i, prices[i], max_b, max_s),
+            description: format!(
+                "Day {}: Price = {}, Buy Max = {}, Sell Max = {}",
+                i, prices[i], max_b, max_s
+            ),
             code_line: 8,
             visual: VisualState::GridGraph {
                 rows: n + 1,
@@ -167,7 +196,10 @@ pub fn generate_coin_change_ii_steps(amount: usize, coins: &[usize]) -> Vec<Step
             grid[c_idx][a] = dp[a].to_string();
 
             steps.push(Step {
-                description: format!("Coin {}: Update amount {} -> dp[{}] = {} combinations", coin, a, a, dp[a]),
+                description: format!(
+                    "Coin {}: Update amount {} -> dp[{}] = {} combinations",
+                    coin, a, a, dp[a]
+                ),
                 code_line: 5,
                 visual: VisualState::GridGraph {
                     rows: coins.len(),
@@ -196,7 +228,12 @@ pub fn generate_target_sum_steps(nums: &[i32], target: i32) -> Vec<Step> {
 
     for i in 0..n {
         steps.push(Step {
-            description: format!("Target Sum Step {}: Add/Subtract nums[{}] = {}", i + 1, i, nums[i]),
+            description: format!(
+                "Target Sum Step {}: Add/Subtract nums[{}] = {}",
+                i + 1,
+                i,
+                nums[i]
+            ),
             code_line: 7,
             visual: VisualState::GridGraph {
                 rows: 3,
@@ -211,7 +248,10 @@ pub fn generate_target_sum_steps(nums: &[i32], target: i32) -> Vec<Step> {
     }
 
     steps.push(Step {
-        description: format!("Target Sum Complete! Total expressions equaling {} = 5", target),
+        description: format!(
+            "Target Sum Complete! Total expressions equaling {} = 5",
+            target
+        ),
         code_line: 9,
         visual: VisualState::GridGraph {
             rows: 3,
@@ -236,7 +276,10 @@ pub fn generate_interleaving_string_steps(s1: &str, s2: &str, s3: &str) -> Vec<S
     grid[m][n] = "T".to_string();
 
     steps.push(Step {
-        description: format!("Interleaving String Grid Check: s1='{}', s2='{}', s3='{}'", s1, s2, s3),
+        description: format!(
+            "Interleaving String Grid Check: s1='{}', s2='{}', s3='{}'",
+            s1, s2, s3
+        ),
         code_line: 5,
         visual: VisualState::GridGraph {
             rows: m + 1,
@@ -251,7 +294,9 @@ pub fn generate_interleaving_string_steps(s1: &str, s2: &str, s3: &str) -> Vec<S
 
     for i in (0..=m).rev() {
         for j in (0..=n).rev() {
-            if i == m && j == n { continue; }
+            if i == m && j == n {
+                continue;
+            }
             let mut match_s1 = false;
             let mut match_s2 = false;
 
@@ -267,7 +312,14 @@ pub fn generate_interleaving_string_steps(s1: &str, s2: &str, s3: &str) -> Vec<S
             }
 
             steps.push(Step {
-                description: format!("Evaluate dp[{}][{}]: Interleave s1[{}] / s2[{}] matches s3[{}]", i, j, i, j, i + j),
+                description: format!(
+                    "Evaluate dp[{}][{}]: Interleave s1[{}] / s2[{}] matches s3[{}]",
+                    i,
+                    j,
+                    i,
+                    j,
+                    i + j
+                ),
                 code_line: 8,
                 visual: VisualState::GridGraph {
                     rows: m + 1,
@@ -320,7 +372,10 @@ pub fn generate_distinct_subsequences_steps(s: &str, t: &str) -> Vec<Step> {
     let grid = vec![vec!["1".to_string(); n + 1]; m + 1];
 
     steps.push(Step {
-        description: format!("Distinct Subsequences: Count sub-matches of '{}' in '{}'", t, s),
+        description: format!(
+            "Distinct Subsequences: Count sub-matches of '{}' in '{}'",
+            t, s
+        ),
         code_line: 8,
         visual: VisualState::GridGraph {
             rows: m + 1,
@@ -346,7 +401,10 @@ pub fn generate_edit_distance_steps(word1: &str, word2: &str) -> Vec<Step> {
         for j in 0..=n {
             grid[i][j] = (i + j).to_string();
             steps.push(Step {
-                description: format!("Edit Distance dp[{}][{}]: Insert, Delete, or Replace step", i, j),
+                description: format!(
+                    "Edit Distance dp[{}][{}]: Insert, Delete, or Replace step",
+                    i, j
+                ),
                 code_line: 9,
                 visual: VisualState::GridGraph {
                     rows: m + 1,
@@ -373,7 +431,8 @@ pub fn generate_burst_balloons_steps() -> Vec<Step> {
     ];
 
     steps.push(Step {
-        description: "Burst Balloons Interval DP: Choose last balloon burst in subarray [l, r]".into(),
+        description: "Burst Balloons Interval DP: Choose last balloon burst in subarray [l, r]"
+            .into(),
         code_line: 11,
         visual: VisualState::GridGraph {
             rows: 3,
@@ -398,7 +457,9 @@ pub fn generate_regex_matching_steps() -> Vec<Step> {
     ];
 
     steps.push(Step {
-        description: "Regular Expression Matching: Evaluate '.' wildcard and '*' repetition transitions".into(),
+        description:
+            "Regular Expression Matching: Evaluate '.' wildcard and '*' repetition transitions"
+                .into(),
         code_line: 10,
         visual: VisualState::GridGraph {
             rows: 3,

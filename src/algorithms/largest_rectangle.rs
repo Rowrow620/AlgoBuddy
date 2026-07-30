@@ -5,11 +5,17 @@ pub fn generate_largest_rectangle_steps(heights: &[i32]) -> Vec<Step> {
     let mut stack: Vec<(usize, i32)> = Vec::new(); // (index, height)
     let mut max_area = 0i32;
 
-    let char_repr: Vec<char> = heights.iter().map(|h| h.to_string().chars().next().unwrap_or(' ')).collect();
+    let char_repr: Vec<char> = heights
+        .iter()
+        .map(|h| h.to_string().chars().next().unwrap_or(' '))
+        .collect();
 
     steps.push(Step {
         code_line: 3,
-        description: format!("Largest Rectangle in Histogram for heights = {:?}. Monotonic increasing stack.", heights),
+        description: format!(
+            "Largest Rectangle in Histogram for heights = {:?}. Monotonic increasing stack.",
+            heights
+        ),
         visual: VisualState::Stack {
             chars: char_repr.clone(),
             active_idx: None,
@@ -26,10 +32,15 @@ pub fn generate_largest_rectangle_steps(heights: &[i32]) -> Vec<Step> {
                 stack.pop();
                 let width = (i - prev_idx) as i32;
                 let area = prev_h * width;
-                if area > max_area { max_area = area; }
+                if area > max_area {
+                    max_area = area;
+                }
                 start = prev_idx;
 
-                let stack_chars: Vec<char> = stack.iter().map(|(_, height)| height.to_string().chars().next().unwrap_or(' ')).collect();
+                let stack_chars: Vec<char> = stack
+                    .iter()
+                    .map(|(_, height)| height.to_string().chars().next().unwrap_or(' '))
+                    .collect();
                 steps.push(Step {
                     code_line: 6,
                     description: format!("Height {} < popped height {}. Rectangle width = {} - {} = {}. Area = {} * {} = {}. maxArea = {}.",
@@ -47,10 +58,16 @@ pub fn generate_largest_rectangle_steps(heights: &[i32]) -> Vec<Step> {
         }
 
         stack.push((start, h));
-        let stack_chars: Vec<char> = stack.iter().map(|(_, height)| height.to_string().chars().next().unwrap_or(' ')).collect();
+        let stack_chars: Vec<char> = stack
+            .iter()
+            .map(|(_, height)| height.to_string().chars().next().unwrap_or(' '))
+            .collect();
         steps.push(Step {
             code_line: 8,
-            description: format!("Push (start={}, height={}) to stack: {:?}", start, h, stack_chars),
+            description: format!(
+                "Push (start={}, height={}) to stack: {:?}",
+                start, h, stack_chars
+            ),
             visual: VisualState::Stack {
                 chars: char_repr.clone(),
                 active_idx: Some(i),
@@ -64,9 +81,14 @@ pub fn generate_largest_rectangle_steps(heights: &[i32]) -> Vec<Step> {
     while let Some((start_idx, h)) = stack.pop() {
         let width = (n - start_idx) as i32;
         let area = h * width;
-        if area > max_area { max_area = area; }
+        if area > max_area {
+            max_area = area;
+        }
 
-        let stack_chars: Vec<char> = stack.iter().map(|(_, height)| height.to_string().chars().next().unwrap_or(' ')).collect();
+        let stack_chars: Vec<char> = stack
+            .iter()
+            .map(|(_, height)| height.to_string().chars().next().unwrap_or(' '))
+            .collect();
         steps.push(Step {
             code_line: 10,
             description: format!("Cleanup stack: height {} extends to end. Width = {} - {} = {}. Area = {}. maxArea = {}.",
@@ -82,7 +104,10 @@ pub fn generate_largest_rectangle_steps(heights: &[i32]) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 11,
-        description: format!("Largest Rectangle in Histogram evaluation complete! Maximum area = {}.", max_area),
+        description: format!(
+            "Largest Rectangle in Histogram evaluation complete! Maximum area = {}.",
+            max_area
+        ),
         visual: VisualState::Stack {
             chars: char_repr,
             active_idx: None,

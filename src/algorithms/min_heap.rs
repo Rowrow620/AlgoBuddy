@@ -1,5 +1,5 @@
-use std::collections::BTreeMap;
 use crate::model::{Step, VisualState};
+use std::collections::BTreeMap;
 
 pub fn generate_min_heap_steps(nums: &[i32], k: usize) -> Vec<Step> {
     let mut steps = Vec::new();
@@ -69,7 +69,10 @@ pub fn generate_min_heap_steps(nums: &[i32], k: usize) -> Vec<Step> {
                 code_line: 8,
                 description: format!(
                     "Pushed {} (count {}) into Min-Heap (heap size {}/{}).",
-                    num, cnt, heap.len(), k
+                    num,
+                    cnt,
+                    heap.len(),
+                    k
                 ),
                 visual: VisualState::TopK {
                     nums: nums.to_vec(),

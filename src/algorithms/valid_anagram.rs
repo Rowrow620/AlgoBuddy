@@ -58,7 +58,10 @@ fn generate_anagram_counter(s: &str, t: &str) -> Vec<Step> {
 
         steps.push(Step {
             code_line: 6,
-            description: format!("Index i={}: countS['{}'] = 1 + countS.get('{}', 0). Updated countS.", i, ch_s, ch_s),
+            description: format!(
+                "Index i={}: countS['{}'] = 1 + countS.get('{}', 0). Updated countS.",
+                i, ch_s, ch_s
+            ),
             visual: VisualState::ValidAnagram {
                 s: s.to_string(),
                 t: t.to_string(),
@@ -77,7 +80,10 @@ fn generate_anagram_counter(s: &str, t: &str) -> Vec<Step> {
 
         steps.push(Step {
             code_line: 7,
-            description: format!("Index i={}: countT['{}'] = 1 + countT.get('{}', 0). Updated countT.", i, ch_t, ch_t),
+            description: format!(
+                "Index i={}: countT['{}'] = 1 + countT.get('{}', 0). Updated countT.",
+                i, ch_t, ch_t
+            ),
             visual: VisualState::ValidAnagram {
                 s: s.to_string(),
                 t: t.to_string(),
@@ -94,9 +100,11 @@ fn generate_anagram_counter(s: &str, t: &str) -> Vec<Step> {
     steps.push(Step {
         code_line: 9,
         description: if matches {
-            "All character frequency counts match! The strings are valid anagrams. Return True.".to_string()
+            "All character frequency counts match! The strings are valid anagrams. Return True."
+                .to_string()
         } else {
-            "Character frequency counts do not match. The strings are not anagrams. Return False.".to_string()
+            "Character frequency counts do not match. The strings are not anagrams. Return False."
+                .to_string()
         },
         visual: VisualState::ValidAnagram {
             s: s.to_string(),
@@ -119,7 +127,11 @@ fn generate_anagram_sorting(s: &str, t: &str) -> Vec<Step> {
     if s.len() != t.len() {
         steps.push(Step {
             code_line: 4,
-            description: format!("Length mismatch: len(s)={} != len(t)={}. Return False.", s.len(), t.len()),
+            description: format!(
+                "Length mismatch: len(s)={} != len(t)={}. Return False.",
+                s.len(),
+                t.len()
+            ),
             visual: VisualState::ValidAnagram {
                 s: s.to_string(),
                 t: t.to_string(),
@@ -138,7 +150,10 @@ fn generate_anagram_sorting(s: &str, t: &str) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 5,
-        description: format!("Original strings: s=\"{}\", t=\"{}\". Sorting characters...", s, t),
+        description: format!(
+            "Original strings: s=\"{}\", t=\"{}\". Sorting characters...",
+            s, t
+        ),
         visual: VisualState::ValidAnagram {
             s: s.to_string(),
             t: t.to_string(),
@@ -159,7 +174,10 @@ fn generate_anagram_sorting(s: &str, t: &str) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 5,
-        description: format!("Sorted strings: s_sorted=\"{}\", t_sorted=\"{}\". Comparing sorted strings...", s_str, t_str),
+        description: format!(
+            "Sorted strings: s_sorted=\"{}\", t_sorted=\"{}\". Comparing sorted strings...",
+            s_str, t_str
+        ),
         visual: VisualState::ValidAnagram {
             s: s_str.clone(),
             t: t_str.clone(),
@@ -174,9 +192,15 @@ fn generate_anagram_sorting(s: &str, t: &str) -> Vec<Step> {
     steps.push(Step {
         code_line: 5,
         description: if is_match {
-            format!("Sorted strings \"{}\" and \"{}\" are identical! Return True.", s_str, t_str)
+            format!(
+                "Sorted strings \"{}\" and \"{}\" are identical! Return True.",
+                s_str, t_str
+            )
         } else {
-            format!("Sorted strings \"{}\" and \"{}\" do not match. Return False.", s_str, t_str)
+            format!(
+                "Sorted strings \"{}\" and \"{}\" do not match. Return False.",
+                s_str, t_str
+            )
         },
         visual: VisualState::ValidAnagram {
             s: s_str,

@@ -1,5 +1,5 @@
-use std::collections::BTreeSet;
 use crate::model::{Step, VisualState};
+use std::collections::BTreeSet;
 
 pub fn generate_happy_number_steps(n: i32) -> Vec<Step> {
     let mut steps = Vec::new();
@@ -31,7 +31,10 @@ pub fn generate_happy_number_steps(n: i32) -> Vec<Step> {
 
         steps.push(Step {
             code_line: 6,
-            description: format!("Sum of squared digits of {} -> {}. Added to seen set.", curr, sum),
+            description: format!(
+                "Sum of squared digits of {} -> {}. Added to seen set.",
+                curr, sum
+            ),
             visual: VisualState::ContainsDuplicate {
                 nums: vec![curr, sum],
                 active_idx: Some(1),
@@ -50,7 +53,10 @@ pub fn generate_happy_number_steps(n: i32) -> Vec<Step> {
         description: if is_happy {
             format!("Reached 1! Number {} is a Happy Number! Return True.", n)
         } else {
-            format!("Infinite cycle detected at {}! Number {} is NOT a Happy Number. Return False.", curr, n)
+            format!(
+                "Infinite cycle detected at {}! Number {} is NOT a Happy Number. Return False.",
+                curr, n
+            )
         },
         visual: VisualState::ContainsDuplicate {
             nums: vec![curr],

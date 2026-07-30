@@ -44,7 +44,7 @@ impl TrieData {
     pub fn insert(&mut self, word: &str, steps: &mut Vec<Step>, line_start: usize) {
         let mut curr = 0;
         self.current_word = word.to_string();
-        
+
         steps.push(Step {
             description: format!("Inserting word '{}' into Trie.", word),
             code_line: line_start,
@@ -76,7 +76,10 @@ impl TrieData {
             curr = next_id;
 
             steps.push(Step {
-                description: format!("Char '{}' at index {}: Navigated to node #{} ('{}').", ch, idx, curr, ch),
+                description: format!(
+                    "Char '{}' at index {}: Navigated to node #{} ('{}').",
+                    ch, idx, curr, ch
+                ),
                 code_line: line_start + 1,
                 visual: VisualState::Trie {
                     words: vec![word.to_string()],
@@ -88,7 +91,10 @@ impl TrieData {
 
         self.nodes[curr].is_end = true;
         steps.push(Step {
-            description: format!("Marked end-of-word on node #{} ('{}') for '{}'.", curr, self.nodes[curr].char_val, word),
+            description: format!(
+                "Marked end-of-word on node #{} ('{}') for '{}'.",
+                curr, self.nodes[curr].char_val, word
+            ),
             code_line: line_start + 2,
             visual: VisualState::Trie {
                 words: vec![word.to_string()],
@@ -98,10 +104,16 @@ impl TrieData {
         });
     }
 
-    pub fn search(&mut self, word: &str, is_prefix: bool, steps: &mut Vec<Step>, line_start: usize) {
+    pub fn search(
+        &mut self,
+        word: &str,
+        is_prefix: bool,
+        steps: &mut Vec<Step>,
+        line_start: usize,
+    ) {
         let mut curr = 0;
         let op_name = if is_prefix { "startsWith" } else { "search" };
-        
+
         steps.push(Step {
             description: format!("Executing {}('{}') on Trie.", op_name, word),
             code_line: line_start,
@@ -116,7 +128,10 @@ impl TrieData {
             if let Some(&child_id) = self.nodes[curr].children.get(&ch) {
                 curr = child_id;
                 steps.push(Step {
-                    description: format!("Char '{}' found at index {}. Advanced to node #{}.", ch, idx, curr),
+                    description: format!(
+                        "Char '{}' found at index {}. Advanced to node #{}.",
+                        ch, idx, curr
+                    ),
                     code_line: line_start + 1,
                     visual: VisualState::Trie {
                         words: vec![word.to_string()],
@@ -126,7 +141,10 @@ impl TrieData {
                 });
             } else {
                 steps.push(Step {
-                    description: format!("Char '{}' NOT found under node #{}. Return False.", ch, curr),
+                    description: format!(
+                        "Char '{}' NOT found under node #{}. Return False.",
+                        ch, curr
+                    ),
                     code_line: line_start + 2,
                     visual: VisualState::Trie {
                         words: vec![word.to_string()],
@@ -138,7 +156,11 @@ impl TrieData {
             }
         }
 
-        let result = if is_prefix { true } else { self.nodes[curr].is_end };
+        let result = if is_prefix {
+            true
+        } else {
+            self.nodes[curr].is_end
+        };
         let res_str = if result { "True" } else { "False" };
         steps.push(Step {
             description: format!("Finished {}('{}'): Return {}.", op_name, word, res_str),
@@ -220,7 +242,10 @@ pub fn generate_word_dictionary_steps(words: &[String], pattern: &str) -> Vec<St
             if matches {
                 found = true;
                 steps.push(Step {
-                    description: format!("Pattern '{}' matched word '{}' in Trie! Return True.", pattern, w),
+                    description: format!(
+                        "Pattern '{}' matched word '{}' in Trie! Return True.",
+                        pattern, w
+                    ),
                     code_line: 16,
                     visual: VisualState::Trie {
                         words: words.to_vec(),
@@ -235,7 +260,10 @@ pub fn generate_word_dictionary_steps(words: &[String], pattern: &str) -> Vec<St
 
     if !found {
         steps.push(Step {
-            description: format!("Pattern '{}' matched no words in Trie. Return False.", pattern),
+            description: format!(
+                "Pattern '{}' matched no words in Trie. Return False.",
+                pattern
+            ),
             code_line: 17,
             visual: VisualState::Trie {
                 words: words.to_vec(),
@@ -267,7 +295,10 @@ pub fn generate_word_search_ii_steps(board_words: &[String]) -> Vec<Step> {
     }
 
     steps.push(Step {
-        description: format!("Exploring 4x4 grid with Trie prefix pruning for words: {:?}", board_words),
+        description: format!(
+            "Exploring 4x4 grid with Trie prefix pruning for words: {:?}",
+            board_words
+        ),
         code_line: 7,
         visual: VisualState::Trie {
             words: board_words.to_vec(),

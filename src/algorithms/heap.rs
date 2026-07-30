@@ -82,7 +82,10 @@ pub fn generate_kth_largest_array_steps(nums: &[i32], k: usize) -> Vec<Step> {
     for i in 1..k {
         let max_val = heap.remove(0);
         steps.push(Step {
-            description: format!("Pop max element #{} = {} from heap -> remaining heap: {:?}", i, max_val, heap),
+            description: format!(
+                "Pop max element #{} = {} from heap -> remaining heap: {:?}",
+                i, max_val, heap
+            ),
             code_line: 4,
             visual: VisualState::HeapVisual {
                 heap_elements: heap.clone(),
@@ -110,13 +113,19 @@ pub fn generate_kth_largest_array_steps(nums: &[i32], k: usize) -> Vec<Step> {
 
 pub fn generate_k_closest_points_steps(points: &[(i32, i32)], k: usize) -> Vec<Step> {
     let mut steps = Vec::new();
-    let mut pts_dist: Vec<((i32, i32), i32)> = points.iter().map(|&(x, y)| ((x, y), x * x + y * y)).collect();
+    let mut pts_dist: Vec<((i32, i32), i32)> = points
+        .iter()
+        .map(|&(x, y)| ((x, y), x * x + y * y))
+        .collect();
     pts_dist.sort_by_key(|&(_, d)| d);
 
     let distances: Vec<i32> = pts_dist.iter().map(|&(_, d)| d).collect();
 
     steps.push(Step {
-        description: format!("Compute squared distances d = x^2 + y^2 for points: {:?}", points),
+        description: format!(
+            "Compute squared distances d = x^2 + y^2 for points: {:?}",
+            points
+        ),
         code_line: 5,
         visual: VisualState::HeapVisual {
             heap_elements: distances.clone(),
@@ -128,7 +137,10 @@ pub fn generate_k_closest_points_steps(points: &[(i32, i32)], k: usize) -> Vec<S
 
     let closest: Vec<(i32, i32)> = pts_dist.iter().take(k).map(|&(pt, _)| pt).collect();
     steps.push(Step {
-        description: format!("Min-Heap extraction: Top {} closest points to origin: {:?}", k, closest),
+        description: format!(
+            "Min-Heap extraction: Top {} closest points to origin: {:?}",
+            k, closest
+        ),
         code_line: 10,
         visual: VisualState::HeapVisual {
             heap_elements: distances.iter().take(k).copied().collect(),
@@ -163,7 +175,9 @@ pub fn generate_task_scheduler_steps(tasks: &[char], _n: usize) -> Vec<Step> {
     });
 
     steps.push(Step {
-        description: format!("Schedule tasks maximizing CPU idle cooling slots: Total intervals computed"),
+        description: format!(
+            "Schedule tasks maximizing CPU idle cooling slots: Total intervals computed"
+        ),
         code_line: 9,
         visual: VisualState::HeapVisual {
             heap_elements: freq_heap,
@@ -182,7 +196,9 @@ pub fn generate_find_median_steps(nums: &[i32]) -> Vec<Step> {
     let mut large_min_heap: Vec<i32> = Vec::new(); // min-heap
 
     steps.push(Step {
-        description: format!("Initialize MedianFinder with empty Small Max-Heap and Large Min-Heap"),
+        description: format!(
+            "Initialize MedianFinder with empty Small Max-Heap and Large Min-Heap"
+        ),
         code_line: 2,
         visual: VisualState::HeapVisual {
             heap_elements: Vec::new(),
@@ -197,7 +213,10 @@ pub fn generate_find_median_steps(nums: &[i32]) -> Vec<Step> {
         small_max_heap.sort_by(|a, b| b.cmp(a));
 
         steps.push(Step {
-            description: format!("addNum({}): Push into Small Max-Heap -> {:?}", num, small_max_heap),
+            description: format!(
+                "addNum({}): Push into Small Max-Heap -> {:?}",
+                num, small_max_heap
+            ),
             code_line: 5,
             visual: VisualState::HeapVisual {
                 heap_elements: small_max_heap.clone(),
@@ -214,7 +233,10 @@ pub fn generate_find_median_steps(nums: &[i32]) -> Vec<Step> {
                 large_min_heap.push(val);
                 large_min_heap.sort();
                 steps.push(Step {
-                    description: format!("Rebalance: Move max_s {} from Small Heap to Large Min-Heap", val),
+                    description: format!(
+                        "Rebalance: Move max_s {} from Small Heap to Large Min-Heap",
+                        val
+                    ),
                     code_line: 7,
                     visual: VisualState::HeapVisual {
                         heap_elements: large_min_heap.clone(),

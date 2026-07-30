@@ -1,5 +1,5 @@
-use std::collections::BTreeMap;
 use crate::model::{Step, VisualState};
+use std::collections::BTreeMap;
 
 pub fn generate_sorting_steps(nums: &[i32], k: usize) -> Vec<Step> {
     let mut steps = Vec::new();

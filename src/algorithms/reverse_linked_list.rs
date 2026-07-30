@@ -27,7 +27,10 @@ pub fn generate_reverse_linked_list_steps(nodes: &[i32]) -> Vec<Step> {
     // 1. Pointer init (code_line 7)
     steps.push(Step {
         code_line: 7,
-        description: format!("Initialized prev = None and curr = index 0 (val={}).", nodes[0]),
+        description: format!(
+            "Initialized prev = None and curr = index 0 (val={}).",
+            nodes[0]
+        ),
         visual: VisualState::LinkedList {
             nodes: nodes_vec.clone(),
             prev_idx: prev,
@@ -44,7 +47,10 @@ pub fn generate_reverse_linked_list_steps(nodes: &[i32]) -> Vec<Step> {
         // Save nxt (code_line 9)
         steps.push(Step {
             code_line: 9,
-            description: format!("Saved next pointer nxt = {:?}.", nxt.map(|i| format!("idx {} (val={})", i, nodes[i]))),
+            description: format!(
+                "Saved next pointer nxt = {:?}.",
+                nxt.map(|i| format!("idx {} (val={})", i, nodes[i]))
+            ),
             visual: VisualState::LinkedList {
                 nodes: nodes_vec.clone(),
                 prev_idx: prev,
@@ -58,7 +64,12 @@ pub fn generate_reverse_linked_list_steps(nodes: &[i32]) -> Vec<Step> {
         reversed_so_far.insert(0, nodes[c_idx]);
         steps.push(Step {
             code_line: 10,
-            description: format!("Reversed link: node[{}] (val={}) now points to prev ({:?}).", c_idx, nodes[c_idx], prev.map(|p| nodes[p])),
+            description: format!(
+                "Reversed link: node[{}] (val={}) now points to prev ({:?}).",
+                c_idx,
+                nodes[c_idx],
+                prev.map(|p| nodes[p])
+            ),
             visual: VisualState::LinkedList {
                 nodes: nodes_vec.clone(),
                 prev_idx: prev,
@@ -72,7 +83,10 @@ pub fn generate_reverse_linked_list_steps(nodes: &[i32]) -> Vec<Step> {
         prev = Some(c_idx);
         steps.push(Step {
             code_line: 11,
-            description: format!("Advanced prev = curr (prev now at node[{}] val={}).", c_idx, nodes[c_idx]),
+            description: format!(
+                "Advanced prev = curr (prev now at node[{}] val={}).",
+                c_idx, nodes[c_idx]
+            ),
             visual: VisualState::LinkedList {
                 nodes: nodes_vec.clone(),
                 prev_idx: prev,
@@ -86,12 +100,23 @@ pub fn generate_reverse_linked_list_steps(nodes: &[i32]) -> Vec<Step> {
         curr = nxt;
         steps.push(Step {
             code_line: 12,
-            description: format!("Advanced curr = nxt ({:?}).", curr.map(|i| format!("idx {} (val={})", i, nodes[i]))),
+            description: format!(
+                "Advanced curr = nxt ({:?}).",
+                curr.map(|i| format!("idx {} (val={})", i, nodes[i]))
+            ),
             visual: VisualState::LinkedList {
                 nodes: nodes_vec.clone(),
                 prev_idx: prev,
                 curr_idx: curr,
-                next_idx: if let Some(ci) = curr { if ci + 1 < n { Some(ci + 1) } else { None } } else { None },
+                next_idx: if let Some(ci) = curr {
+                    if ci + 1 < n {
+                        Some(ci + 1)
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                },
                 reversed_so_far: reversed_so_far.clone(),
             },
         });
@@ -99,7 +124,11 @@ pub fn generate_reverse_linked_list_steps(nodes: &[i32]) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 13,
-        description: format!("Reversal complete! New head is node val={}. Reversed list: {:?}.", reversed_so_far.first().unwrap_or(&0), reversed_so_far),
+        description: format!(
+            "Reversal complete! New head is node val={}. Reversed list: {:?}.",
+            reversed_so_far.first().unwrap_or(&0),
+            reversed_so_far
+        ),
         visual: VisualState::LinkedList {
             nodes: nodes_vec,
             prev_idx: prev,

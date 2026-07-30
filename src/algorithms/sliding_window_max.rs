@@ -5,7 +5,10 @@ pub fn generate_sliding_window_max_steps(nums: &[i32], k: usize) -> Vec<Step> {
     let mut steps = Vec::new();
     let n = nums.len();
 
-    let char_repr: Vec<char> = nums.iter().map(|n| n.to_string().chars().next().unwrap_or(' ')).collect();
+    let char_repr: Vec<char> = nums
+        .iter()
+        .map(|n| n.to_string().chars().next().unwrap_or(' '))
+        .collect();
 
     if n == 0 || k == 0 {
         steps.push(Step {
@@ -27,7 +30,10 @@ pub fn generate_sliding_window_max_steps(nums: &[i32], k: usize) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 3,
-        description: format!("Sliding Window Maximum for nums = {:?}, window size k = {}.", nums, k),
+        description: format!(
+            "Sliding Window Maximum for nums = {:?}, window size k = {}.",
+            nums, k
+        ),
         visual: VisualState::TwoPointers {
             chars: char_repr.clone(),
             left: 0,

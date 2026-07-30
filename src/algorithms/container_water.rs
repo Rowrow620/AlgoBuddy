@@ -3,7 +3,8 @@ use crate::model::{Step, VisualState};
 pub fn generate_container_water_steps(height: &[i32]) -> Vec<Step> {
     let mut steps = Vec::new();
 
-    let char_repr: Vec<char> = height.iter()
+    let char_repr: Vec<char> = height
+        .iter()
         .map(|n| n.to_string())
         .collect::<Vec<_>>()
         .join(",")
@@ -16,7 +17,10 @@ pub fn generate_container_water_steps(height: &[i32]) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 3,
-        description: format!("Container With Most Water: height = {:?}. l=0, r={}.", height, r),
+        description: format!(
+            "Container With Most Water: height = {:?}. l=0, r={}.",
+            height, r
+        ),
         visual: VisualState::TwoPointers {
             chars: char_repr.clone(),
             left: 0,
@@ -30,12 +34,16 @@ pub fn generate_container_water_steps(height: &[i32]) -> Vec<Step> {
         let width = (r - l) as i32;
         let h = height[l].min(height[r]);
         let area = width * h;
-        if area > max_area { max_area = area; }
+        if area > max_area {
+            max_area = area;
+        }
 
         steps.push(Step {
             code_line: 5,
-            description: format!("l={}, r={}: min(h[{}]={}, h[{}]={}) * width {} = {} * {} = {}. maxArea = {}.",
-                l, r, l, height[l], r, height[r], width, h, width, area, max_area),
+            description: format!(
+                "l={}, r={}: min(h[{}]={}, h[{}]={}) * width {} = {} * {} = {}. maxArea = {}.",
+                l, r, l, height[l], r, height[r], width, h, width, area, max_area
+            ),
             visual: VisualState::TwoPointers {
                 chars: char_repr.clone(),
                 left: l,
@@ -48,8 +56,14 @@ pub fn generate_container_water_steps(height: &[i32]) -> Vec<Step> {
         if height[l] < height[r] {
             steps.push(Step {
                 code_line: 7,
-                description: format!("height[{}]={} < height[{}]={}. Move left pointer right: l={}.",
-                    l, height[l], r, height[r], l + 1),
+                description: format!(
+                    "height[{}]={} < height[{}]={}. Move left pointer right: l={}.",
+                    l,
+                    height[l],
+                    r,
+                    height[r],
+                    l + 1
+                ),
                 visual: VisualState::TwoPointers {
                     chars: char_repr.clone(),
                     left: l + 1,
@@ -62,8 +76,14 @@ pub fn generate_container_water_steps(height: &[i32]) -> Vec<Step> {
         } else {
             steps.push(Step {
                 code_line: 8,
-                description: format!("height[{}]={} >= height[{}]={}. Move right pointer left: r={}.",
-                    l, height[l], r, height[r], r - 1),
+                description: format!(
+                    "height[{}]={} >= height[{}]={}. Move right pointer left: r={}.",
+                    l,
+                    height[l],
+                    r,
+                    height[r],
+                    r - 1
+                ),
                 visual: VisualState::TwoPointers {
                     chars: char_repr.clone(),
                     left: l,
@@ -75,7 +95,9 @@ pub fn generate_container_water_steps(height: &[i32]) -> Vec<Step> {
             r -= 1;
         }
 
-        if steps.len() > 150 { break; }
+        if steps.len() > 150 {
+            break;
+        }
     }
 
     steps.push(Step {

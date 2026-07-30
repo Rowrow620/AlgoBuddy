@@ -79,7 +79,12 @@ pub fn generate_find_median_sorted_arrays_steps(nums1: &[i32], nums2: &[i32]) ->
         } else if a_left > b_right {
             steps.push(Step {
                 code_line: 12,
-                description: format!("A_left ({}) > B_right ({}) -> Too many elements from A. Move r to {}.", a_left, b_right, i - 1),
+                description: format!(
+                    "A_left ({}) > B_right ({}) -> Too many elements from A. Move r to {}.",
+                    a_left,
+                    b_right,
+                    i - 1
+                ),
                 visual: VisualState::BinarySearch {
                     nums: a.clone(),
                     target: 0,
@@ -93,7 +98,12 @@ pub fn generate_find_median_sorted_arrays_steps(nums1: &[i32], nums2: &[i32]) ->
         } else {
             steps.push(Step {
                 code_line: 14,
-                description: format!("B_left ({}) > A_right ({}) -> Too few elements from A. Move l to {}.", b_left, a_right, i + 1),
+                description: format!(
+                    "B_left ({}) > A_right ({}) -> Too few elements from A. Move l to {}.",
+                    b_left,
+                    a_right,
+                    i + 1
+                ),
                 visual: VisualState::BinarySearch {
                     nums: a.clone(),
                     target: 0,

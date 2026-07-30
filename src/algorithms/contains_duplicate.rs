@@ -1,5 +1,5 @@
-use std::collections::BTreeSet;
 use crate::model::{Step, VisualState};
+use std::collections::BTreeSet;
 
 pub fn generate_contains_duplicate_steps(nums: &[i32], approach_id: usize) -> Vec<Step> {
     let mut steps = Vec::new();
@@ -24,7 +24,10 @@ pub fn generate_contains_duplicate_steps(nums: &[i32], approach_id: usize) -> Ve
         for (i, &num) in nums.iter().enumerate() {
             steps.push(Step {
                 code_line: 5,
-                description: format!("Checking element nums[{}] = {}. Is {} in seen set?", i, num, num),
+                description: format!(
+                    "Checking element nums[{}] = {}. Is {} in seen set?",
+                    i, num, num
+                ),
                 visual: VisualState::ContainsDuplicate {
                     nums: num_vec.clone(),
                     active_idx: Some(i),
@@ -37,7 +40,10 @@ pub fn generate_contains_duplicate_steps(nums: &[i32], approach_id: usize) -> Ve
             if seen.contains(&num) {
                 steps.push(Step {
                     code_line: 6,
-                    description: format!("Duplicate found! Element {} is already in `seen` set. Return True.", num),
+                    description: format!(
+                        "Duplicate found! Element {} is already in `seen` set. Return True.",
+                        num
+                    ),
                     visual: VisualState::ContainsDuplicate {
                         nums: num_vec.clone(),
                         active_idx: Some(i),
@@ -65,7 +71,8 @@ pub fn generate_contains_duplicate_steps(nums: &[i32], approach_id: usize) -> Ve
 
         steps.push(Step {
             code_line: 8,
-            description: "Scanned entire array. All elements are distinct. Return False.".to_string(),
+            description: "Scanned entire array. All elements are distinct. Return False."
+                .to_string(),
             visual: VisualState::ContainsDuplicate {
                 nums: num_vec,
                 active_idx: None,
@@ -97,7 +104,13 @@ pub fn generate_contains_duplicate_steps(nums: &[i32], approach_id: usize) -> Ve
 
             steps.push(Step {
                 code_line: 5,
-                description: format!("Comparing adjacent elements: sorted[{}] = {} vs sorted[{}] = {}.", i - 1, prev, i, curr),
+                description: format!(
+                    "Comparing adjacent elements: sorted[{}] = {} vs sorted[{}] = {}.",
+                    i - 1,
+                    prev,
+                    i,
+                    curr
+                ),
                 visual: VisualState::ContainsDuplicate {
                     nums: sorted.clone(),
                     active_idx: Some(i),
@@ -110,7 +123,10 @@ pub fn generate_contains_duplicate_steps(nums: &[i32], approach_id: usize) -> Ve
             if prev == curr {
                 steps.push(Step {
                     code_line: 6,
-                    description: format!("Duplicate adjacent values equal! {} == {}. Return True.", prev, curr),
+                    description: format!(
+                        "Duplicate adjacent values equal! {} == {}. Return True.",
+                        prev, curr
+                    ),
                     visual: VisualState::ContainsDuplicate {
                         nums: sorted,
                         active_idx: Some(i),

@@ -4,7 +4,8 @@ pub fn generate_trapping_rain_steps(height: &[i32]) -> Vec<Step> {
     let mut steps = Vec::new();
     let n = height.len();
 
-    let char_repr: Vec<char> = height.iter()
+    let char_repr: Vec<char> = height
+        .iter()
         .map(|n| n.to_string())
         .collect::<Vec<_>>()
         .join(",")
@@ -14,7 +15,10 @@ pub fn generate_trapping_rain_steps(height: &[i32]) -> Vec<Step> {
     if n < 3 {
         steps.push(Step {
             code_line: 3,
-            description: format!("Height array {:?} has fewer than 3 bars. No water can be trapped. Return 0.", height),
+            description: format!(
+                "Height array {:?} has fewer than 3 bars. No water can be trapped. Return 0.",
+                height
+            ),
             visual: VisualState::TwoPointers {
                 chars: char_repr,
                 left: 0,
@@ -34,8 +38,10 @@ pub fn generate_trapping_rain_steps(height: &[i32]) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 3,
-        description: format!("Trapping Rain Water: height = {:?}. l=0 (leftMax={}), r={} (rightMax={}).",
-            height, left_max, r, right_max),
+        description: format!(
+            "Trapping Rain Water: height = {:?}. l=0 (leftMax={}), r={} (rightMax={}).",
+            height, left_max, r, right_max
+        ),
         visual: VisualState::TwoPointers {
             chars: char_repr.clone(),
             left: 0,
@@ -84,12 +90,17 @@ pub fn generate_trapping_rain_steps(height: &[i32]) -> Vec<Step> {
             });
         }
 
-        if steps.len() > 150 { break; }
+        if steps.len() > 150 {
+            break;
+        }
     }
 
     steps.push(Step {
         code_line: 9,
-        description: format!("Pointers crossed. Total trapped water = {} units.", total_water),
+        description: format!(
+            "Pointers crossed. Total trapped water = {} units.",
+            total_water
+        ),
         visual: VisualState::TwoPointers {
             chars: char_repr,
             left: l,

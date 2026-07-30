@@ -57,7 +57,10 @@ pub fn generate_valid_parentheses_steps(s: &str) -> Vec<Step> {
             } else {
                 steps.push(Step {
                     code_line: 10,
-                    description: format!("Index {}: closing bracket '{}' found, but stack is empty! Return False.", i, c),
+                    description: format!(
+                        "Index {}: closing bracket '{}' found, but stack is empty! Return False.",
+                        i, c
+                    ),
                     visual: VisualState::Stack {
                         chars: chars.clone(),
                         active_idx: Some(i),
@@ -90,7 +93,10 @@ pub fn generate_valid_parentheses_steps(s: &str) -> Vec<Step> {
         description: if is_valid {
             "All brackets matched and stack is empty. Return True.".to_string()
         } else {
-            format!("String ended but stack still contains unclosed brackets {:?}. Return False.", stack)
+            format!(
+                "String ended but stack still contains unclosed brackets {:?}. Return False.",
+                stack
+            )
         },
         visual: VisualState::Stack {
             chars: chars.clone(),

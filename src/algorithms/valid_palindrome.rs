@@ -32,7 +32,10 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 3,
-        description: format!("Initialized left pointer l=0 ('{}') and right pointer r={} ('{}').", chars[l], r, chars[r]),
+        description: format!(
+            "Initialized left pointer l=0 ('{}') and right pointer r={} ('{}').",
+            chars[l], r, chars[r]
+        ),
         visual: VisualState::TwoPointers {
             chars: chars.clone(),
             left: l,
@@ -49,7 +52,10 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
             l += 1;
             steps.push(Step {
                 code_line: 6,
-                description: format!("Skipped non-alphanumeric character at left. Moved l to index {}.", l),
+                description: format!(
+                    "Skipped non-alphanumeric character at left. Moved l to index {}.",
+                    l
+                ),
                 visual: VisualState::TwoPointers {
                     chars: chars.clone(),
                     left: l,
@@ -66,7 +72,10 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
             r -= 1;
             steps.push(Step {
                 code_line: 8,
-                description: format!("Skipped non-alphanumeric character at right. Moved r to index {}.", r),
+                description: format!(
+                    "Skipped non-alphanumeric character at right. Moved r to index {}.",
+                    r
+                ),
                 visual: VisualState::TwoPointers {
                     chars: chars.clone(),
                     left: l,
@@ -87,7 +96,10 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
         if char_l != char_r {
             steps.push(Step {
                 code_line: 10,
-                description: format!("Mismatch detected: s[{}]='{}' != s[{}]='{}'. Return False.", l, chars[l], r, chars[r]),
+                description: format!(
+                    "Mismatch detected: s[{}]='{}' != s[{}]='{}'. Return False.",
+                    l, chars[l], r, chars[r]
+                ),
                 visual: VisualState::TwoPointers {
                     chars: chars.clone(),
                     left: l,
@@ -101,7 +113,10 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
 
         steps.push(Step {
             code_line: 9,
-            description: format!("Match: s[{}]='{}' == s[{}]='{}'. Moving pointers inward.", l, chars[l], r, chars[r]),
+            description: format!(
+                "Match: s[{}]='{}' == s[{}]='{}'. Moving pointers inward.",
+                l, chars[l], r, chars[r]
+            ),
             visual: VisualState::TwoPointers {
                 chars: chars.clone(),
                 left: l,
@@ -112,12 +127,15 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
         });
 
         l += 1;
-        if r > 0 { r -= 1; }
+        if r > 0 {
+            r -= 1;
+        }
     }
 
     steps.push(Step {
         code_line: 12,
-        description: "Pointers met/crossed. All alphanumeric characters matched! Return True.".to_string(),
+        description: "Pointers met/crossed. All alphanumeric characters matched! Return True."
+            .to_string(),
         visual: VisualState::TwoPointers {
             chars: chars.clone(),
             left: l,
@@ -136,7 +154,8 @@ fn generate_palindrome_reverse(s: &str) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 3,
-        description: "Initialized newStr = \"\" for collecting lowercase alphanumeric characters.".to_string(),
+        description: "Initialized newStr = \"\" for collecting lowercase alphanumeric characters."
+            .to_string(),
         visual: VisualState::TwoPointers {
             chars: original_chars.clone(),
             left: 0,
@@ -154,7 +173,10 @@ fn generate_palindrome_reverse(s: &str) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 6,
-        description: format!("Filtered non-alphanumeric characters. Filtered newStr: \"{}\".", filtered_chars.iter().collect::<String>()),
+        description: format!(
+            "Filtered non-alphanumeric characters. Filtered newStr: \"{}\".",
+            filtered_chars.iter().collect::<String>()
+        ),
         visual: VisualState::TwoPointers {
             chars: filtered_chars.clone(),
             left: 0,

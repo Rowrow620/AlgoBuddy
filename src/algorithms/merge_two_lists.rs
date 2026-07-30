@@ -63,7 +63,10 @@ pub fn generate_merge_two_lists_steps(list1: &[i32], list2: &[i32]) -> Vec<Step>
         merged.push(list1[i]);
         steps.push(Step {
             code_line: 11,
-            description: format!("Attached remaining node val={} from list1 to tail.", list1[i]),
+            description: format!(
+                "Attached remaining node val={} from list1 to tail.",
+                list1[i]
+            ),
             visual: VisualState::MergeLinkedLists {
                 list1: l1_vec.clone(),
                 list2: l2_vec.clone(),
@@ -79,7 +82,10 @@ pub fn generate_merge_two_lists_steps(list1: &[i32], list2: &[i32]) -> Vec<Step>
         merged.push(list2[j]);
         steps.push(Step {
             code_line: 11,
-            description: format!("Attached remaining node val={} from list2 to tail.", list2[j]),
+            description: format!(
+                "Attached remaining node val={} from list2 to tail.",
+                list2[j]
+            ),
             visual: VisualState::MergeLinkedLists {
                 list1: l1_vec.clone(),
                 list2: l2_vec.clone(),
@@ -93,7 +99,10 @@ pub fn generate_merge_two_lists_steps(list1: &[i32], list2: &[i32]) -> Vec<Step>
 
     steps.push(Step {
         code_line: 12,
-        description: format!("Merged lists complete. Returned merged sorted head. Output: {:?}.", merged),
+        description: format!(
+            "Merged lists complete. Returned merged sorted head. Output: {:?}.",
+            merged
+        ),
         visual: VisualState::MergeLinkedLists {
             list1: l1_vec,
             list2: l2_vec,

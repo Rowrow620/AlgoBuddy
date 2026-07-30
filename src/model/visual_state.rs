@@ -206,7 +206,13 @@ pub enum VisualState {
 impl VisualState {
     pub fn variables(&self) -> Vec<(&'static str, String)> {
         match self {
-            VisualState::ContainsDuplicate { active_idx, duplicate_val, has_duplicate, seen_set, nums } => {
+            VisualState::ContainsDuplicate {
+                active_idx,
+                duplicate_val,
+                has_duplicate,
+                seen_set,
+                nums,
+            } => {
                 let mut vars = Vec::new();
                 if let Some(i) = active_idx {
                     vars.push(("i", i.to_string()));
@@ -223,7 +229,14 @@ impl VisualState {
                 }
                 vars
             }
-            VisualState::TwoSum { active_idx, secondary_idx, map, found_indices, nums, target } => {
+            VisualState::TwoSum {
+                active_idx,
+                secondary_idx,
+                map,
+                found_indices,
+                nums,
+                target,
+            } => {
                 let mut vars = Vec::new();
                 vars.push(("target", target.to_string()));
                 if let Some(i) = active_idx {
@@ -242,7 +255,13 @@ impl VisualState {
                 }
                 vars
             }
-            VisualState::ValidAnagram { s, t, active_s_idx, is_anagram, .. } => {
+            VisualState::ValidAnagram {
+                s,
+                t,
+                active_s_idx,
+                is_anagram,
+                ..
+            } => {
                 let mut vars = Vec::new();
                 vars.push(("s", s.clone()));
                 vars.push(("t", t.clone()));
@@ -262,7 +281,12 @@ impl VisualState {
                 }
                 vars
             }
-            VisualState::GroupAnagrams { active_idx, key_fmt, groups, input_strs } => {
+            VisualState::GroupAnagrams {
+                active_idx,
+                key_fmt,
+                groups,
+                input_strs,
+            } => {
                 let mut vars = Vec::new();
                 if let Some(i) = active_idx {
                     vars.push(("i", i.to_string()));
@@ -276,7 +300,14 @@ impl VisualState {
                 vars.push(("groups_count", groups.len().to_string()));
                 vars
             }
-            VisualState::TopK { active_nums_idx, count_map, active_bucket_idx, result, nums, .. } => {
+            VisualState::TopK {
+                active_nums_idx,
+                count_map,
+                active_bucket_idx,
+                result,
+                nums,
+                ..
+            } => {
                 let mut vars = Vec::new();
                 if let Some(i) = active_nums_idx {
                     vars.push(("i", i.to_string()));
@@ -291,7 +322,14 @@ impl VisualState {
                 vars.push(("result", format!("{:?}", result)));
                 vars
             }
-            VisualState::EncodeDecode { pointer, encoded_so_far, decoded_so_far, input_strs, active_str_idx, .. } => {
+            VisualState::EncodeDecode {
+                pointer,
+                encoded_so_far,
+                decoded_so_far,
+                input_strs,
+                active_str_idx,
+                ..
+            } => {
                 let mut vars = Vec::new();
                 if let Some(i) = active_str_idx {
                     vars.push(("i", i.to_string()));
@@ -304,7 +342,14 @@ impl VisualState {
                 vars.push(("decoded", format!("{:?}", decoded_so_far)));
                 vars
             }
-            VisualState::Product { active_idx, prefix_val, suffix_val, output, nums, .. } => {
+            VisualState::Product {
+                active_idx,
+                prefix_val,
+                suffix_val,
+                output,
+                nums,
+                ..
+            } => {
                 let mut vars = Vec::new();
                 if let Some(i) = active_idx {
                     vars.push(("i", i.to_string()));
@@ -317,76 +362,156 @@ impl VisualState {
                 vars.push(("output", format!("{:?}", output)));
                 vars
             }
-            VisualState::ValidSudoku { active_r, active_c, is_valid, duplicate_pos, .. } => {
+            VisualState::ValidSudoku {
+                active_r,
+                active_c,
+                is_valid,
+                duplicate_pos,
+                ..
+            } => {
                 let mut vars = Vec::new();
-                if let Some(r) = active_r { vars.push(("row", r.to_string())); }
-                if let Some(c) = active_c { vars.push(("col", c.to_string())); }
-                if let Some(pos) = duplicate_pos { vars.push(("dup_pos", format!("({},{})", pos.0, pos.1))); }
-                if let Some(v) = is_valid { vars.push(("is_valid", v.to_string())); }
+                if let Some(r) = active_r {
+                    vars.push(("row", r.to_string()));
+                }
+                if let Some(c) = active_c {
+                    vars.push(("col", c.to_string()));
+                }
+                if let Some(pos) = duplicate_pos {
+                    vars.push(("dup_pos", format!("({},{})", pos.0, pos.1)));
+                }
+                if let Some(v) = is_valid {
+                    vars.push(("is_valid", v.to_string()));
+                }
                 vars
             }
-            VisualState::LongestConsecutive { num_set, current_num, current_seq, max_length, .. } => {
+            VisualState::LongestConsecutive {
+                num_set,
+                current_num,
+                current_seq,
+                max_length,
+                ..
+            } => {
                 let mut vars = Vec::new();
                 vars.push(("numSet", crate::utils::format_python_set(num_set)));
-                if let Some(n) = current_num { vars.push(("num", n.to_string())); }
+                if let Some(n) = current_num {
+                    vars.push(("num", n.to_string()));
+                }
                 vars.push(("curr_streak", current_seq.len().to_string()));
                 vars.push(("max_streak", max_length.to_string()));
                 vars
             }
-            VisualState::TwoPointers { left, right, is_valid, .. } => {
+            VisualState::TwoPointers {
+                left,
+                right,
+                is_valid,
+                ..
+            } => {
                 let mut vars = Vec::new();
                 vars.push(("left", left.to_string()));
                 vars.push(("right", right.to_string()));
-                if let Some(v) = is_valid { vars.push(("is_valid", v.to_string())); }
+                if let Some(v) = is_valid {
+                    vars.push(("is_valid", v.to_string()));
+                }
                 vars
             }
-            VisualState::Stack { active_idx, stack, is_valid, chars } => {
+            VisualState::Stack {
+                active_idx,
+                stack,
+                is_valid,
+                chars,
+            } => {
                 let mut vars = Vec::new();
                 if let Some(i) = active_idx {
                     vars.push(("i", i.to_string()));
-                    if let Some(ch) = chars.get(*i) { vars.push(("char", ch.to_string())); }
+                    if let Some(ch) = chars.get(*i) {
+                        vars.push(("char", ch.to_string()));
+                    }
                 }
                 vars.push(("stack", format!("{:?}", stack)));
-                if let Some(v) = is_valid { vars.push(("is_valid", v.to_string())); }
+                if let Some(v) = is_valid {
+                    vars.push(("is_valid", v.to_string()));
+                }
                 vars
             }
-            VisualState::BestTimeStock { left_buy, right_sell, current_profit, max_profit, prices } => {
+            VisualState::BestTimeStock {
+                left_buy,
+                right_sell,
+                current_profit,
+                max_profit,
+                prices,
+            } => {
                 let mut vars = Vec::new();
                 vars.push(("buy_day (l)", left_buy.to_string()));
                 vars.push(("sell_day (r)", right_sell.to_string()));
-                if let Some(p) = prices.get(*left_buy) { vars.push(("buy_price", format!("${}", p))); }
-                if let Some(p) = prices.get(*right_sell) { vars.push(("sell_price", format!("${}", p))); }
+                if let Some(p) = prices.get(*left_buy) {
+                    vars.push(("buy_price", format!("${}", p)));
+                }
+                if let Some(p) = prices.get(*right_sell) {
+                    vars.push(("sell_price", format!("${}", p)));
+                }
                 vars.push(("current_profit", format!("${}", current_profit)));
                 vars.push(("max_profit", format!("${}", max_profit)));
                 vars
             }
-            VisualState::BinarySearch { left, right, mid, found_idx, target, nums } => {
+            VisualState::BinarySearch {
+                left,
+                right,
+                mid,
+                found_idx,
+                target,
+                nums,
+            } => {
                 let mut vars = Vec::new();
                 vars.push(("target", target.to_string()));
                 vars.push(("left", left.to_string()));
                 vars.push(("right", right.to_string()));
                 if let Some(m) = mid {
                     vars.push(("mid", m.to_string()));
-                    if let Some(val) = nums.get(*m) { vars.push(("nums[mid]", val.to_string())); }
+                    if let Some(val) = nums.get(*m) {
+                        vars.push(("nums[mid]", val.to_string()));
+                    }
                 }
-                if let Some(f) = found_idx { vars.push(("found_at", f.to_string())); }
+                if let Some(f) = found_idx {
+                    vars.push(("found_at", f.to_string()));
+                }
                 vars
             }
-            VisualState::LinkedList { curr_idx, prev_idx, next_idx, reversed_so_far, nodes } => {
+            VisualState::LinkedList {
+                curr_idx,
+                prev_idx,
+                next_idx,
+                reversed_so_far,
+                nodes,
+            } => {
                 let mut vars = Vec::new();
                 if let Some(i) = curr_idx {
-                    vars.push(("curr", format!("node[{}]={}", i, nodes.get(*i).unwrap_or(&0))));
+                    vars.push((
+                        "curr",
+                        format!("node[{}]={}", i, nodes.get(*i).unwrap_or(&0)),
+                    ));
                 }
                 if let Some(p) = prev_idx {
-                    vars.push(("prev", format!("node[{}]={}", p, nodes.get(*p).unwrap_or(&0))));
+                    vars.push((
+                        "prev",
+                        format!("node[{}]={}", p, nodes.get(*p).unwrap_or(&0)),
+                    ));
                 }
                 if let Some(n) = next_idx {
-                    vars.push(("next", format!("node[{}]={}", n, nodes.get(*n).unwrap_or(&0))));
+                    vars.push((
+                        "next",
+                        format!("node[{}]={}", n, nodes.get(*n).unwrap_or(&0)),
+                    ));
                 }
                 vars.push(("reversed_list", format!("{:?}", reversed_so_far)));
                 vars
             }
-            VisualState::MergeLinkedLists { p1_idx, p2_idx, merged_so_far, list1, list2 } => {
+            VisualState::MergeLinkedLists {
+                p1_idx,
+                p2_idx,
+                merged_so_far,
+                list1,
+                list2,
+            } => {
                 let mut vars = Vec::new();
                 if let Some(i) = p1_idx {
                     vars.push(("list1_curr", format!("val={}", list1.get(*i).unwrap_or(&0))));
@@ -397,29 +522,58 @@ impl VisualState {
                 vars.push(("merged_list", format!("{:?}", merged_so_far)));
                 vars
             }
-            VisualState::LinkedListCycle { slow_idx, fast_idx, has_cycle, nodes, .. } => {
+            VisualState::LinkedListCycle {
+                slow_idx,
+                fast_idx,
+                has_cycle,
+                nodes,
+                ..
+            } => {
                 let mut vars = Vec::new();
                 if let Some(s) = slow_idx {
-                    vars.push(("slow_ptr", format!("idx={} (val={})", s, nodes.get(*s).unwrap_or(&0))));
+                    vars.push((
+                        "slow_ptr",
+                        format!("idx={} (val={})", s, nodes.get(*s).unwrap_or(&0)),
+                    ));
                 }
                 if let Some(f) = fast_idx {
-                    vars.push(("fast_ptr", format!("idx={} (val={})", f, nodes.get(*f).unwrap_or(&0))));
+                    vars.push((
+                        "fast_ptr",
+                        format!("idx={} (val={})", f, nodes.get(*f).unwrap_or(&0)),
+                    ));
                 }
-                if let Some(c) = has_cycle { vars.push(("has_cycle", c.to_string())); }
+                if let Some(c) = has_cycle {
+                    vars.push(("has_cycle", c.to_string()));
+                }
                 vars
             }
-            VisualState::TreeVisual { active_node_idx, depth_val, max_diameter, tree_nodes, .. } => {
+            VisualState::TreeVisual {
+                active_node_idx,
+                depth_val,
+                max_diameter,
+                tree_nodes,
+                ..
+            } => {
                 let mut vars = Vec::new();
                 if let Some(idx) = active_node_idx {
                     if let Some(Some(val)) = tree_nodes.get(*idx) {
                         vars.push(("curr_node", format!("val={} (idx={})", val, idx)));
                     }
                 }
-                if let Some(d) = depth_val { vars.push(("depth", d.to_string())); }
-                if let Some(diam) = max_diameter { vars.push(("max_diameter", diam.to_string())); }
+                if let Some(d) = depth_val {
+                    vars.push(("depth", d.to_string()));
+                }
+                if let Some(diam) = max_diameter {
+                    vars.push(("max_diameter", diam.to_string()));
+                }
                 vars
             }
-            VisualState::HeapVisual { heap_elements, active_idx, swapped_pair, heap_type_label } => {
+            VisualState::HeapVisual {
+                heap_elements,
+                active_idx,
+                swapped_pair,
+                heap_type_label,
+            } => {
                 let mut vars = Vec::new();
                 vars.push(("heap_type", heap_type_label.clone()));
                 vars.push(("heap_size", heap_elements.len().to_string()));
@@ -434,14 +588,26 @@ impl VisualState {
                 vars.push(("array_rep", format!("{:?}", heap_elements)));
                 vars
             }
-            VisualState::DecisionTreeVisual { current_path, active_choice, completed_results } => {
+            VisualState::DecisionTreeVisual {
+                current_path,
+                active_choice,
+                completed_results,
+            } => {
                 let mut vars = Vec::new();
                 vars.push(("current_path", format!("{:?}", current_path)));
-                if let Some(c) = active_choice { vars.push(("active_choice", c.clone())); }
+                if let Some(c) = active_choice {
+                    vars.push(("active_choice", c.clone()));
+                }
                 vars.push(("total_subsets", completed_results.len().to_string()));
                 vars
             }
-            VisualState::GridGraph { active_cell, visited_cells, frontier_cells, message, .. } => {
+            VisualState::GridGraph {
+                active_cell,
+                visited_cells,
+                frontier_cells,
+                message,
+                ..
+            } => {
                 let mut vars = Vec::new();
                 if let Some((r, c)) = active_cell {
                     vars.push(("curr_cell", format!("({}, {})", r, c)));
@@ -453,7 +619,14 @@ impl VisualState {
                 }
                 vars
             }
-            VisualState::NodeGraph { active_node, active_edge, visited_nodes, topo_order, message, .. } => {
+            VisualState::NodeGraph {
+                active_node,
+                active_edge,
+                visited_nodes,
+                topo_order,
+                message,
+                ..
+            } => {
                 let mut vars = Vec::new();
                 if let Some(n) = active_node {
                     vars.push(("active_node", n.to_string()));
@@ -470,7 +643,11 @@ impl VisualState {
                 }
                 vars
             }
-            VisualState::Trie { current_word, active_char_idx, words } => {
+            VisualState::Trie {
+                current_word,
+                active_char_idx,
+                words,
+            } => {
                 let mut vars = Vec::new();
                 vars.push(("dictionary_words", format!("{:?}", words)));
                 vars.push(("inserting_word", current_word.clone()));
@@ -481,7 +658,14 @@ impl VisualState {
                 }
                 vars
             }
-            VisualState::Array1D { active_idx, secondary_idx, elements, pointers, status_message, .. } => {
+            VisualState::Array1D {
+                active_idx,
+                secondary_idx,
+                elements,
+                pointers,
+                status_message,
+                ..
+            } => {
                 let mut vars = Vec::new();
                 if let Some(i) = active_idx {
                     vars.push(("idx", i.to_string()));

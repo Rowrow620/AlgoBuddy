@@ -25,7 +25,10 @@ pub fn generate_house_robber_steps(nums: &[i32]) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 3,
-        description: format!("House Robber DP for house values: {:?}. Initialize rob1=0, rob2=0.", nums),
+        description: format!(
+            "House Robber DP for house values: {:?}. Initialize rob1=0, rob2=0.",
+            nums
+        ),
         visual: VisualState::ContainsDuplicate {
             nums: nums.to_vec(),
             active_idx: None,
@@ -57,7 +60,10 @@ pub fn generate_house_robber_steps(nums: &[i32]) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 8,
-        description: format!("Dynamic Programming traversal complete! Maximum loot = {}.", rob2),
+        description: format!(
+            "Dynamic Programming traversal complete! Maximum loot = {}.",
+            rob2
+        ),
         visual: VisualState::ContainsDuplicate {
             nums: dp,
             active_idx: Some(n - 1),

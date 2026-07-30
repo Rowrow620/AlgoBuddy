@@ -8,7 +8,10 @@ pub fn generate_permutation_in_string_steps(s1: &str, s2: &str) -> Vec<Step> {
     if s1_chars.len() > s2_chars.len() {
         steps.push(Step {
             code_line: 3,
-            description: format!("s1 (\"{}\") is longer than s2 (\"{}\"). Permutation impossible. Return False.", s1, s2),
+            description: format!(
+                "s1 (\"{}\") is longer than s2 (\"{}\"). Permutation impossible. Return False.",
+                s1, s2
+            ),
             visual: VisualState::TwoPointers {
                 chars: s2_chars,
                 left: 0,
@@ -30,7 +33,12 @@ pub fn generate_permutation_in_string_steps(s1: &str, s2: &str) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 3,
-        description: format!("Permutation in String: s1=\"{}\", s2=\"{}\". Initial window len = {}.", s1, s2, s1_chars.len()),
+        description: format!(
+            "Permutation in String: s1=\"{}\", s2=\"{}\". Initial window len = {}.",
+            s1,
+            s2,
+            s1_chars.len()
+        ),
         visual: VisualState::TwoPointers {
             chars: s2_chars.clone(),
             left: 0,
@@ -42,7 +50,9 @@ pub fn generate_permutation_in_string_steps(s1: &str, s2: &str) -> Vec<Step> {
 
     let mut matches = 0usize;
     for i in 0..26 {
-        if s1_count[i] == s2_count[i] { matches += 1; }
+        if s1_count[i] == s2_count[i] {
+            matches += 1;
+        }
     }
 
     let mut l = 0usize;
@@ -83,8 +93,13 @@ pub fn generate_permutation_in_string_steps(s1: &str, s2: &str) -> Vec<Step> {
 
         steps.push(Step {
             code_line: 8,
-            description: format!("Slide window to [{}..={}]: \"{}\". Matches = {} / 26.",
-                l, r, s2_chars[l..=r].iter().collect::<String>(), matches),
+            description: format!(
+                "Slide window to [{}..={}]: \"{}\". Matches = {} / 26.",
+                l,
+                r,
+                s2_chars[l..=r].iter().collect::<String>(),
+                matches
+            ),
             visual: VisualState::TwoPointers {
                 chars: s2_chars.clone(),
                 left: l,

@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use crate::model::{Step, VisualState};
+use std::collections::HashSet;
 
 pub fn generate_valid_sudoku_steps(board: &[[char; 9]; 9]) -> Vec<Step> {
     let mut steps = Vec::new();
@@ -9,7 +9,8 @@ pub fn generate_valid_sudoku_steps(board: &[[char; 9]; 9]) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 5,
-        description: "Initialized HashSets for 9 rows, 9 columns, and 9 (3x3) sub-boxes.".to_string(),
+        description: "Initialized HashSets for 9 rows, 9 columns, and 9 (3x3) sub-boxes."
+            .to_string(),
         visual: VisualState::ValidSudoku {
             board: *board,
             active_r: None,
@@ -30,7 +31,10 @@ pub fn generate_valid_sudoku_steps(board: &[[char; 9]; 9]) -> Vec<Step> {
 
             steps.push(Step {
                 code_line: 8,
-                description: format!("Checking cell (row={}, col={}): digit '{}' (sub-box {}).", r, c, val, box_idx),
+                description: format!(
+                    "Checking cell (row={}, col={}): digit '{}' (sub-box {}).",
+                    r, c, val, box_idx
+                ),
                 visual: VisualState::ValidSudoku {
                     board: *board,
                     active_r: Some(r),
@@ -70,7 +74,10 @@ pub fn generate_valid_sudoku_steps(board: &[[char; 9]; 9]) -> Vec<Step> {
 
             steps.push(Step {
                 code_line: 12,
-                description: format!("Inserted digit '{}' into row {}, col {}, and sub-box {}.", val, r, c, box_idx),
+                description: format!(
+                    "Inserted digit '{}' into row {}, col {}, and sub-box {}.",
+                    val, r, c, box_idx
+                ),
                 visual: VisualState::ValidSudoku {
                     board: *board,
                     active_r: Some(r),

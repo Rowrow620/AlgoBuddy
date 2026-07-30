@@ -9,7 +9,10 @@ pub fn generate_time_key_value_store_steps() -> Vec<Step> {
 
     steps.push(Step {
         code_line: 2,
-        description: format!("TimeMap initialized. Key '{}' has timestamps: {:?}", query_key, timestamps),
+        description: format!(
+            "TimeMap initialized. Key '{}' has timestamps: {:?}",
+            query_key, timestamps
+        ),
         visual: VisualState::BinarySearch {
             nums: vec![1, 4],
             target: 3,
@@ -24,7 +27,10 @@ pub fn generate_time_key_value_store_steps() -> Vec<Step> {
     let target_t = 3;
     steps.push(Step {
         code_line: 6,
-        description: format!("get('foo', timestamp={}): Binary search timestamps [1, 4] for largest time <= 3.", target_t),
+        description: format!(
+            "get('foo', timestamp={}): Binary search timestamps [1, 4] for largest time <= 3.",
+            target_t
+        ),
         visual: VisualState::BinarySearch {
             nums: vec![1, 4],
             target: target_t,
@@ -64,7 +70,9 @@ pub fn generate_time_key_value_store_steps() -> Vec<Step> {
     // Query get("foo", 5)
     steps.push(Step {
         code_line: 6,
-        description: format!("get('foo', timestamp=5): Binary search timestamps [1, 4] for largest time <= 5."),
+        description: format!(
+            "get('foo', timestamp=5): Binary search timestamps [1, 4] for largest time <= 5."
+        ),
         visual: VisualState::BinarySearch {
             nums: vec![1, 4],
             target: 5,

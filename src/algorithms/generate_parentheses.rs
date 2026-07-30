@@ -7,7 +7,10 @@ pub fn generate_parentheses_combinations_steps(n: usize) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 3,
-        description: format!("Generate Parentheses for n={}. Backtracking constraints: open < n, close < open.", n),
+        description: format!(
+            "Generate Parentheses for n={}. Backtracking constraints: open < n, close < open.",
+            n
+        ),
         visual: VisualState::Stack {
             chars: vec![],
             active_idx: None,
@@ -29,7 +32,11 @@ pub fn generate_parentheses_combinations_steps(n: usize) -> Vec<Step> {
             let stack_chars: Vec<char> = current.chars().collect();
             steps.push(Step {
                 code_line: 5,
-                description: format!("Valid combination generated: \"{}\". Total = {}.", current, results.len()),
+                description: format!(
+                    "Valid combination generated: \"{}\". Total = {}.",
+                    current,
+                    results.len()
+                ),
                 visual: VisualState::Stack {
                     chars: stack_chars.clone(),
                     active_idx: None,
@@ -45,7 +52,10 @@ pub fn generate_parentheses_combinations_steps(n: usize) -> Vec<Step> {
             let stack_chars: Vec<char> = current.chars().collect();
             steps.push(Step {
                 code_line: 7,
-                description: format!("open ({}) < n ({}): Add '('. Current string = \"{}\".", open, n, current),
+                description: format!(
+                    "open ({}) < n ({}): Add '('. Current string = \"{}\".",
+                    open, n, current
+                ),
                 visual: VisualState::Stack {
                     chars: vec![],
                     active_idx: Some(stack_chars.len() - 1),
@@ -63,7 +73,10 @@ pub fn generate_parentheses_combinations_steps(n: usize) -> Vec<Step> {
             let stack_chars: Vec<char> = current.chars().collect();
             steps.push(Step {
                 code_line: 9,
-                description: format!("close ({}) < open ({}): Add ')'. Current string = \"{}\".", close, open, current),
+                description: format!(
+                    "close ({}) < open ({}): Add ')'. Current string = \"{}\".",
+                    close, open, current
+                ),
                 visual: VisualState::Stack {
                     chars: vec![],
                     active_idx: Some(stack_chars.len() - 1),
@@ -82,7 +95,12 @@ pub fn generate_parentheses_combinations_steps(n: usize) -> Vec<Step> {
     let res_str = results.join(", ");
     steps.push(Step {
         code_line: 10,
-        description: format!("Backtracking search complete! All {} valid combinations for n={}: [{}].", results.len(), n, res_str),
+        description: format!(
+            "Backtracking search complete! All {} valid combinations for n={}: [{}].",
+            results.len(),
+            n,
+            res_str
+        ),
         visual: VisualState::Stack {
             chars: vec![],
             active_idx: None,

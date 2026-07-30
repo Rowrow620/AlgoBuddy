@@ -125,7 +125,11 @@ impl Theme {
                 cyan: Color32::from_rgb(2, 132, 199),
                 purple: Color32::from_rgb(147, 51, 234),
                 emerald: base_emerald,
-                emerald_text: if cb == ColorblindMode::Off { Color32::from_rgb(5, 150, 105) } else { base_emerald_text },
+                emerald_text: if cb == ColorblindMode::Off {
+                    Color32::from_rgb(5, 150, 105)
+                } else {
+                    base_emerald_text
+                },
                 amber: Color32::from_rgb(217, 119, 6),
                 pink: Color32::from_rgb(219, 39, 119),
                 red: base_red,

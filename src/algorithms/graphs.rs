@@ -1,13 +1,16 @@
-use std::collections::BTreeSet;
 use crate::model::{Step, VisualState};
+use std::collections::BTreeSet;
 
 pub fn generate_number_islands_steps(grid: &[Vec<char>]) -> Vec<Step> {
     let mut steps = Vec::new();
     let rows = grid.len();
-    if rows == 0 { return steps; }
+    if rows == 0 {
+        return steps;
+    }
     let cols = grid[0].len();
 
-    let string_grid: Vec<Vec<String>> = grid.iter()
+    let string_grid: Vec<Vec<String>> = grid
+        .iter()
         .map(|row| row.iter().map(|c| c.to_string()).collect())
         .collect();
 
@@ -37,7 +40,10 @@ pub fn generate_number_islands_steps(grid: &[Vec<char>]) -> Vec<Step> {
                 visited.insert((r, c));
 
                 steps.push(Step {
-                    description: format!("Discovered New Island #{} starting at ({}, {})!", islands, r, c),
+                    description: format!(
+                        "Discovered New Island #{} starting at ({}, {})!",
+                        islands, r, c
+                    ),
                     code_line: 15,
                     visual: VisualState::GridGraph {
                         rows,
@@ -61,7 +67,10 @@ pub fn generate_number_islands_steps(grid: &[Vec<char>]) -> Vec<Step> {
                                 visited.insert((ur, uc));
                                 q.push_back((ur, uc));
                                 steps.push(Step {
-                                    description: format!("Island #{}: BFS expansion visit land cell ({}, {})", islands, ur, uc),
+                                    description: format!(
+                                        "Island #{}: BFS expansion visit land cell ({}, {})",
+                                        islands, ur, uc
+                                    ),
                                     code_line: 12,
                                     visual: VisualState::GridGraph {
                                         rows,
@@ -100,10 +109,10 @@ pub fn generate_number_islands_steps(grid: &[Vec<char>]) -> Vec<Step> {
 
 pub fn generate_max_area_island_steps() -> Vec<Step> {
     let grid = vec![
-        vec!['0','0','1','0','0'],
-        vec!['0','0','0','0','0'],
-        vec!['0','1','1','1','0'],
-        vec!['0','0','0','0','0'],
+        vec!['0', '0', '1', '0', '0'],
+        vec!['0', '0', '0', '0', '0'],
+        vec!['0', '1', '1', '1', '0'],
+        vec!['0', '0', '0', '0', '0'],
     ];
     generate_number_islands_steps(&grid)
 }
@@ -112,7 +121,12 @@ pub fn generate_clone_graph_steps() -> Vec<Step> {
     let mut steps = Vec::new();
     let nodes = vec![1, 2, 3, 4];
     let edges = vec![(1, 2), (2, 3), (3, 4), (4, 1)];
-    let node_labels = vec!["Node 1".to_string(), "Node 2".to_string(), "Node 3".to_string(), "Node 4".to_string()];
+    let node_labels = vec![
+        "Node 1".to_string(),
+        "Node 2".to_string(),
+        "Node 3".to_string(),
+        "Node 4".to_string(),
+    ];
 
     steps.push(Step {
         description: "Initialize Clone Graph: Hash map mapping old -> cloned nodes".into(),
@@ -158,10 +172,30 @@ pub fn generate_walls_and_gates_steps() -> Vec<Step> {
     let rows = 4;
     let cols = 4;
     let mut grid = vec![
-        vec!["INF".to_string(), "-1".to_string(), "0".to_string(), "INF".to_string()],
-        vec!["INF".to_string(), "INF".to_string(), "INF".to_string(), "-1".to_string()],
-        vec!["INF".to_string(), "-1".to_string(), "INF".to_string(), "-1".to_string()],
-        vec!["0".to_string(), "-1".to_string(), "INF".to_string(), "INF".to_string()],
+        vec![
+            "INF".to_string(),
+            "-1".to_string(),
+            "0".to_string(),
+            "INF".to_string(),
+        ],
+        vec![
+            "INF".to_string(),
+            "INF".to_string(),
+            "INF".to_string(),
+            "-1".to_string(),
+        ],
+        vec![
+            "INF".to_string(),
+            "-1".to_string(),
+            "INF".to_string(),
+            "-1".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "-1".to_string(),
+            "INF".to_string(),
+            "INF".to_string(),
+        ],
     ];
 
     let mut q = std::collections::VecDeque::new();
@@ -203,7 +237,12 @@ pub fn generate_walls_and_gates_steps() -> Vec<Step> {
                     q.push_back((ur, uc, dist + 1));
 
                     steps.push(Step {
-                        description: format!("BFS Wave: Fill room ({}, {}) with distance {}", ur, uc, dist + 1),
+                        description: format!(
+                            "BFS Wave: Fill room ({}, {}) with distance {}",
+                            ur,
+                            uc,
+                            dist + 1
+                        ),
                         code_line: 11,
                         visual: VisualState::GridGraph {
                             rows,
@@ -263,7 +302,11 @@ pub fn generate_rotting_oranges_steps() -> Vec<Step> {
     }
 
     steps.push(Step {
-        description: format!("Initialize Rotting Oranges BFS: Fresh = {}, Rotten = {}", fresh, q.len()),
+        description: format!(
+            "Initialize Rotting Oranges BFS: Fresh = {}, Rotten = {}",
+            fresh,
+            q.len()
+        ),
         code_line: 8,
         visual: VisualState::GridGraph {
             rows,
@@ -336,10 +379,30 @@ pub fn generate_pacific_atlantic_steps() -> Vec<Step> {
     let rows = 4;
     let cols = 4;
     let grid = vec![
-        vec!["1".to_string(), "2".to_string(), "2".to_string(), "3".to_string()],
-        vec!["3".to_string(), "2".to_string(), "3".to_string(), "4".to_string()],
-        vec!["2".to_string(), "4".to_string(), "5".to_string(), "3".to_string()],
-        vec!["6".to_string(), "7".to_string(), "1".to_string(), "4".to_string()],
+        vec![
+            "1".to_string(),
+            "2".to_string(),
+            "2".to_string(),
+            "3".to_string(),
+        ],
+        vec![
+            "3".to_string(),
+            "2".to_string(),
+            "3".to_string(),
+            "4".to_string(),
+        ],
+        vec![
+            "2".to_string(),
+            "4".to_string(),
+            "5".to_string(),
+            "3".to_string(),
+        ],
+        vec![
+            "6".to_string(),
+            "7".to_string(),
+            "1".to_string(),
+            "4".to_string(),
+        ],
     ];
 
     let mut pac_visited = BTreeSet::new();
@@ -381,7 +444,11 @@ pub fn generate_pacific_atlantic_steps() -> Vec<Step> {
     for r in 0..rows {
         atl_visited.insert((r, cols - 1));
         steps.push(Step {
-            description: format!("Atlantic Reverse Flow: Reached border cell ({}, {})", r, cols - 1),
+            description: format!(
+                "Atlantic Reverse Flow: Reached border cell ({}, {})",
+                r,
+                cols - 1
+            ),
             code_line: 9,
             visual: VisualState::GridGraph {
                 rows,
@@ -395,9 +462,13 @@ pub fn generate_pacific_atlantic_steps() -> Vec<Step> {
         });
     }
 
-    let overlap: BTreeSet<(usize, usize)> = pac_visited.intersection(&atl_visited).cloned().collect();
+    let overlap: BTreeSet<(usize, usize)> =
+        pac_visited.intersection(&atl_visited).cloned().collect();
     steps.push(Step {
-        description: format!("Pacific Atlantic Flow Complete! Dual ocean reachable cells: {:?}", overlap),
+        description: format!(
+            "Pacific Atlantic Flow Complete! Dual ocean reachable cells: {:?}",
+            overlap
+        ),
         code_line: 10,
         visual: VisualState::GridGraph {
             rows,
@@ -418,10 +489,30 @@ pub fn generate_surrounded_regions_steps() -> Vec<Step> {
     let rows = 4;
     let cols = 4;
     let mut grid = vec![
-        vec!["X".to_string(), "X".to_string(), "X".to_string(), "X".to_string()],
-        vec!["X".to_string(), "O".to_string(), "O".to_string(), "X".to_string()],
-        vec!["X".to_string(), "X".to_string(), "O".to_string(), "X".to_string()],
-        vec!["X".to_string(), "O".to_string(), "X".to_string(), "X".to_string()],
+        vec![
+            "X".to_string(),
+            "X".to_string(),
+            "X".to_string(),
+            "X".to_string(),
+        ],
+        vec![
+            "X".to_string(),
+            "O".to_string(),
+            "O".to_string(),
+            "X".to_string(),
+        ],
+        vec![
+            "X".to_string(),
+            "X".to_string(),
+            "O".to_string(),
+            "X".to_string(),
+        ],
+        vec![
+            "X".to_string(),
+            "O".to_string(),
+            "X".to_string(),
+            "X".to_string(),
+        ],
     ];
 
     steps.push(Step {
@@ -500,7 +591,10 @@ pub fn generate_course_schedule_steps(_num_courses: i32, _prerequisites: &[[i32;
     let edges: Vec<(usize, usize)> = vec![(0, 1), (0, 2), (1, 3), (2, 3)];
 
     steps.push(Step {
-        description: format!("Course Schedule: Build dependency graph with {} courses", num_courses),
+        description: format!(
+            "Course Schedule: Build dependency graph with {} courses",
+            num_courses
+        ),
         code_line: 4,
         visual: VisualState::NodeGraph {
             nodes: nodes.clone(),
@@ -523,11 +617,27 @@ pub fn generate_course_schedule_steps(_num_courses: i32, _prerequisites: &[[i32;
         (0, "Start DFS at Course 0 - add 0 to visitSet", None),
         (1, "Traverse edge 0 ➔ 1: enter DFS(1)", Some((0, 1))),
         (3, "Traverse edge 1 ➔ 3: enter DFS(3)", Some((1, 3))),
-        (3, "Course 3 has no prerequisites! Backtrack & mark Course 3 as complete", None),
-        (1, "Backtrack to Course 1: all prerequisites processed! Mark Course 1 as complete", None),
+        (
+            3,
+            "Course 3 has no prerequisites! Backtrack & mark Course 3 as complete",
+            None,
+        ),
+        (
+            1,
+            "Backtrack to Course 1: all prerequisites processed! Mark Course 1 as complete",
+            None,
+        ),
         (2, "Traverse edge 0 ➔ 2: enter DFS(2)", Some((0, 2))),
-        (2, "Backtrack to Course 2: all prerequisites processed! Mark Course 2 as complete", None),
-        (0, "Backtrack to Course 0: all prerequisites processed! Mark Course 0 as complete", None),
+        (
+            2,
+            "Backtrack to Course 2: all prerequisites processed! Mark Course 2 as complete",
+            None,
+        ),
+        (
+            0,
+            "Backtrack to Course 0: all prerequisites processed! Mark Course 0 as complete",
+            None,
+        ),
     ];
 
     for (node, desc, active_edge) in dfs_sequence {
@@ -556,7 +666,9 @@ pub fn generate_course_schedule_steps(_num_courses: i32, _prerequisites: &[[i32;
     }
 
     steps.push(Step {
-        description: "Course Schedule Verified: No directed cycles detected! All courses can be completed.".into(),
+        description:
+            "Course Schedule Verified: No directed cycles detected! All courses can be completed."
+                .into(),
         code_line: 16,
         visual: VisualState::NodeGraph {
             nodes,
@@ -574,7 +686,10 @@ pub fn generate_course_schedule_steps(_num_courses: i32, _prerequisites: &[[i32;
     steps
 }
 
-pub fn generate_course_schedule_ii_steps(_num_courses: i32, _prerequisites: &[[i32; 2]]) -> Vec<Step> {
+pub fn generate_course_schedule_ii_steps(
+    _num_courses: i32,
+    _prerequisites: &[[i32; 2]],
+) -> Vec<Step> {
     let mut steps = Vec::new();
     let num_courses = 4;
     let nodes: Vec<usize> = (0..num_courses).collect();
@@ -585,7 +700,10 @@ pub fn generate_course_schedule_ii_steps(_num_courses: i32, _prerequisites: &[[i
     let mut visited = BTreeSet::new();
 
     steps.push(Step {
-        description: format!("Course Schedule II: Initialize Topological Sort for {} courses", num_courses),
+        description: format!(
+            "Course Schedule II: Initialize Topological Sort for {} courses",
+            num_courses
+        ),
         code_line: 4,
         visual: VisualState::NodeGraph {
             nodes: nodes.clone(),
@@ -604,7 +722,10 @@ pub fn generate_course_schedule_ii_steps(_num_courses: i32, _prerequisites: &[[i
         visited.insert(u);
         topo_order.push(u);
         steps.push(Step {
-            description: format!("Post-Order DFS: Add Course {} to Topological Order output array", u),
+            description: format!(
+                "Post-Order DFS: Add Course {} to Topological Order output array",
+                u
+            ),
             code_line: 12,
             visual: VisualState::NodeGraph {
                 nodes: nodes.clone(),
@@ -627,12 +748,19 @@ pub fn generate_graph_valid_tree_steps(n: i32, edges: &[[i32; 2]]) -> Vec<Step> 
     let mut steps = Vec::new();
     let nodes: Vec<usize> = (0..n as usize).collect();
     let labels: Vec<String> = nodes.iter().map(|u| format!("Node {}", u)).collect();
-    let graph_edges: Vec<(usize, usize)> = edges.iter().map(|e| (e[0] as usize, e[1] as usize)).collect();
+    let graph_edges: Vec<(usize, usize)> = edges
+        .iter()
+        .map(|e| (e[0] as usize, e[1] as usize))
+        .collect();
 
     let mut visited = BTreeSet::new();
 
     steps.push(Step {
-        description: format!("Graph Valid Tree Step 1: Verify Edge Count E == V - 1 ({} == {})", edges.len(), n - 1),
+        description: format!(
+            "Graph Valid Tree Step 1: Verify Edge Count E == V - 1 ({} == {})",
+            edges.len(),
+            n - 1
+        ),
         code_line: 3,
         visual: VisualState::NodeGraph {
             nodes: nodes.clone(),
@@ -650,7 +778,10 @@ pub fn generate_graph_valid_tree_steps(n: i32, edges: &[[i32; 2]]) -> Vec<Step> 
     for &u in &nodes {
         visited.insert(u);
         steps.push(Step {
-            description: format!("DFS Connectivity Check: Visit Node {} - No cycle detected", u),
+            description: format!(
+                "DFS Connectivity Check: Visit Node {} - No cycle detected",
+                u
+            ),
             code_line: 12,
             visual: VisualState::NodeGraph {
                 nodes: nodes.clone(),
@@ -689,13 +820,19 @@ pub fn generate_connected_components_steps(n: i32, edges: &[[i32; 2]]) -> Vec<St
     let mut steps = Vec::new();
     let nodes: Vec<usize> = (0..n as usize).collect();
     let labels: Vec<String> = nodes.iter().map(|u| format!("Node {}", u)).collect();
-    let graph_edges: Vec<(usize, usize)> = edges.iter().map(|e| (e[0] as usize, e[1] as usize)).collect();
+    let graph_edges: Vec<(usize, usize)> = edges
+        .iter()
+        .map(|e| (e[0] as usize, e[1] as usize))
+        .collect();
 
     let mut comp_count = n as usize;
     let mut visited = BTreeSet::new();
 
     steps.push(Step {
-        description: format!("Initialize Union-Find Connected Components: Initial count = {}", comp_count),
+        description: format!(
+            "Initialize Union-Find Connected Components: Initial count = {}",
+            comp_count
+        ),
         code_line: 3,
         visual: VisualState::NodeGraph {
             nodes: nodes.clone(),
@@ -715,7 +852,10 @@ pub fn generate_connected_components_steps(n: i32, edges: &[[i32; 2]]) -> Vec<St
         visited.insert(v);
         comp_count -= 1;
         steps.push(Step {
-            description: format!("Union edge ({} ➔ {}) -> Merge roots, decrement components to {}", u, v, comp_count),
+            description: format!(
+                "Union edge ({} ➔ {}) -> Merge roots, decrement components to {}",
+                u, v, comp_count
+            ),
             code_line: 15,
             visual: VisualState::NodeGraph {
                 nodes: nodes.clone(),
@@ -738,7 +878,10 @@ pub fn generate_redundant_connection_steps(edges: &[[i32; 2]]) -> Vec<Step> {
     let mut steps = Vec::new();
     let nodes: Vec<usize> = vec![1, 2, 3];
     let labels: Vec<String> = nodes.iter().map(|u| format!("Node {}", u)).collect();
-    let graph_edges: Vec<(usize, usize)> = edges.iter().map(|e| (e[0] as usize, e[1] as usize)).collect();
+    let graph_edges: Vec<(usize, usize)> = edges
+        .iter()
+        .map(|e| (e[0] as usize, e[1] as usize))
+        .collect();
 
     let mut visited = BTreeSet::new();
 
@@ -763,7 +906,8 @@ pub fn generate_redundant_connection_steps(edges: &[[i32; 2]]) -> Vec<Step> {
             let mut cycle_edges = BTreeSet::new();
             cycle_edges.insert((2, 3));
             steps.push(Step {
-                description: "Union-Find detected cycle edge [2, 3]! Redundant Connection found.".into(),
+                description: "Union-Find detected cycle edge [2, 3]! Redundant Connection found."
+                    .into(),
                 code_line: 15,
                 visual: VisualState::NodeGraph {
                     nodes: nodes.clone(),
@@ -801,16 +945,29 @@ pub fn generate_redundant_connection_steps(edges: &[[i32; 2]]) -> Vec<Step> {
     steps
 }
 
-pub fn generate_word_ladder_steps(begin_word: &str, end_word: &str, _word_list: &[&str]) -> Vec<Step> {
+pub fn generate_word_ladder_steps(
+    begin_word: &str,
+    end_word: &str,
+    _word_list: &[&str],
+) -> Vec<Step> {
     let mut steps = Vec::new();
     let nodes = vec![0, 1, 2, 3, 4];
-    let labels = vec![begin_word.to_string(), "hot".to_string(), "dot".to_string(), "dog".to_string(), end_word.to_string()];
+    let labels = vec![
+        begin_word.to_string(),
+        "hot".to_string(),
+        "dot".to_string(),
+        "dog".to_string(),
+        end_word.to_string(),
+    ];
     let edges = vec![(0, 1), (1, 2), (2, 3), (3, 4)];
 
     let mut visited = BTreeSet::new();
 
     steps.push(Step {
-        description: format!("Initialize Word Ladder BFS from start word '{}'", begin_word),
+        description: format!(
+            "Initialize Word Ladder BFS from start word '{}'",
+            begin_word
+        ),
         code_line: 4,
         visual: VisualState::NodeGraph {
             nodes: nodes.clone(),

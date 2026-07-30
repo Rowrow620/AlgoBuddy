@@ -23,7 +23,10 @@ pub fn generate_meeting_rooms_steps(intervals: &[(i32, i32)]) -> Vec<Step> {
 
         steps.push(Step {
             code_line: 5,
-            description: format!("Checking overlap: prev meeting [{}, {}] vs curr meeting [{}, {}].", prev.0, prev.1, curr.0, curr.1),
+            description: format!(
+                "Checking overlap: prev meeting [{}, {}] vs curr meeting [{}, {}].",
+                prev.0, prev.1, curr.0, curr.1
+            ),
             visual: VisualState::ContainsDuplicate {
                 nums: vec![prev.0, prev.1, curr.0, curr.1],
                 active_idx: Some(2),

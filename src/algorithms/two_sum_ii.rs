@@ -4,7 +4,8 @@ pub fn generate_two_sum_ii_steps(nums: &[i32], target: i32) -> Vec<Step> {
     let mut steps = Vec::new();
 
     // Build a char representation for TwoPointers visual
-    let char_repr: Vec<char> = nums.iter()
+    let char_repr: Vec<char> = nums
+        .iter()
         .map(|n| n.to_string())
         .collect::<Vec<_>>()
         .join(",")
@@ -16,7 +17,10 @@ pub fn generate_two_sum_ii_steps(nums: &[i32], target: i32) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 3,
-        description: format!("Two Sum II: nums = {:?}, target = {}. Initialize l=0, r={}.", nums, target, r),
+        description: format!(
+            "Two Sum II: nums = {:?}, target = {}. Initialize l=0, r={}.",
+            nums, target, r
+        ),
         visual: VisualState::TwoPointers {
             chars: char_repr.clone(),
             left: 0,
@@ -31,8 +35,10 @@ pub fn generate_two_sum_ii_steps(nums: &[i32], target: i32) -> Vec<Step> {
 
         steps.push(Step {
             code_line: 5,
-            description: format!("l={}, r={}: nums[{}] + nums[{}] = {} + {} = {}. Target = {}.",
-                l, r, l, r, nums[l], nums[r], sum, target),
+            description: format!(
+                "l={}, r={}: nums[{}] + nums[{}] = {} + {} = {}. Target = {}.",
+                l, r, l, r, nums[l], nums[r], sum, target
+            ),
             visual: VisualState::TwoPointers {
                 chars: char_repr.clone(),
                 left: l,
@@ -59,7 +65,12 @@ pub fn generate_two_sum_ii_steps(nums: &[i32], target: i32) -> Vec<Step> {
         } else if sum < target {
             steps.push(Step {
                 code_line: 7,
-                description: format!("Sum {} < target {}. Move left pointer right: l = {}.", sum, target, l + 1),
+                description: format!(
+                    "Sum {} < target {}. Move left pointer right: l = {}.",
+                    sum,
+                    target,
+                    l + 1
+                ),
                 visual: VisualState::TwoPointers {
                     chars: char_repr.clone(),
                     left: l + 1,
@@ -72,7 +83,12 @@ pub fn generate_two_sum_ii_steps(nums: &[i32], target: i32) -> Vec<Step> {
         } else {
             steps.push(Step {
                 code_line: 8,
-                description: format!("Sum {} > target {}. Move right pointer left: r = {}.", sum, target, r - 1),
+                description: format!(
+                    "Sum {} > target {}. Move right pointer left: r = {}.",
+                    sum,
+                    target,
+                    r - 1
+                ),
                 visual: VisualState::TwoPointers {
                     chars: char_repr.clone(),
                     left: l,
@@ -85,7 +101,9 @@ pub fn generate_two_sum_ii_steps(nums: &[i32], target: i32) -> Vec<Step> {
         }
 
         // Safety: prevent infinite loops on bad input
-        if steps.len() > 100 { break; }
+        if steps.len() > 100 {
+            break;
+        }
     }
 
     steps.push(Step {

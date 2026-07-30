@@ -64,7 +64,8 @@ pub fn generate_encode_decode_steps(strs: &[String]) -> Vec<Step> {
     let mut i = 0;
     steps.push(Step {
         code_line: 10,
-        description: "Initialized empty result list res = [] and pointer i = 0 for decoding.".to_string(),
+        description: "Initialized empty result list res = [] and pointer i = 0 for decoding."
+            .to_string(),
         visual: VisualState::EncodeDecode {
             input_strs: input_strs.clone(),
             encoded_so_far: encoded_so_far.clone(),

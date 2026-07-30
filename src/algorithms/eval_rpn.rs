@@ -4,7 +4,10 @@ pub fn generate_eval_rpn_steps(tokens: &[String]) -> Vec<Step> {
     let mut steps = Vec::new();
     let mut stack = Vec::new();
 
-    let all_chars: Vec<char> = tokens.iter().map(|s| s.chars().next().unwrap_or(' ')).collect();
+    let all_chars: Vec<char> = tokens
+        .iter()
+        .map(|s| s.chars().next().unwrap_or(' '))
+        .collect();
 
     steps.push(Step {
         code_line: 3,
@@ -20,10 +23,16 @@ pub fn generate_eval_rpn_steps(tokens: &[String]) -> Vec<Step> {
     for (i, token) in tokens.iter().enumerate() {
         if let Ok(num) = token.parse::<i32>() {
             stack.push(num);
-            let stack_chars: Vec<char> = stack.iter().map(|n| n.to_string().chars().next().unwrap_or(' ')).collect();
+            let stack_chars: Vec<char> = stack
+                .iter()
+                .map(|n| n.to_string().chars().next().unwrap_or(' '))
+                .collect();
             steps.push(Step {
                 code_line: 6,
-                description: format!("Token '{}' is integer. Push {} onto stack: {:?}.", token, num, stack),
+                description: format!(
+                    "Token '{}' is integer. Push {} onto stack: {:?}.",
+                    token, num, stack
+                ),
                 visual: VisualState::Stack {
                     chars: all_chars.clone(),
                     active_idx: Some(i),
@@ -43,10 +52,16 @@ pub fn generate_eval_rpn_steps(tokens: &[String]) -> Vec<Step> {
             };
             stack.push(res);
 
-            let stack_chars: Vec<char> = stack.iter().map(|n| n.to_string().chars().next().unwrap_or(' ')).collect();
+            let stack_chars: Vec<char> = stack
+                .iter()
+                .map(|n| n.to_string().chars().next().unwrap_or(' '))
+                .collect();
             steps.push(Step {
                 code_line: 9,
-                description: format!("Operator '{}': pop {} and {}. Calculate {} {} {} = {}. Push result: {:?}.", token, b, a, a, token, b, res, stack),
+                description: format!(
+                    "Operator '{}': pop {} and {}. Calculate {} {} {} = {}. Push result: {:?}.",
+                    token, b, a, a, token, b, res, stack
+                ),
                 visual: VisualState::Stack {
                     chars: all_chars.clone(),
                     active_idx: Some(i),
@@ -58,7 +73,10 @@ pub fn generate_eval_rpn_steps(tokens: &[String]) -> Vec<Step> {
     }
 
     let final_res = stack.last().copied().unwrap_or(0);
-    let final_chars: Vec<char> = stack.iter().map(|n| n.to_string().chars().next().unwrap_or(' ')).collect();
+    let final_chars: Vec<char> = stack
+        .iter()
+        .map(|n| n.to_string().chars().next().unwrap_or(' '))
+        .collect();
     steps.push(Step {
         code_line: 11,
         description: format!("Evaluation complete! Final RPN result = {}.", final_res),

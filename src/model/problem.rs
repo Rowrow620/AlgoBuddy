@@ -178,7 +178,9 @@ pub enum AuditStatus {
 impl Problem {
     pub fn audit_status(&self) -> AuditStatus {
         match self {
-            Problem::ContainsDuplicate | Problem::TwoSum | Problem::ValidAnagram => AuditStatus::Audited,
+            Problem::ContainsDuplicate | Problem::TwoSum | Problem::ValidAnagram => {
+                AuditStatus::Audited
+            }
             _ => AuditStatus::Unaudited,
         }
     }
@@ -327,7 +329,6 @@ impl Problem {
         ]
     }
 
-
     pub fn id(&self) -> u32 {
         self.details().id
     }
@@ -367,7 +368,9 @@ impl Problem {
             Problem::DiameterTree => Some("diameter = max(d, height(L) + height(R))"),
             Problem::BalancedTree => Some("abs(height(L) - height(R)) ≤ 1"),
             Problem::SameTree => Some("p.val == q.val ∧ same(p.L, q.L) ∧ same(p.R, q.R)"),
-            Problem::Subtree => Some("isSameTree(root, subRoot) ∨ isSubtree(root.L) ∨ isSubtree(root.R)"),
+            Problem::Subtree => {
+                Some("isSameTree(root, subRoot) ∨ isSubtree(root.L) ∨ isSubtree(root.R)")
+            }
             Problem::ClimbingStairs => Some("dp[i] = dp[i-1] + dp[i-2]"),
             Problem::MinCostStairs => Some("dp[i] = cost[i] + min(dp[i+1], dp[i+2])"),
             Problem::KthLargestStream => Some("heapq.heappush(val); if len > k ➔ pop()"),
@@ -376,7 +379,9 @@ impl Problem {
             Problem::HappyNumber => Some("n = ∑(digit²)  ➔  detect cycle in HashSet"),
             Problem::PlusOne => Some("digits[i] = (digits[i] + 1) % 10"),
             Problem::SingleNumber => Some("a ⊕ a = 0  ➔  res ^= n"),
-            Problem::CountBits | Problem::Number1Bits => Some("n = n & (n - 1)  ➔  clears lowest set bit"),
+            Problem::CountBits | Problem::Number1Bits => {
+                Some("n = n & (n - 1)  ➔  clears lowest set bit")
+            }
             Problem::CountingBits => Some("dp[i] = 1 + dp[i - offset]"),
             Problem::ReverseBits => Some("bit = (n >> i) & 1  ➔  res |= bit << (31 - i)"),
             Problem::MissingNumber => Some("∑(0..n) - ∑(nums)  ➔  res ^= i ⊕ nums[i]"),
@@ -416,7 +421,9 @@ impl Problem {
             Problem::UniquePaths => Some("dp[r][c] = dp[r+1][c] + dp[r][c+1]"),
             Problem::LongestCommonSubsequence => Some("if s1[i] == s2[j] ➔ 1 + dp[i+1][j+1]"),
             Problem::CoinChange => Some("dp[a] = min(dp[a], 1 + dp[a - coin])"),
-            Problem::LongestIncreasingSubsequence => Some("if nums[j] < nums[i] ➔ dp[i] = max(1 + dp[j])"),
+            Problem::LongestIncreasingSubsequence => {
+                Some("if nums[j] < nums[i] ➔ dp[i] = max(1 + dp[j])")
+            }
             _ => None,
         }
     }
@@ -1365,8 +1372,6 @@ impl Problem {
     }
 }
 
-
-
 // ── Approach-Specific Code Lines Providers ──
 
 pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, &'static str)> {
@@ -2084,7 +2089,10 @@ pub fn approach_code_lines(problem: Problem, approach_id: usize) -> Vec<(usize, 
 pub fn reconstruct_itinerary_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def findItinerary(self, tickets: List[List[str]]) -> List[str]:"),
+        (
+            2,
+            "    def findItinerary(self, tickets: List[List[str]]) -> List[str]:",
+        ),
         (3, "        adj = { src: [] for src, dst in tickets }"),
         (4, "        tickets.sort()"),
         (5, "        for src, dst in tickets: adj[src].append(dst)"),
@@ -2103,21 +2111,33 @@ pub fn reconstruct_itinerary_code_lines() -> Vec<(usize, &'static str)> {
 pub fn min_cost_points_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def minCostConnectPoints(self, points: List[List[int]]) -> int:"),
+        (
+            2,
+            "    def minCostConnectPoints(self, points: List[List[int]]) -> int:",
+        ),
         (3, "        N = len(points)"),
         (4, "        adj = { i: [] for i in range(N) }"),
         (5, "        for i in range(N):"),
         (6, "            x1, y1 = points[i]"),
         (7, "            for j in range(i + 1, N):"),
-        (8, "                x2, y2 = points[j]; dist = abs(x1 - x2) + abs(y1 - y2)"),
-        (9, "                adj[i].append([dist, j]); adj[j].append([dist, i])"),
+        (
+            8,
+            "                x2, y2 = points[j]; dist = abs(x1 - x2) + abs(y1 - y2)",
+        ),
+        (
+            9,
+            "                adj[i].append([dist, j]); adj[j].append([dist, i])",
+        ),
         (10, "        res = 0; visit = set(); minH = [[0, 0]]"),
         (11, "        while len(visit) < N:"),
         (12, "            cost, i = heapq.heappop(minH)"),
         (13, "            if i in visit: continue"),
         (14, "            res += cost; visit.add(i)"),
         (15, "            for neiCost, nei in adj[i]:"),
-        (16, "                if nei not in visit: heapq.heappush(minH, [neiCost, nei])"),
+        (
+            16,
+            "                if nei not in visit: heapq.heappush(minH, [neiCost, nei])",
+        ),
         (17, "        return res"),
     ]
 }
@@ -2125,7 +2145,10 @@ pub fn min_cost_points_code_lines() -> Vec<(usize, &'static str)> {
 pub fn network_delay_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def networkDelayTime(self, times: List[List[int]], n: int, k: int) -> int:"),
+        (
+            2,
+            "    def networkDelayTime(self, times: List[List[int]], n: int, k: int) -> int:",
+        ),
         (3, "        edges = collections.defaultdict(list)"),
         (4, "        for u, v, w in times: edges[u].append((v, w))"),
         (5, "        minHeap = [(0, k)]; visit = set(); t = 0"),
@@ -2134,7 +2157,10 @@ pub fn network_delay_code_lines() -> Vec<(usize, &'static str)> {
         (8, "            if n1 in visit: continue"),
         (9, "            visit.add(n1); t = w1"),
         (10, "            for n2, w2 in edges[n1]:"),
-        (11, "                if n2 not in visit: heapq.heappush(minHeap, (w1 + w2, n2))"),
+        (
+            11,
+            "                if n2 not in visit: heapq.heappush(minHeap, (w1 + w2, n2))",
+        ),
         (12, "        return t if len(visit) == n else -1"),
     ]
 }
@@ -2142,8 +2168,14 @@ pub fn network_delay_code_lines() -> Vec<(usize, &'static str)> {
 pub fn swim_rising_water_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def swimInWater(self, grid: List[List[int]]) -> int:"),
-        (3, "        N = len(grid); visit = set(); minH = [[grid[0][0], 0, 0]]"),
+        (
+            2,
+            "    def swimInWater(self, grid: List[List[int]]) -> int:",
+        ),
+        (
+            3,
+            "        N = len(grid); visit = set(); minH = [[grid[0][0], 0, 0]]",
+        ),
         (4, "        directions = [[0, 1], [0, -1], [1, 0], [-1, 0]]"),
         (5, "        visit.add((0, 0))"),
         (6, "        while minH:"),
@@ -2151,9 +2183,15 @@ pub fn swim_rising_water_code_lines() -> Vec<(usize, &'static str)> {
         (8, "            if r == N - 1 and c == N - 1: return t"),
         (9, "            for dr, dc in directions:"),
         (10, "                row, col = r + dr, c + dc"),
-        (11, "                if 0 <= row < N and 0 <= col < N and (row, col) not in visit:"),
+        (
+            11,
+            "                if 0 <= row < N and 0 <= col < N and (row, col) not in visit:",
+        ),
         (12, "                    visit.add((row, col))"),
-        (13, "                    heapq.heappush(minH, [max(t, grid[row][col]), row, col])"),
+        (
+            13,
+            "                    heapq.heappush(minH, [max(t, grid[row][col]), row, col])",
+        ),
     ]
 }
 
@@ -2163,10 +2201,19 @@ pub fn alien_dictionary_code_lines() -> Vec<(usize, &'static str)> {
         (2, "    def alienOrder(self, words: List[str]) -> str:"),
         (3, "        adj = { c: set() for w in words for c in w }"),
         (4, "        for i in range(len(words) - 1):"),
-        (5, "            w1, w2 = words[i], words[i + 1]; minLen = min(len(w1), len(w2))"),
-        (6, "            if len(w1) > len(w2) and w1[:minLen] == w2[:minLen]: return \"\""),
+        (
+            5,
+            "            w1, w2 = words[i], words[i + 1]; minLen = min(len(w1), len(w2))",
+        ),
+        (
+            6,
+            "            if len(w1) > len(w2) and w1[:minLen] == w2[:minLen]: return \"\"",
+        ),
         (7, "            for j in range(minLen):"),
-        (8, "                if w1[j] != w2[j]: adj[w1[j]].add(w2[j]); break"),
+        (
+            8,
+            "                if w1[j] != w2[j]: adj[w1[j]].add(w2[j]); break",
+        ),
         (9, "        visit = {}; res = []"),
         (10, "        def dfs(c):"),
         (11, "            if c in visit: return visit[c]"),
@@ -2212,12 +2259,24 @@ pub fn unique_paths_code_lines() -> Vec<(usize, &'static str)> {
 pub fn lcs_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def longestCommonSubsequence(self, text1: str, text2: str) -> int:"),
-        (3, "        dp = [[0 for j in range(len(text2) + 1)] for i in range(len(text1) + 1)]"),
+        (
+            2,
+            "    def longestCommonSubsequence(self, text1: str, text2: str) -> int:",
+        ),
+        (
+            3,
+            "        dp = [[0 for j in range(len(text2) + 1)] for i in range(len(text1) + 1)]",
+        ),
         (4, "        for i in range(len(text1) - 1, -1, -1):"),
         (5, "            for j in range(len(text2) - 1, -1, -1):"),
-        (6, "                if text1[i] == text2[j]: dp[i][j] = 1 + dp[i + 1][j + 1]"),
-        (7, "                else: dp[i][j] = max(dp[i + 1][j], dp[i][j + 1])"),
+        (
+            6,
+            "                if text1[i] == text2[j]: dp[i][j] = 1 + dp[i + 1][j + 1]",
+        ),
+        (
+            7,
+            "                else: dp[i][j] = max(dp[i + 1][j], dp[i][j + 1])",
+        ),
         (8, "        return dp[0][0]"),
     ]
 }
@@ -2241,10 +2300,16 @@ pub fn stock_cooldown_code_lines() -> Vec<(usize, &'static str)> {
 pub fn coin_change_ii_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def change(self, amount: int, coins: List[int]) -> int:"),
+        (
+            2,
+            "    def change(self, amount: int, coins: List[int]) -> int:",
+        ),
         (3, "        dp = [0] * (amount + 1); dp[0] = 1"),
         (4, "        for coin in coins:"),
-        (5, "            for a in range(coin, amount + 1): dp[a] += dp[a - coin]"),
+        (
+            5,
+            "            for a in range(coin, amount + 1): dp[a] += dp[a - coin]",
+        ),
         (6, "        return dp[amount]"),
     ]
 }
@@ -2304,7 +2369,10 @@ pub fn distinct_subsequences_code_lines() -> Vec<(usize, &'static str)> {
         (5, "            if j == len(t): return 1"),
         (6, "            if i == len(s): return 0"),
         (7, "            if (i, j) in dp: return dp[(i, j)]"),
-        (8, "            if s[i] == t[j]: dp[(i, j)] = dfs(i + 1, j + 1) + dfs(i + 1, j)"),
+        (
+            8,
+            "            if s[i] == t[j]: dp[(i, j)] = dfs(i + 1, j + 1) + dfs(i + 1, j)",
+        ),
         (9, "            else: dp[(i, j)] = dfs(i + 1, j)"),
         (10, "            return dp[(i, j)]"),
         (11, "        return dfs(0, 0)"),
@@ -2336,7 +2404,10 @@ pub fn burst_balloons_code_lines() -> Vec<(usize, &'static str)> {
         (6, "            if (l, r) in dp: return dp[(l, r)]"),
         (7, "            dp[(l, r)] = 0"),
         (8, "            for i in range(l, r + 1):"),
-        (9, "                coins = nums[l - 1] * nums[i] * nums[r + 1]"),
+        (
+            9,
+            "                coins = nums[l - 1] * nums[i] * nums[r + 1]",
+        ),
         (10, "                coins += dfs(l, i - 1) + dfs(i + 1, r)"),
         (11, "                dp[(l, r)] = max(dp[(l, r)], coins)"),
         (12, "            return dp[(l, r)]"),
@@ -2353,11 +2424,20 @@ pub fn regex_matching_code_lines() -> Vec<(usize, &'static str)> {
         (5, "            if (i, j) in cache: return cache[(i, j)]"),
         (6, "            if i >= len(s) and j >= len(p): return True"),
         (7, "            if j >= len(p): return False"),
-        (8, "            match = i < len(s) and (s[i] == p[j] or p[j] == \".\")"),
+        (
+            8,
+            "            match = i < len(s) and (s[i] == p[j] or p[j] == \".\")",
+        ),
         (9, "            if (j + 1) < len(p) and p[j + 1] == \"*\":"),
-        (10, "                cache[(i, j)] = (dfs(i, j + 2) or (match and dfs(i + 1, j)))"),
+        (
+            10,
+            "                cache[(i, j)] = (dfs(i, j + 2) or (match and dfs(i + 1, j)))",
+        ),
         (11, "                return cache[(i, j)]"),
-        (12, "            if match: cache[(i, j)] = dfs(i + 1, j + 1); return cache[(i, j)]"),
+        (
+            12,
+            "            if match: cache[(i, j)] = dfs(i + 1, j + 1); return cache[(i, j)]",
+        ),
         (13, "            cache[(i, j)] = False; return False"),
         (14, "        return dfs(0, 0)"),
     ]
@@ -2408,8 +2488,14 @@ pub fn clone_graph_code_lines() -> Vec<(usize, &'static str)> {
         (4, "        def dfs(node):"),
         (5, "            if not node: return None"),
         (6, "            if node in oldToNew: return oldToNew[node]"),
-        (7, "            copy = Node(node.val); oldToNew[node] = copy"),
-        (8, "            for nei in node.neighbors: copy.neighbors.append(dfs(nei))"),
+        (
+            7,
+            "            copy = Node(node.val); oldToNew[node] = copy",
+        ),
+        (
+            8,
+            "            for nei in node.neighbors: copy.neighbors.append(dfs(nei))",
+        ),
         (9, "            return copy"),
         (10, "        return dfs(node)"),
     ]
@@ -2439,7 +2525,10 @@ pub fn walls_and_gates_code_lines() -> Vec<(usize, &'static str)> {
 pub fn rotting_oranges_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def orangesRotting(self, grid: List[List[int]]) -> int:"),
+        (
+            2,
+            "    def orangesRotting(self, grid: List[List[int]]) -> int:",
+        ),
         (3, "        q = collections.deque(); time, fresh = 0, 0"),
         (4, "        ROWS, COLS = len(grid), len(grid[0])"),
         (5, "        for r in range(ROWS):"),
@@ -2449,10 +2538,19 @@ pub fn rotting_oranges_code_lines() -> Vec<(usize, &'static str)> {
         (9, "        while q and fresh > 0:"),
         (10, "            for i in range(len(q)):"),
         (11, "                r, c = q.popleft()"),
-        (12, "                for dr, dc in [[1,0],[-1,0],[0,1],[0,-1]]:"),
+        (
+            12,
+            "                for dr, dc in [[1,0],[-1,0],[0,1],[0,-1]]:",
+        ),
         (13, "                    row, col = r + dr, c + dc"),
-        (14, "                    if 0 <= row < ROWS and 0 <= col < COLS and grid[row][col] == 1:"),
-        (15, "                        grid[row][col] = 2; q.append([row, col]); fresh -= 1"),
+        (
+            14,
+            "                    if 0 <= row < ROWS and 0 <= col < COLS and grid[row][col] == 1:",
+        ),
+        (
+            15,
+            "                        grid[row][col] = 2; q.append([row, col]); fresh -= 1",
+        ),
         (16, "            time += 1"),
         (17, "        return time if fresh == 0 else -1"),
     ]
@@ -2479,24 +2577,48 @@ pub fn surrounded_regions_code_lines() -> Vec<(usize, &'static str)> {
         (2, "    def solve(self, board: List[List[str]]) -> None:"),
         (3, "        ROWS, COLS = len(board), len(board[0])"),
         (4, "        def capture(r, c):"),
-        (5, "            if r < 0 or c < 0 or r == ROWS or c == COLS or board[r][c] != 'O': return"),
+        (
+            5,
+            "            if r < 0 or c < 0 or r == ROWS or c == COLS or board[r][c] != 'O': return",
+        ),
         (6, "            board[r][c] = 'T'"),
-        (7, "            for dr, dc in [[1,0],[-1,0],[0,1],[0,-1]]: capture(r + dr, c + dc)"),
-        (8, "        for r in range(ROWS): capture(r, 0); capture(r, COLS - 1)"),
-        (9, "        for c in range(COLS): capture(0, c); capture(ROWS - 1, c)"),
+        (
+            7,
+            "            for dr, dc in [[1,0],[-1,0],[0,1],[0,-1]]: capture(r + dr, c + dc)",
+        ),
+        (
+            8,
+            "        for r in range(ROWS): capture(r, 0); capture(r, COLS - 1)",
+        ),
+        (
+            9,
+            "        for c in range(COLS): capture(0, c); capture(ROWS - 1, c)",
+        ),
         (10, "        for r in range(ROWS):"),
         (11, "            for c in range(COLS):"),
-        (12, "                if board[r][c] == 'O': board[r][c] = 'X'"),
-        (13, "                elif board[r][c] == 'T': board[r][c] = 'O'"),
+        (
+            12,
+            "                if board[r][c] == 'O': board[r][c] = 'X'",
+        ),
+        (
+            13,
+            "                elif board[r][c] == 'T': board[r][c] = 'O'",
+        ),
     ]
 }
 
 pub fn course_schedule_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:"),
+        (
+            2,
+            "    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:",
+        ),
         (3, "        preMap = { i: [] for i in range(numCourses) }"),
-        (4, "        for crs, pre in prerequisites: preMap[crs].append(pre)"),
+        (
+            4,
+            "        for crs, pre in prerequisites: preMap[crs].append(pre)",
+        ),
         (5, "        visitSet = set()"),
         (6, "        def dfs(crs):"),
         (7, "            if crs in visitSet: return False"),
@@ -2536,10 +2658,16 @@ pub fn course_schedule_ii_code_lines() -> Vec<(usize, &'static str)> {
 pub fn graph_valid_tree_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def validTree(self, n: int, edges: List[List[int]]) -> bool:"),
+        (
+            2,
+            "    def validTree(self, n: int, edges: List[List[int]]) -> bool:",
+        ),
         (3, "        if not n: return True"),
         (4, "        adj = { i: [] for i in range(n) }"),
-        (5, "        for n1, n2 in edges: adj[n1].append(n2); adj[n2].append(n1)"),
+        (
+            5,
+            "        for n1, n2 in edges: adj[n1].append(n2); adj[n2].append(n1)",
+        ),
         (6, "        visit = set()"),
         (7, "        def dfs(i, prev):"),
         (8, "            if i in visit: return False"),
@@ -2555,16 +2683,25 @@ pub fn graph_valid_tree_code_lines() -> Vec<(usize, &'static str)> {
 pub fn connected_components_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def countComponents(self, n: int, edges: List[List[int]]) -> int:"),
+        (
+            2,
+            "    def countComponents(self, n: int, edges: List[List[int]]) -> int:",
+        ),
         (3, "        par = [i for i in range(n)]; rank = [1] * n"),
         (4, "        def find(n1):"),
         (5, "            res = n1"),
-        (6, "            while res != par[res]: par[res] = par[par[res]]; res = par[res]"),
+        (
+            6,
+            "            while res != par[res]: par[res] = par[par[res]]; res = par[res]",
+        ),
         (7, "            return res"),
         (8, "        def union(n1, n2):"),
         (9, "            p1, p2 = find(n1), find(n2)"),
         (10, "            if p1 == p2: return 0"),
-        (11, "            if rank[p2] > rank[p1]: par[p1] = p2; rank[p2] += rank[p1]"),
+        (
+            11,
+            "            if rank[p2] > rank[p1]: par[p1] = p2; rank[p2] += rank[p1]",
+        ),
         (12, "            else: par[p2] = p1; rank[p1] += rank[p2]"),
         (13, "            return 1"),
         (14, "        res = n"),
@@ -2576,16 +2713,28 @@ pub fn connected_components_code_lines() -> Vec<(usize, &'static str)> {
 pub fn redundant_connection_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:"),
-        (3, "        par = [i for i in range(len(edges) + 1)]; rank = [1] * (len(edges) + 1)"),
+        (
+            2,
+            "    def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:",
+        ),
+        (
+            3,
+            "        par = [i for i in range(len(edges) + 1)]; rank = [1] * (len(edges) + 1)",
+        ),
         (4, "        def find(n):"),
         (5, "            p = par[n]"),
-        (6, "            while p != par[p]: par[p] = par[par[p]]; p = par[p]"),
+        (
+            6,
+            "            while p != par[p]: par[p] = par[par[p]]; p = par[p]",
+        ),
         (7, "            return p"),
         (8, "        def union(n1, n2):"),
         (9, "            p1, p2 = find(n1), find(n2)"),
         (10, "            if p1 == p2: return False"),
-        (11, "            if rank[p1] > rank[p2]: par[p2] = p1; rank[p1] += rank[p2]"),
+        (
+            11,
+            "            if rank[p1] > rank[p2]: par[p2] = p1; rank[p1] += rank[p2]",
+        ),
         (12, "            else: par[p1] = p2; rank[p2] += rank[p1]"),
         (13, "            return True"),
         (14, "        for n1, n2 in edges:"),
@@ -2648,7 +2797,10 @@ pub fn jump_game_ii_code_lines() -> Vec<(usize, &'static str)> {
         (3, "        res = 0; l = r = 0"),
         (4, "        while r < len(nums) - 1:"),
         (5, "            farthest = 0"),
-        (6, "            for i in range(l, r + 1): farthest = max(farthest, i + nums[i])"),
+        (
+            6,
+            "            for i in range(l, r + 1): farthest = max(farthest, i + nums[i])",
+        ),
         (7, "            l = r + 1; r = farthest; res += 1"),
         (8, "        return res"),
     ]
@@ -2657,7 +2809,10 @@ pub fn jump_game_ii_code_lines() -> Vec<(usize, &'static str)> {
 pub fn gas_station_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def canCompleteCircuit(self, gas: List[int], cost: List[int]) -> int:"),
+        (
+            2,
+            "    def canCompleteCircuit(self, gas: List[int], cost: List[int]) -> int:",
+        ),
         (3, "        if sum(gas) < sum(cost): return -1"),
         (4, "        total, start = 0, 0"),
         (5, "        for i in range(len(gas)):"),
@@ -2670,9 +2825,15 @@ pub fn gas_station_code_lines() -> Vec<(usize, &'static str)> {
 pub fn hand_of_straights_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def isNStraightHand(self, hand: List[int], groupSize: int) -> bool:"),
+        (
+            2,
+            "    def isNStraightHand(self, hand: List[int], groupSize: int) -> bool:",
+        ),
         (3, "        if len(hand) % groupSize: return False"),
-        (4, "        count = Counter(hand); minH = list(count.keys()); heapq.heapify(minH)"),
+        (
+            4,
+            "        count = Counter(hand); minH = list(count.keys()); heapq.heapify(minH)",
+        ),
         (5, "        while minH:"),
         (6, "            first = minH[0]"),
         (7, "            for i in range(first, first + groupSize):"),
@@ -2688,10 +2849,16 @@ pub fn hand_of_straights_code_lines() -> Vec<(usize, &'static str)> {
 pub fn merge_triplets_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def mergeTriplets(self, triplets: List[List[int]], target: List[int]) -> bool:"),
+        (
+            2,
+            "    def mergeTriplets(self, triplets: List[List[int]], target: List[int]) -> bool:",
+        ),
         (3, "        good = set()"),
         (4, "        for t in triplets:"),
-        (5, "            if t[0] > target[0] or t[1] > target[1] or t[2] > target[2]: continue"),
+        (
+            5,
+            "            if t[0] > target[0] or t[1] > target[1] or t[2] > target[2]: continue",
+        ),
         (6, "            for i, v in enumerate(t):"),
         (7, "                if v == target[i]: good.add(i)"),
         (8, "        return len(good) == 3"),
@@ -2743,11 +2910,20 @@ pub fn insert_interval_code_lines() -> Vec<(usize, &'static str)> {
 pub fn merge_intervals_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def merge(self, intervals: List[List[int]]) -> List[List[int]]:"),
-        (3, "        intervals.sort(key=lambda i: i[0]); output = [intervals[0]]"),
+        (
+            2,
+            "    def merge(self, intervals: List[List[int]]) -> List[List[int]]:",
+        ),
+        (
+            3,
+            "        intervals.sort(key=lambda i: i[0]); output = [intervals[0]]",
+        ),
         (4, "        for start, end in intervals[1:]:"),
         (5, "            lastEnd = output[-1][1]"),
-        (6, "            if start <= lastEnd: output[-1][1] = max(lastEnd, end)"),
+        (
+            6,
+            "            if start <= lastEnd: output[-1][1] = max(lastEnd, end)",
+        ),
         (7, "            else: output.append([start, end])"),
         (8, "        return output"),
     ]
@@ -2756,8 +2932,14 @@ pub fn merge_intervals_code_lines() -> Vec<(usize, &'static str)> {
 pub fn non_overlapping_intervals_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:"),
-        (3, "        intervals.sort(key=lambda x: x[0]); res = 0; prevEnd = intervals[0][1]"),
+        (
+            2,
+            "    def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:",
+        ),
+        (
+            3,
+            "        intervals.sort(key=lambda x: x[0]); res = 0; prevEnd = intervals[0][1]",
+        ),
         (4, "        for start, end in intervals[1:]:"),
         (5, "            if start >= prevEnd: prevEnd = end"),
         (6, "            else: res += 1; prevEnd = min(end, prevEnd)"),
@@ -2768,7 +2950,10 @@ pub fn non_overlapping_intervals_code_lines() -> Vec<(usize, &'static str)> {
 pub fn meeting_rooms_ii_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def minMeetingRooms(self, intervals: List[List[int]]) -> int:"),
+        (
+            2,
+            "    def minMeetingRooms(self, intervals: List[List[int]]) -> int:",
+        ),
         (3, "        start = sorted([i[0] for i in intervals])"),
         (4, "        end = sorted([i[1] for i in intervals])"),
         (5, "        res = count = s = e = 0"),
@@ -2828,8 +3013,14 @@ pub fn reverse_integer_code_lines() -> Vec<(usize, &'static str)> {
         (4, "        while x:"),
         (5, "            digit = int(math.fmod(x, 10))"),
         (6, "            x = int(x / 10)"),
-        (7, "            if (res > MAX // 10 or (res == MAX // 10 and digit >= 7)): return 0"),
-        (8, "            if (res < MIN // 10 or (res == MIN // 10 and digit <= -8)): return 0"),
+        (
+            7,
+            "            if (res > MAX // 10 or (res == MAX // 10 and digit >= 7)): return 0",
+        ),
+        (
+            8,
+            "            if (res < MIN // 10 or (res == MIN // 10 and digit <= -8)): return 0",
+        ),
         (9, "            res = (res * 10) + digit"),
         (10, "        return res"),
     ]
@@ -2844,9 +3035,18 @@ pub fn rotate_image_code_lines() -> Vec<(usize, &'static str)> {
         (5, "            for i in range(r - l):"),
         (6, "                top, bottom = l, r"),
         (7, "                topLeft = matrix[top][l + i]"),
-        (8, "                matrix[top][l + i] = matrix[bottom - i][l]"),
-        (9, "                matrix[bottom - i][l] = matrix[bottom][r - i]"),
-        (10, "                matrix[bottom][r - i] = matrix[top + i][r]"),
+        (
+            8,
+            "                matrix[top][l + i] = matrix[bottom - i][l]",
+        ),
+        (
+            9,
+            "                matrix[bottom - i][l] = matrix[bottom][r - i]",
+        ),
+        (
+            10,
+            "                matrix[bottom][r - i] = matrix[top + i][r]",
+        ),
         (11, "                matrix[top + i][r] = topLeft"),
         (12, "            r -= 1; l += 1"),
     ]
@@ -2874,8 +3074,14 @@ pub fn spiral_matrix_code_lines() -> Vec<(usize, &'static str)> {
 pub fn set_matrix_zeroes_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def setZeroes(self, matrix: List[List[int]]) -> None:"),
-        (3, "        ROWS, COLS = len(matrix), len(matrix[0]); rowZero = False"),
+        (
+            2,
+            "    def setZeroes(self, matrix: List[List[int]]) -> None:",
+        ),
+        (
+            3,
+            "        ROWS, COLS = len(matrix), len(matrix[0]); rowZero = False",
+        ),
         (4, "        for r in range(ROWS):"),
         (5, "            for c in range(COLS):"),
         (6, "                if matrix[r][c] == 0:"),
@@ -2884,7 +3090,10 @@ pub fn set_matrix_zeroes_code_lines() -> Vec<(usize, &'static str)> {
         (9, "                    else: rowZero = True"),
         (10, "        for r in range(1, ROWS):"),
         (11, "            for c in range(1, COLS):"),
-        (12, "                if matrix[0][c] == 0 or matrix[r][0] == 0: matrix[r][c] = 0"),
+        (
+            12,
+            "                if matrix[0][c] == 0 or matrix[r][0] == 0: matrix[r][c] = 0",
+        ),
         (13, "        if matrix[0][0] == 0:"),
         (14, "            for r in range(ROWS): matrix[r][0] = 0"),
         (15, "        if rowZero:"),
@@ -2920,7 +3129,10 @@ pub fn multiply_strings_code_lines() -> Vec<(usize, &'static str)> {
         (10, "                res[i1 + i2 + 1] += res[i1 + i2] // 10"),
         (11, "                res[i1 + i2] %= 10"),
         (12, "        res, beg = res[::-1], 0"),
-        (13, "        while beg < len(res) and res[beg] == 0: beg += 1"),
+        (
+            13,
+            "        while beg < len(res) and res[beg] == 0: beg += 1",
+        ),
         (14, "        res = map(str, res[beg:])"),
         (15, "        return \"\".join(res)"),
     ]
@@ -2932,12 +3144,21 @@ pub fn detect_squares_code_lines() -> Vec<(usize, &'static str)> {
         (2, "    def __init__(self):"),
         (3, "        self.ptsCount = defaultdict(int); self.pts = []"),
         (4, "    def add(self, point: List[int]) -> None:"),
-        (5, "        self.ptsCount[tuple(point)] += 1; self.pts.append(point)"),
+        (
+            5,
+            "        self.ptsCount[tuple(point)] += 1; self.pts.append(point)",
+        ),
         (6, "    def count(self, point: List[int]) -> int:"),
         (7, "        res = 0; px, py = point"),
         (8, "        for x, y in self.pts:"),
-        (9, "            if (abs(py - y) != abs(px - x)) or x == px or y == py: continue"),
-        (10, "            res += self.ptsCount[(x, py)] * self.ptsCount[(px, y)]"),
+        (
+            9,
+            "            if (abs(py - y) != abs(px - x)) or x == px or y == py: continue",
+        ),
+        (
+            10,
+            "            res += self.ptsCount[(x, py)] * self.ptsCount[(px, y)]",
+        ),
         (11, "        return res"),
     ]
 }
@@ -2959,7 +3180,10 @@ pub fn house_robber_ii_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
         (2, "    def rob(self, nums: List[int]) -> int:"),
-        (3, "        return max(nums[0], self.helper(nums[1:]), self.helper(nums[:-1]))"),
+        (
+            3,
+            "        return max(nums[0], self.helper(nums[1:]), self.helper(nums[:-1]))",
+        ),
         (4, "    def helper(self, nums):"),
         (5, "        rob1, rob2 = 0, 0"),
         (6, "        for n in nums:"),
@@ -2976,12 +3200,24 @@ pub fn longest_palindromic_substring_code_lines() -> Vec<(usize, &'static str)> 
         (3, "        res = \"\"; resLen = 0"),
         (4, "        for i in range(len(s)):"),
         (5, "            l, r = i, i"),
-        (6, "            while l >= 0 and r < len(s) and s[l] == s[r]:"),
-        (7, "                if (r - l + 1) > resLen: res = s[l:r+1]; resLen = r - l + 1"),
+        (
+            6,
+            "            while l >= 0 and r < len(s) and s[l] == s[r]:",
+        ),
+        (
+            7,
+            "                if (r - l + 1) > resLen: res = s[l:r+1]; resLen = r - l + 1",
+        ),
         (8, "                l -= 1; r += 1"),
         (9, "            l, r = i, i + 1"),
-        (10, "            while l >= 0 and r < len(s) and s[l] == s[r]:"),
-        (11, "                if (r - l + 1) > resLen: res = s[l:r+1]; resLen = r - l + 1"),
+        (
+            10,
+            "            while l >= 0 and r < len(s) and s[l] == s[r]:",
+        ),
+        (
+            11,
+            "                if (r - l + 1) > resLen: res = s[l:r+1]; resLen = r - l + 1",
+        ),
         (12, "                l -= 1; r += 1"),
         (13, "        return res"),
     ]
@@ -3021,13 +3257,22 @@ pub fn decode_ways_code_lines() -> Vec<(usize, &'static str)> {
 pub fn coin_change_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def coinChange(self, coins: List[int], amount: int) -> int:"),
+        (
+            2,
+            "    def coinChange(self, coins: List[int], amount: int) -> int:",
+        ),
         (3, "        dp = [amount + 1] * (amount + 1)"),
         (4, "        dp[0] = 0"),
         (5, "        for a in range(1, amount + 1):"),
         (6, "            for c in coins:"),
-        (7, "                if a - c >= 0: dp[a] = min(dp[a], 1 + dp[a - c])"),
-        (8, "        return dp[amount] if dp[amount] != amount + 1 else -1"),
+        (
+            7,
+            "                if a - c >= 0: dp[a] = min(dp[a], 1 + dp[a - c])",
+        ),
+        (
+            8,
+            "        return dp[amount] if dp[amount] != amount + 1 else -1",
+        ),
     ]
 }
 
@@ -3049,11 +3294,17 @@ pub fn max_product_subarray_code_lines() -> Vec<(usize, &'static str)> {
 pub fn word_break_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def wordBreak(self, s: str, wordDict: List[str]) -> bool:"),
+        (
+            2,
+            "    def wordBreak(self, s: str, wordDict: List[str]) -> bool:",
+        ),
         (3, "        dp = [False] * (len(s) + 1); dp[len(s)] = True"),
         (4, "        for i in range(len(s) - 1, -1, -1):"),
         (5, "            for w in wordDict:"),
-        (6, "                if (i + len(w)) <= len(s) and s[i : i + len(w)] == w:"),
+        (
+            6,
+            "                if (i + len(w)) <= len(s) and s[i : i + len(w)] == w:",
+        ),
         (7, "                    dp[i] = dp[i + len(w)]"),
         (8, "                if dp[i]: break"),
         (9, "        return dp[0]"),
@@ -3067,7 +3318,10 @@ pub fn longest_increasing_subsequence_code_lines() -> Vec<(usize, &'static str)>
         (3, "        LIS = [1] * len(nums)"),
         (4, "        for i in range(len(nums) - 1, -1, -1):"),
         (5, "            for j in range(i + 1, len(nums)):"),
-        (6, "                if nums[i] < nums[j]: LIS[i] = max(LIS[i], 1 + LIS[j])"),
+        (
+            6,
+            "                if nums[i] < nums[j]: LIS[i] = max(LIS[i], 1 + LIS[j])",
+        ),
         (7, "        return max(LIS)"),
     ]
 }
@@ -3091,7 +3345,10 @@ pub fn partition_equal_subset_sum_code_lines() -> Vec<(usize, &'static str)> {
 pub fn kth_largest_array_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def findKthLargest(self, nums: List[int], k: int) -> int:"),
+        (
+            2,
+            "    def findKthLargest(self, nums: List[int], k: int) -> int:",
+        ),
         (3, "        heap = nums[:k]"),
         (4, "        heapq.heapify(heap)"),
         (5, "        for num in nums[k:]:"),
@@ -3133,7 +3390,10 @@ pub fn palindrome_partitioning_code_lines() -> Vec<(usize, &'static str)> {
         (2, "    def partition(self, s: str) -> List[List[str]]:"),
         (3, "        res, part = [], []"),
         (4, "        def dfs(i):"),
-        (5, "            if i >= len(s): res.append(part.copy()); return"),
+        (
+            5,
+            "            if i >= len(s): res.append(part.copy()); return",
+        ),
         (6, "            for j in range(i, len(s)):"),
         (7, "                if self.isPali(s, i, j):"),
         (8, "                    part.append(s[i : j + 1])"),
@@ -3170,7 +3430,10 @@ pub fn find_median_code_lines() -> Vec<(usize, &'static str)> {
         (3, "        self.small, self.large = [], []"),
         (4, "    def addNum(self, num: int) -> None:"),
         (5, "        heapq.heappush(self.small, -1 * num)"),
-        (6, "        if self.small and self.large and (-1 * self.small[0]) > self.large[0]:"),
+        (
+            6,
+            "        if self.small and self.large and (-1 * self.small[0]) > self.large[0]:",
+        ),
         (7, "            val = -1 * heapq.heappop(self.small)"),
         (8, "            heapq.heappush(self.large, val)"),
         (9, "        if len(self.small) > len(self.large) + 1:"),
@@ -3180,16 +3443,28 @@ pub fn find_median_code_lines() -> Vec<(usize, &'static str)> {
         (13, "            val = heapq.heappop(self.large)"),
         (14, "            heapq.heappush(self.small, -1 * val)"),
         (15, "    def findMedian(self) -> float:"),
-        (16, "        if len(self.small) > len(self.large): return -1 * self.small[0]"),
-        (17, "        if len(self.large) > len(self.small): return self.large[0]"),
-        (18, "        return (-1 * self.small[0] + self.large[0]) / 2.0"),
+        (
+            16,
+            "        if len(self.small) > len(self.large): return -1 * self.small[0]",
+        ),
+        (
+            17,
+            "        if len(self.large) > len(self.small): return self.large[0]",
+        ),
+        (
+            18,
+            "        return (-1 * self.small[0] + self.large[0]) / 2.0",
+        ),
     ]
 }
 
 pub fn combination_sum_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:"),
+        (
+            2,
+            "    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:",
+        ),
         (3, "        res = []"),
         (4, "        def dfs(i, cur, total):"),
         (5, "            if total == target:"),
@@ -3209,7 +3484,10 @@ pub fn combination_sum_code_lines() -> Vec<(usize, &'static str)> {
 pub fn subsets_ii_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:"),
+        (
+            2,
+            "    def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:",
+        ),
         (3, "        res = []"),
         (4, "        nums.sort()"),
         (5, "        def backtrack(i, subset):"),
@@ -3219,7 +3497,10 @@ pub fn subsets_ii_code_lines() -> Vec<(usize, &'static str)> {
         (9, "            subset.append(nums[i])"),
         (10, "            backtrack(i + 1, subset)"),
         (11, "            subset.pop()"),
-        (12, "            while i + 1 < len(nums) and nums[i] == nums[i + 1]: i += 1"),
+        (
+            12,
+            "            while i + 1 < len(nums) and nums[i] == nums[i + 1]: i += 1",
+        ),
         (13, "            backtrack(i + 1, subset)"),
         (14, "        backtrack(0, [])"),
         (15, "        return res"),
@@ -3229,17 +3510,26 @@ pub fn subsets_ii_code_lines() -> Vec<(usize, &'static str)> {
 pub fn combination_sum_ii_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def combinationSum2(self, candidates: List[int], target: int) -> List[List[int]]:"),
+        (
+            2,
+            "    def combinationSum2(self, candidates: List[int], target: int) -> List[List[int]]:",
+        ),
         (3, "        candidates.sort()"),
         (4, "        res = []"),
         (5, "        def backtrack(pos, cur, target):"),
-        (6, "            if target == 0: res.append(cur.copy()); return"),
+        (
+            6,
+            "            if target == 0: res.append(cur.copy()); return",
+        ),
         (7, "            if target <= 0: return"),
         (8, "            prev = -1"),
         (9, "            for i in range(pos, len(candidates)):"),
         (10, "                if candidates[i] == prev: continue"),
         (11, "                cur.append(candidates[i])"),
-        (12, "                backtrack(i + 1, cur, target - candidates[i])"),
+        (
+            12,
+            "                backtrack(i + 1, cur, target - candidates[i])",
+        ),
         (13, "                cur.pop()"),
         (14, "                prev = candidates[i]"),
         (15, "        backtrack(0, [], target)"),
@@ -3250,16 +3540,31 @@ pub fn combination_sum_ii_code_lines() -> Vec<(usize, &'static str)> {
 pub fn word_search_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def exist(self, board: List[List[str]], word: str) -> bool:"),
+        (
+            2,
+            "    def exist(self, board: List[List[str]], word: str) -> bool:",
+        ),
         (3, "        ROWS, COLS = len(board), len(board[0])"),
         (4, "        path = set()"),
         (5, "        def dfs(r, c, i):"),
         (6, "            if i == len(word): return True"),
-        (7, "            if (r < 0 or c < 0 or r >= ROWS or c >= COLS or"),
-        (8, "                word[i] != board[r][c] or (r, c) in path): return False"),
+        (
+            7,
+            "            if (r < 0 or c < 0 or r >= ROWS or c >= COLS or",
+        ),
+        (
+            8,
+            "                word[i] != board[r][c] or (r, c) in path): return False",
+        ),
         (9, "            path.add((r, c))"),
-        (10, "            res = (dfs(r + 1, c, i + 1) or dfs(r - 1, c, i + 1) or"),
-        (11, "                   dfs(r, c + 1, i + 1) or dfs(r, c - 1, i + 1))"),
+        (
+            10,
+            "            res = (dfs(r + 1, c, i + 1) or dfs(r - 1, c, i + 1) or",
+        ),
+        (
+            11,
+            "                   dfs(r, c + 1, i + 1) or dfs(r, c - 1, i + 1))",
+        ),
         (12, "            path.remove((r, c))"),
         (13, "            return res"),
         (14, "        for r in range(ROWS):"),
@@ -3274,17 +3579,32 @@ pub fn n_queens_code_lines() -> Vec<(usize, &'static str)> {
         (1, "class Solution:"),
         (2, "    def solveNQueens(self, n: int) -> List[List[str]]:"),
         (3, "        col, posDiag, negDiag = set(), set(), set()"),
-        (4, "        res = []; board = [[\".\"] * n for _ in range(n)]"),
+        (
+            4,
+            "        res = []; board = [[\".\"] * n for _ in range(n)]",
+        ),
         (5, "        def backtrack(r):"),
         (6, "            if r == n:"),
-        (7, "                copy = [\"\".join(row) for row in board]"),
+        (
+            7,
+            "                copy = [\"\".join(row) for row in board]",
+        ),
         (8, "                res.append(copy); return"),
         (9, "            for c in range(n):"),
-        (10, "                if c in col or (r + c) in posDiag or (r - c) in negDiag: continue"),
-        (11, "                col.add(c); posDiag.add(r + c); negDiag.add(r - c)"),
+        (
+            10,
+            "                if c in col or (r + c) in posDiag or (r - c) in negDiag: continue",
+        ),
+        (
+            11,
+            "                col.add(c); posDiag.add(r + c); negDiag.add(r - c)",
+        ),
         (12, "                board[r][c] = \"Q\""),
         (13, "                backtrack(r + 1)"),
-        (14, "                col.remove(c); posDiag.remove(r + c); negDiag.remove(r - c)"),
+        (
+            14,
+            "                col.remove(c); posDiag.remove(r + c); negDiag.remove(r - c)",
+        ),
         (15, "                board[r][c] = \".\""),
         (16, "        backtrack(0)"),
         (17, "        return res"),
@@ -3294,7 +3614,10 @@ pub fn n_queens_code_lines() -> Vec<(usize, &'static str)> {
 pub fn subsets_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def subsets(self, nums: List[int]) -> List[List[int]]:"),
+        (
+            2,
+            "    def subsets(self, nums: List[int]) -> List[List[int]]:",
+        ),
         (3, "        res = []"),
         (4, "        subset = []"),
         (5, "        def dfs(i):"),
@@ -3313,7 +3636,10 @@ pub fn subsets_code_lines() -> Vec<(usize, &'static str)> {
 pub fn permutations_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def permute(self, nums: List[int]) -> List[List[int]]:"),
+        (
+            2,
+            "    def permute(self, nums: List[int]) -> List[List[int]]:",
+        ),
         (3, "        res = []"),
         (4, "        def backtrack(curr, used):"),
         (5, "            if len(curr) == len(nums):"),
@@ -3334,7 +3660,10 @@ pub fn permutations_code_lines() -> Vec<(usize, &'static str)> {
 pub fn k_closest_points_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def kClosest(self, points: List[List[int]], k: int) -> List[List[int]]:"),
+        (
+            2,
+            "    def kClosest(self, points: List[List[int]], k: int) -> List[List[int]]:",
+        ),
         (3, "        minHeap = []"),
         (4, "        for x, y in points:"),
         (5, "            dist = (x ** 2) + (y ** 2)"),
@@ -3351,7 +3680,10 @@ pub fn k_closest_points_code_lines() -> Vec<(usize, &'static str)> {
 pub fn task_scheduler_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def leastInterval(self, tasks: List[str], n: int) -> int:"),
+        (
+            2,
+            "    def leastInterval(self, tasks: List[str], n: int) -> int:",
+        ),
         (3, "        count = Counter(tasks)"),
         (4, "        maxHeap = [-cnt for cnt in count.values()]"),
         (5, "        heapq.heapify(maxHeap)"),
@@ -3363,7 +3695,10 @@ pub fn task_scheduler_code_lines() -> Vec<(usize, &'static str)> {
         (11, "                cnt = 1 + heapq.heappop(maxHeap)"),
         (12, "                if cnt: q.append([cnt, time + n])"),
         (13, "            if q and q[0][1] == time:"),
-        (14, "                heapq.heappush(maxHeap, q.popleft()[0])"),
+        (
+            14,
+            "                heapq.heappush(maxHeap, q.popleft()[0])",
+        ),
         (15, "        return time"),
     ]
 }
@@ -3464,7 +3799,10 @@ pub fn word_dictionary_code_lines() -> Vec<(usize, &'static str)> {
         (2, "    def addWord(self, word: str) -> None:"),
         (3, "        curr = self.root"),
         (4, "        for c in word:"),
-        (5, "            if c not in curr.children: curr.children[c] = TrieNode()"),
+        (
+            5,
+            "            if c not in curr.children: curr.children[c] = TrieNode()",
+        ),
         (6, "            curr = curr.children[c]"),
         (7, "        curr.is_end = True"),
         (8, ""),
@@ -3474,10 +3812,19 @@ pub fn word_dictionary_code_lines() -> Vec<(usize, &'static str)> {
         (12, "            for i in range(j, len(word)):"),
         (13, "                c = word[i]"),
         (14, "                if c == '.':"),
-        (15, "                    for child in curr.children.values():"),
-        (16, "                        if dfs(i + 1, child): return True"),
+        (
+            15,
+            "                    for child in curr.children.values():",
+        ),
+        (
+            16,
+            "                        if dfs(i + 1, child): return True",
+        ),
         (17, "                    return False"),
-        (18, "                if c not in curr.children: return False"),
+        (
+            18,
+            "                if c not in curr.children: return False",
+        ),
         (19, "                curr = curr.children[c]"),
         (20, "            return curr.is_end"),
         (21, "        return dfs(0, self.root)"),
@@ -3493,17 +3840,22 @@ pub fn word_search_ii_code_lines() -> Vec<(usize, &'static str)> {
         (5, "        res, visited = set(), set()"),
         (6, ""),
         (7, "        def dfs(r, c, node, word):"),
-        (8, "            if r < 0 or c < 0 or r >= ROWS or c >= COLS: return"),
-        (9, "            if (r, c) in visited or board[r][c] not in node.children: return"),
+        (
+            8,
+            "            if r < 0 or c < 0 or r >= ROWS or c >= COLS: return",
+        ),
+        (
+            9,
+            "            if (r, c) in visited or board[r][c] not in node.children: return",
+        ),
         (10, "            visited.add((r, c))"),
         (11, "            node = node.children[board[r][c]]"),
         (12, "            word += board[r][c]"),
         (13, "            if node.is_end: res.add(word)"),
-        (14, "            for dr, dc in [(-1,0),(1,0),(0,-1),(0,1)]:") ,
+        (14, "            for dr, dc in [(-1,0),(1,0),(0,-1),(0,1)]:"),
         (15, "                dfs(r + dr, c + dc, node, word)"),
         (16, "            visited.remove((r, c))"),
         (17, ""),
         (18, "        return list(res)"),
     ]
 }
-

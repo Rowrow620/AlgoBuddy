@@ -1,5 +1,5 @@
-use std::collections::BTreeMap;
 use crate::model::{Step, VisualState};
+use std::collections::BTreeMap;
 
 pub fn generate_min_window_substring_steps(s: &str, t: &str) -> Vec<Step> {
     let mut steps = Vec::new();
@@ -34,7 +34,10 @@ pub fn generate_min_window_substring_steps(s: &str, t: &str) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 3,
-        description: format!("Minimum Window Substring: s=\"{}\", t=\"{}\". Need {} unique char counts.", s, t, need),
+        description: format!(
+            "Minimum Window Substring: s=\"{}\", t=\"{}\". Need {} unique char counts.",
+            s, t, need
+        ),
         visual: VisualState::TwoPointers {
             chars: s_chars.clone(),
             left: 0,
@@ -64,8 +67,13 @@ pub fn generate_min_window_substring_steps(s: &str, t: &str) -> Vec<Step> {
 
             steps.push(Step {
                 code_line: 6,
-                description: format!("Valid window covering t: [{}..={}] (\"{}\"), len = {}. Shrink left...",
-                    l, r, s_chars[l..=r].iter().collect::<String>(), win_len),
+                description: format!(
+                    "Valid window covering t: [{}..={}] (\"{}\"), len = {}. Shrink left...",
+                    l,
+                    r,
+                    s_chars[l..=r].iter().collect::<String>(),
+                    win_len
+                ),
                 visual: VisualState::TwoPointers {
                     chars: s_chars.clone(),
                     left: l,
@@ -89,7 +97,9 @@ pub fn generate_min_window_substring_steps(s: &str, t: &str) -> Vec<Step> {
     }
 
     let result_str = if res_len != usize::MAX {
-        s_chars[res_bounds.0..=res_bounds.1].iter().collect::<String>()
+        s_chars[res_bounds.0..=res_bounds.1]
+            .iter()
+            .collect::<String>()
     } else {
         String::new()
     };
@@ -97,7 +107,10 @@ pub fn generate_min_window_substring_steps(s: &str, t: &str) -> Vec<Step> {
     steps.push(Step {
         code_line: 9,
         description: if !result_str.is_empty() {
-            format!("Minimum Window Substring = \"{}\" (length {}).", result_str, res_len)
+            format!(
+                "Minimum Window Substring = \"{}\" (length {}).",
+                result_str, res_len
+            )
         } else {
             format!("No valid window substring found in s.")
         },

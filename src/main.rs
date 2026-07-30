@@ -30,7 +30,10 @@ use app::VisualizerApp;
 #[cfg(not(target_arch = "wasm32"))]
 fn main() -> eframe::Result<()> {
     let args: Vec<String> = std::env::args().collect();
-    let force_all = args.iter().any(|a| a == "--all" || a == "--dev" || a == "-a") || cfg!(feature = "all-problems");
+    let force_all = args
+        .iter()
+        .any(|a| a == "--all" || a == "--dev" || a == "-a")
+        || cfg!(feature = "all-problems");
 
     let native_options = eframe::NativeOptions {
         viewport: eframe::egui::ViewportBuilder::default()
@@ -81,7 +84,3 @@ fn main() {
             .await;
     });
 }
-
-
-
-

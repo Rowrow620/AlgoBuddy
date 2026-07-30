@@ -18,12 +18,19 @@ pub fn generate_maximum_subarray_steps(nums: &[i32]) -> Vec<Step> {
     });
 
     for (i, &n) in nums.iter().enumerate() {
-        if cur_sum < 0 { cur_sum = 0; }
+        if cur_sum < 0 {
+            cur_sum = 0;
+        }
         cur_sum += n;
-        if cur_sum > max_sum { max_sum = cur_sum; }
+        if cur_sum > max_sum {
+            max_sum = cur_sum;
+        }
 
         steps.push(Step {
-            description: format!("Index {}: num = {}, curSum = {}, maxSoFar = {}", i, n, cur_sum, max_sum),
+            description: format!(
+                "Index {}: num = {}, curSum = {}, maxSoFar = {}",
+                i, n, cur_sum, max_sum
+            ),
             code_line: 6,
             visual: VisualState::ContainsDuplicate {
                 nums: nums.to_vec(),
@@ -59,7 +66,13 @@ pub fn generate_jump_game_steps(nums: &[i32]) -> Vec<Step> {
             goal = i;
         }
         steps.push(Step {
-            description: format!("Index {}: jump = {}, reach = {}, updated goal = {}", i, nums[i], i + nums[i] as usize, goal),
+            description: format!(
+                "Index {}: jump = {}, reach = {}, updated goal = {}",
+                i,
+                nums[i],
+                i + nums[i] as usize,
+                goal
+            ),
             code_line: 6,
             visual: VisualState::ContainsDuplicate {
                 nums: nums.to_vec(),
@@ -92,7 +105,10 @@ pub fn generate_jump_game_ii_steps(nums: &[i32]) -> Vec<Step> {
         jumps += 1;
 
         steps.push(Step {
-            description: format!("Jump {}: level window [{}, {}], farthest = {}", jumps, l, r, farthest),
+            description: format!(
+                "Jump {}: level window [{}, {}], farthest = {}",
+                jumps, l, r, farthest
+            ),
             code_line: 7,
             visual: VisualState::ContainsDuplicate {
                 nums: nums.to_vec(),
@@ -123,7 +139,10 @@ pub fn generate_gas_station_steps(gas: &[i32], cost: &[i32]) -> Vec<Step> {
         }
 
         steps.push(Step {
-            description: format!("Station {}: gas = {}, cost = {}, currTank = {}, startStation = {}", i, gas[i], cost[i], curr_tank, starting_station),
+            description: format!(
+                "Station {}: gas = {}, cost = {}, currTank = {}, startStation = {}",
+                i, gas[i], cost[i], curr_tank, starting_station
+            ),
             code_line: 7,
             visual: VisualState::ContainsDuplicate {
                 nums: gas.to_vec(),
@@ -141,7 +160,10 @@ pub fn generate_gas_station_steps(gas: &[i32], cost: &[i32]) -> Vec<Step> {
 pub fn generate_hand_of_straights_steps(hand: &[i32], group_size: usize) -> Vec<Step> {
     let mut steps = Vec::new();
     steps.push(Step {
-        description: format!("Hand of Straights: Form consecutive groups of size {} from {:?}", group_size, hand),
+        description: format!(
+            "Hand of Straights: Form consecutive groups of size {} from {:?}",
+            group_size, hand
+        ),
         code_line: 4,
         visual: VisualState::ContainsDuplicate {
             nums: hand.to_vec(),
@@ -157,7 +179,9 @@ pub fn generate_hand_of_straights_steps(hand: &[i32], group_size: usize) -> Vec<
 pub fn generate_merge_triplets_steps() -> Vec<Step> {
     let mut steps = Vec::new();
     steps.push(Step {
-        description: "Merge Triplets: Filter out invalid triplets with values > target and check coverage".into(),
+        description:
+            "Merge Triplets: Filter out invalid triplets with values > target and check coverage"
+                .into(),
         code_line: 4,
         visual: VisualState::ContainsDuplicate {
             nums: vec![1],
@@ -189,7 +213,10 @@ pub fn generate_partition_labels_steps(s: &str) -> Vec<Step> {
 pub fn generate_valid_parenthesis_string_steps(s: &str) -> Vec<Step> {
     let mut steps = Vec::new();
     steps.push(Step {
-        description: format!("Valid Parenthesis String: Track minOpen and maxOpen count range for '{}'", s),
+        description: format!(
+            "Valid Parenthesis String: Track minOpen and maxOpen count range for '{}'",
+            s
+        ),
         code_line: 4,
         visual: VisualState::ContainsDuplicate {
             nums: vec![s.len() as i32],
@@ -205,7 +232,8 @@ pub fn generate_valid_parenthesis_string_steps(s: &str) -> Vec<Step> {
 pub fn generate_insert_interval_steps() -> Vec<Step> {
     let mut steps = Vec::new();
     steps.push(Step {
-        description: "Insert Interval: 3-phase scan (left non-overlapping, merge overlapping, right)".into(),
+        description:
+            "Insert Interval: 3-phase scan (left non-overlapping, merge overlapping, right)".into(),
         code_line: 4,
         visual: VisualState::ContainsDuplicate {
             nums: vec![1, 3, 2, 5, 6, 9],
@@ -237,7 +265,8 @@ pub fn generate_merge_intervals_steps() -> Vec<Step> {
 pub fn generate_non_overlapping_intervals_steps() -> Vec<Step> {
     let mut steps = Vec::new();
     steps.push(Step {
-        description: "Non-overlapping Intervals: Remove interval with larger end time on overlap".into(),
+        description: "Non-overlapping Intervals: Remove interval with larger end time on overlap"
+            .into(),
         code_line: 4,
         visual: VisualState::ContainsDuplicate {
             nums: vec![1, 2, 2, 3, 3, 4, 1, 3],
@@ -253,7 +282,9 @@ pub fn generate_non_overlapping_intervals_steps() -> Vec<Step> {
 pub fn generate_meeting_rooms_ii_steps() -> Vec<Step> {
     let mut steps = Vec::new();
     steps.push(Step {
-        description: "Meeting Rooms II: Sort start and end times to count max simultaneous active meetings".into(),
+        description:
+            "Meeting Rooms II: Sort start and end times to count max simultaneous active meetings"
+                .into(),
         code_line: 4,
         visual: VisualState::ContainsDuplicate {
             nums: vec![0, 30, 5, 10, 15, 20],
