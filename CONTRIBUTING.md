@@ -1,68 +1,88 @@
 # Contributing to AlgoBuddy
 
-Thank you for your interest in contributing to AlgoBuddy. This document outlines the development workflow, project architecture, testing requirements, and submission process for pull requests.
+Thank you for your interest in contributing to AlgoBuddy! We welcome contributions ranging from bug fixes and documentation improvements to new algorithm visualizers and accessibility features.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Architecture & Engine](#architecture--engine)
+- [Auditing & Promoting Problems](#auditing--promoting-problems)
+- [Quality Standards & Testing](#quality-standards--testing)
+- [Community Guidelines](#community-guidelines)
 
 ---
 
-## Development Setup
+## Overview
+
+AlgoBuddy is an open-source, interactive algorithm learning suite built in Rust using `eframe` and `egui`. It follows the NeetCode 150 learning roadmap across 18 topic categories.
+
+Contributions generally fall into three categories:
+
+1. **Algorithm Visualizers**: Auditing existing problem step generators or building visual state renderers.
+2. **UI & Accessibility**: Improving theme contrast, layout math, keyboard navigation, or canvas rendering.
+3. **Core Engine & Tools**: Optimizing step snapshot generation, WASM compilation, or test utilities.
+
+---
+
+## Quick Start
 
 ### Prerequisites
-- Rust 1.75 or later (`rustup update stable`)
-- Cargo (included with standard Rust installation)
-- Trunk (for WebAssembly builds): `cargo install trunk`
-- WASM target: `rustup target add wasm32-unknown-unknown`
 
-### Local Execution
+- [Rust 2021 Edition](https://www.rust-lang.org/) (installed via `rustup`)
+- Git
 
-To run the native desktop application:
-```bash
-cargo run
-```
+### Development Setup
 
-To run the WebAssembly application locally in a browser:
-```bash
-trunk serve
-```
-Then navigate to `http://127.0.0.1:8080`.
+1. Fork and clone the repository:
+   ```powershell
+   git clone https://github.com/Rowrow620/AlgoBuddy.git
+   cd AlgoBuddy
+   ```
 
----
+2. Run the application in **Developer Mode** (unlocks all 135 problem visualizers):
+   ```powershell
+   cargo run -- --dev
+   ```
 
-## Running Tests
+3. Run the automated test suite:
+   ```powershell
+   cargo test
+   ```
 
-All algorithm step generators and parsing logic are validated using automated Rust unit tests. Run the full test suite with:
-
-```bash
-cargo test
-```
-
-Ensure all tests pass before submitting a pull request.
+4. Verify linter compliance:
+   ```powershell
+   cargo clippy --all-targets -- -D warnings
+   ```
 
 ---
 
-## Architecture Overview
+## Architecture & Engine
 
-AlgoBuddy is structured into four core areas:
+The AlgoBuddy codebase is structured into four primary component areas:
 
-1. `src/main.rs`: Application entry points for native execution (`eframe::run_native`) and WASM execution (`eframe::WebRunner`).
-2. `src/model/`: Problem definitions (`Problem`), category taxonomy (`Category`), difficulty levels (`Difficulty`), metadata specs (`ProblemDetails`), and visual state snapshots (`VisualState`).
-3. `src/app.rs`: Main GUI application state (`VisualizerApp`), UI view modes, navigation, playback controls, canvas renderers, and theme palettes.
-4. `src/algorithms/`: Step snapshot generator functions (`generate_*_steps`) for each algorithm.
+- `src/main.rs`: Application entry points for native execution (`eframe::run_native`) and WASM execution (`eframe::WebRunner`).
+- `src/model/`: Problem definitions (`Problem`), category taxonomy (`Category`), difficulty levels (`Difficulty`), metadata specs (`ProblemDetails`), and visual state snapshots (`VisualState`).
+- `src/app.rs`: Main GUI application state (`VisualizerApp`), navigation, playback controls, canvas renderers, and theme palettes.
+- `src/algorithms/`: Step snapshot generator functions (`generate_*_steps`) for each algorithm.
 
 ### Deterministic State Engine
-Algorithms in AlgoBuddy do not execute asynchronously during playback. Instead, generator functions in `src/algorithms/` execute synchronously upfront and produce a `Vec<Step>` snapshot vector. The GUI renders state snapshots based on the active timeline index (`current_step_idx`), allowing forward and backward scrubbing.
 
-### Release Mode and Audit Gating
-Problems in AlgoBuddy carry an audit status (`is_audited(&self) -> bool`).
-- By default (Public Release Mode), the UI presents only audited problems.
-- Developer Mode (toggleable in Settings) displays all implemented problems, flagging unaudited implementations with an `[EXP]` tag.
+Algorithms in AlgoBuddy do not execute asynchronously during playback. Generator functions in `src/algorithms/` execute synchronously upfront and return a `Vec<Step>` snapshot vector. The GUI renders state snapshots based on the active timeline index (`current_step_idx`), enabling forward and backward timeline scrubbing.
+
+### Audit Gating System
+
+Problems in AlgoBuddy carry an audit status (`is_audited(&self) -> bool`):
+- **Public Release Mode** (Default): Displays verified, fully audited problem visualizers.
+- **Developer Mode** (`cargo run -- --dev`): Unlocks all 135 implemented problem visualizers, marking unaudited implementations with an `[EXP]` tag.
 
 ---
 
-## How to Audit or Promote a Problem
+## Auditing & Promoting Problems
 
 To audit an existing problem visualizer and promote it to Public Release status:
 
-1. Open the application in Developer Mode (`show_unaudited: true`).
+1. Launch the application in Developer Mode (`cargo run -- --dev`).
 2. Verify that the algorithm step generator produces accurate state snapshots for standard and edge-case inputs.
 3. Ensure active line highlighting (`code_line`) matches the associated source code snippet.
 4. Add a unit test in `src/app.rs` under `#[cfg(test)] mod tests` asserting expected output values.
@@ -71,10 +91,21 @@ To audit an existing problem visualizer and promote it to Public Release status:
 
 ---
 
-## Pull Request Guidelines
+## Quality Standards & Testing
 
-1. **Branch Naming**: Use descriptive branch names such as `feat/audit-two-sum` or `fix/canvas-render-bounds`.
-2. **Code Formatting**: Format code using `cargo fmt` before committing.
-3. **Clippy Compliance**: Ensure `cargo clippy --all-targets -- -D warnings` reports zero warnings.
-4. **Test Coverage**: Include unit tests for any new algorithm step generators or parser utilities.
-5. **Commit Messages**: Write concise commit messages following standard conventions (e.g., `feat: add visualizer for problem #X`, `fix: resolve bounds checking on timeline scrubber`).
+Before submitting a Pull Request, ensure your changes adhere to these requirements:
+
+- **Formatting**: Run `cargo fmt --all` to ensure standard Rust code formatting.
+- **Clippy Clean**: Run `cargo clippy --all-targets -- -D warnings` to verify zero warnings.
+- **Unit Tests**: Add unit tests for any new algorithm step generators or parser functions.
+- **Commit Messages**: Write concise, descriptive commit messages (e.g., `feat: add visualizer for problem #X`, `fix: resolve bounds checking on timeline scrubber`).
+
+---
+
+## Community Guidelines
+
+We want AlgoBuddy to be a welcoming project for all developers.
+
+- **Code of Conduct**: Please review our [.github/CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md).
+- **Security Policy**: To report security vulnerabilities privately, refer to [.github/SECURITY.md](.github/SECURITY.md).
+- **License**: By contributing, you agree that your contributions will be licensed under the project's [MIT License](LICENSE).
