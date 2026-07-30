@@ -2,6 +2,8 @@
 
 [![Live Web Demo](https://img.shields.io/badge/Live%20Web%20Demo-Try%20in%20Browser-brightgreen.svg?style=for-the-badge&logo=webassembly)](https://rowrow620.github.io/AlgoBuddy)
 
+[![CI & Quality Gates](https://github.com/Rowrow620/AlgoBuddy/actions/workflows/ci.yml/badge.svg)](https://github.com/Rowrow620/AlgoBuddy/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/Rowrow620/AlgoBuddy/actions/workflows/codeql.yml/badge.svg)](https://github.com/Rowrow620/AlgoBuddy/actions/workflows/codeql.yml)
 [![Rust](https://img.shields.io/badge/Rust-2021-orange.svg)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GUI: eframe/egui](https://img.shields.io/badge/GUI-eframe%2Fegui-blueviolet)](https://github.com/emilk/egui)
@@ -70,7 +72,7 @@ AlgoBuddy is a high-performance cross-platform application built in Rust using `
 AlgoBuddy uses a strict **Audit Gating System** to ensure public users only see 100% verified, audited problem visualizers:
 
 - **Public Release Mode** (Default): Shows fully audited and verified problems (currently **Contains Duplicate**, **Two Sum**, and **Valid Anagram**).
-- **Developer / Testing Mode**: Unlocks all 134 problem visualizers across 18 categories for development, testing, and contribution.
+- **Developer / Testing Mode**: Unlocks all 135 problem visualizers across 18 categories for development, testing, and contribution.
 
   ![AlgoBuddy Settings & Accessibility Modal](assets/settings.png)
 
@@ -91,7 +93,7 @@ cd AlgoBuddy
 # Launch Public Release Mode (Audited Problems)
 cargo run
 
-# Launch Developer / Testing Mode (All 134 Problems Unlocked)
+# Launch Developer / Testing Mode (All 135 Problems Unlocked)
 cargo run -- --dev
 
 # Run Automated Test Suite
@@ -101,6 +103,16 @@ cargo test
 ### WebAssembly (WASM) Deployment
 
 To view Developer Mode in a browser deployment, append `?dev=true` to the URL (e.g., `https://rowrow620.github.io/AlgoBuddy/?dev=true`). You can also toggle Developer Mode anytime inside the application **Settings** modal.
+
+---
+
+## Contributing & Community
+
+Contributions are welcome! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) guide for details on our architecture, auditing process, and code quality standards.
+
+* 🤝 **Contributing Guidelines**: [CONTRIBUTING.md](CONTRIBUTING.md)
+* 📜 **Code of Conduct**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+* 🛡️ **Security Policy**: [SECURITY.md](SECURITY.md)
 
 ---
 
