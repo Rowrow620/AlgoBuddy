@@ -2,107 +2,86 @@
 
 [![Live Web Demo](https://img.shields.io/badge/Live%20Web%20Demo-Try%20in%20Browser-brightgreen.svg?style=for-the-badge&logo=webassembly)](https://rowrow620.github.io/AlgoBuddy)
 
+[![CI & Quality Gates](https://github.com/Rowrow620/AlgoBuddy/actions/workflows/ci.yml/badge.svg)](https://github.com/Rowrow620/AlgoBuddy/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/Rowrow620/AlgoBuddy/actions/workflows/codeql.yml/badge.svg)](https://github.com/Rowrow620/AlgoBuddy/actions/workflows/codeql.yml)
 [![Rust](https://img.shields.io/badge/Rust-2021-orange.svg)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GUI: eframe/egui](https://img.shields.io/badge/GUI-eframe%2Fegui-blueviolet)](https://github.com/emilk/egui)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20WebAssembly-lightgrey.svg)]()
 
-> **[Try AlgoBuddy Live in Your Browser (No Installation Required)](https://rowrow620.github.io/AlgoBuddy)**
+AlgoBuddy is a cross-platform algorithm visualizer built in Rust using `eframe` and `egui`. It provides step-by-step interactive visualizations formatted according to the NeetCode 150 learning roadmap across 18 algorithmic categories. Available natively on Windows, macOS, and Linux, or live in your browser via WebAssembly.
+147 Neetcode problems from the 18 categories are in the audit phase, and can be accessed anytime by enabling Developer Mode, while fully verified problems are available in the default public release.
 
+<img width="305" height="300" alt="ste" src="https://github.com/user-attachments/assets/a978e0c4-a7fa-4d5c-b6d4-ca172c07f8ff" /><br>
 
-AlgoBuddy is a high-performance cross-platform application built in Rust using `eframe` and `egui` that provides interactive, step-by-step algorithm visualizations formatted according to the NeetCode 150 learning roadmap. Available natively on Windows/macOS/Linux or live in your browser via WebAssembly (WASM).
+<img width="532" height="608" alt="steps" src="https://github.com/user-attachments/assets/b0fd306f-5024-4aa8-b4ba-7e8a9d80b25d" />
 
-
----
-
-
-
-## Key Features
-
-- **18 Core Categories (Complete NeetCode 150 roadmap)**: Navigation structured into 18 algorithmic topic categories including Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Tries, Backtracking, Heap / Priority Queue, 1D Dynamic Programming, Bit Manipulation, Math & Geometry, Greedy, Intervals, Graphs, 2D Dynamic Programming, and Advanced Graphs.
-
-<img width="400" height="556" alt="{61B1612F-DA34-4086-B8D1-5DB5E34FF24E}" src="https://github.com/user-attachments/assets/d5232cf6-e385-4916-86a5-4fa41fc9b555" />
-
-- **Progressive Problem Auditing**: Actively auditing problem logic and visual step renderers across the roadmap to ensure 100% mathematical and code-trace precision before public release.
-
-<img width="401" height="219" alt="{1B0B035B-083F-40E3-9708-333A14AACC74}" src="https://github.com/user-attachments/assets/6d18aeed-d9fe-401c-8336-a92fe54854fa" />
-
-- **Full-Screen NeetCode 150 Mastery Dashboard**: Interactive category progress breakdown with custom problem completion checkmarks, reset controls, and automatic cross-session state persistence.
-
-<img width="1907" height="1018" alt="git_ex" src="https://github.com/user-attachments/assets/2a7ebd79-3c5d-440f-9828-e32b60d93f50" />
-
-- **Interactive State Renderers**: Visualizes 2D DP memoization tables, graph vector topology canvas, grid flood fills, topological sorts, decision transitions, and step-by-step trace arrays.
-
-<img width="455" height="262" alt="graph_example" src="https://github.com/user-attachments/assets/21e6540e-4fe5-4ba3-9913-7e1e002c7594" />
-
-- **Theme & Colorblind Accessibility System**: Live switcher supporting **VS Code Midnight Dark**, **Cyber Navy**, **Clean Light**, and **Protan/Deuteran Red-Green Colorblind Safe** palettes.
-<img width="380" height="371" alt="settings_colors" src="https://github.com/user-attachments/assets/959de73b-5e05-42ca-a7c2-004b6af991c8" />
-
-- **Multi-Approach Evaluation Engine**: Compare multiple valid solutions per problem with live execution updates.
-
-<img width="628" height="387" alt="multiple_ex_example" src="https://github.com/user-attachments/assets/267fe985-6f0b-446c-8f11-18ed140b5082" />
-
-- **Deterministic State Engine**: Models algorithm steps as discrete state snapshots, enabling forward and backward timeline scrubbing, variable speed multipliers (0.25x - 4.00x), and synchronized source line highlighting.
-
-<img width="610" height="66" alt="{85EEE829-7411-401E-B113-E7B097E4D2D0}" src="https://github.com/user-attachments/assets/cbe397fb-3b5d-478f-847e-09625ec63405" />
-
-- **Integrated Problem Specifications**: View problem statements, examples with input/output cases, operational constraints, and direct links to official LeetCode problems within the application context.
-<img width="557" height="658" alt="{BEA0CC02-CACA-468F-8696-536D720BC2B6}" src="https://github.com/user-attachments/assets/1925b9eb-e70d-41ff-a08f-34d55ac13c74" />
 
 
 ---
 
-## Core Features
+## Application Overview
 
-- **Topic Navigation & Search**: Filter problems by topic category, difficulty level (Easy, Medium, Hard), or direct keyword search.
+![Full-Screen NeetCode 150 Mastery Dashboard](https://github.com/user-attachments/assets/2a7ebd79-3c5d-440f-9828-e32b60d93f50)
 
-  ![NeetCode Roadmap Sidebar](assets/sidebar.png)
+### Key Capabilities
 
-- **Visual Memory State Renderers**:
-  - Interactive Array, 2D DP Memoization Table, Matrix Grid, 2D Vector Node Graph, Stack, Deque, HashSet, Trie Prefix Tree, Dual Heap Tree & Array, and Binary Tree renderers.
-  - Two Pointers, Sliding Window, and Binary Search range & mid highlights.
-- **Synchronized Source Trace & Live Scope Inspector**: Python solution implementation with active line highlighting tied to visual state transitions and live variable scope inspection.
+- **18 Core Categories (100% Complete NeetCode 150 Roadmap)**: Navigation structured into 18 algorithmic topic categories featuring all **150 problems**: Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Tries, Backtracking, Heap / Priority Queue, 1D Dynamic Programming, Bit Manipulation, Math & Geometry, Greedy, Intervals, Graphs, 2D Dynamic Programming, and Advanced Graphs.
+- **Audit Gating System**: Public Release Mode presents verified, fully audited problem visualizers (**Contains Duplicate**, **Two Sum**, and **Valid Anagram**), while Developer Mode (`--dev` / `?dev=true`) unlocks all **150** implemented problem visualizers across 18 categories.
 
-  ![Code Trace and Live Scope Inspector Panel](assets/inspector.png)
-
----
-
-## Public Release vs. Developer Mode
-
-AlgoBuddy uses a strict **Audit Gating System** to ensure public users only see 100% verified, audited problem visualizers:
-
-- **Public Release Mode** (Default): Shows fully audited and verified problems (currently **Contains Duplicate**, **Two Sum**, and **Valid Anagram**).
-- **Developer / Testing Mode**: Unlocks all 134 problem visualizers across 18 categories for development, testing, and contribution.
-
-  ![AlgoBuddy Settings & Accessibility Modal](assets/settings.png)
-
-  ![Developer & Release Mode Toggle](assets/dev_mode.png)
+- **Deterministic State Engine**: Models algorithm execution as discrete state snapshots, enabling forward and backward timeline scrubbing, variable speed playback (0.25x - 4.00x), and synchronized source line highlighting.
+- **Interactive Visual Renderers**: Features custom 2D DP memoization tables, matrix grid flood-fills, graph vector topology canvases, dual heap trees, and array trace renderers.
+- **Theme & Accessibility System**: Includes built-in dark/light themes alongside Protan/Deuteran Red-Green colorblind safe palettes.
+- **Audit Gating System**: Public Release Mode presents audited problem visualizers, while Developer Mode unlocks all 150 implemented problem visualizers for testing and contribution.
 
 ---
 
-## Installation & Execution
+## Quick Start
+
+### WebAssembly (WASM)
+
+Try AlgoBuddy directly in your browser without installation:
+
+- **Public Release Demo**: [https://rowrow620.github.io/AlgoBuddy](https://rowrow620.github.io/AlgoBuddy)
+- **Developer Demo (All 150 Problems)**: [https://rowrow620.github.io/AlgoBuddy/?dev=true](https://rowrow620.github.io/AlgoBuddy/?dev=true)
 
 ### Build from Source
 
-Clone the repository and run via Cargo:
+Requirements: [Rust 2021 Edition](https://www.rust-lang.org/)
 
 ```powershell
+# Clone repository
 git clone https://github.com/Rowrow620/AlgoBuddy.git
 cd AlgoBuddy
 
-# Launch Public Release Mode (Audited Problems)
+# Launch Public Release Mode
 cargo run
 
-# Launch Developer / Testing Mode (All 134 Problems Unlocked)
+# Launch Developer Mode (All 150 Problems Unlocked)
 cargo run -- --dev
 
-# Run Automated Test Suite
+# Execute Automated Test Suite
 cargo test
 ```
 
-### WebAssembly (WASM) Deployment
+---
 
-To view Developer Mode in a browser deployment, append `?dev=true` to the URL (e.g., `https://rowrow620.github.io/AlgoBuddy/?dev=true`). You can also toggle Developer Mode anytime inside the application **Settings** modal.
+## Architecture Overview
+
+AlgoBuddy uses a deterministic snapshot model where generator functions in `src/algorithms/` execute synchronously upfront to produce a timeline vector of discrete state snapshots (`Vec<Step>`). The GUI renders snapshots based on the active timeline scrubber index.
+
+For detailed architecture diagrams, model definitions, and problem auditing workflows, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+## Open Source & Community
+
+We welcome community contributions! Please review our community guidelines:
+
+- **Contributing Guide**: [Contributing](CONTRIBUTING.md)
+- **Changelog**: [Changelog](CHANGELOG.md)
+- **Code of Conduct**: [Code of Conduct](CONTRIBUTING.md#code-of-conduct)
+- **Security Policy**: [**Security Policy**](CONTRIBUTING.md#security-policy)
 
 ---
 

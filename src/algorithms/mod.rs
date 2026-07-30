@@ -29,6 +29,7 @@ pub mod largest_rectangle;
 pub mod last_stone;
 pub mod length_of_longest_substring;
 pub mod linked_list_cycle;
+pub mod linked_list_full;
 pub mod longest_consecutive;
 pub mod meeting_rooms;
 pub mod merge_two_lists;

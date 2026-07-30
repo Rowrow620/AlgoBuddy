@@ -7,6 +7,10 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 5
+    versioning-strategy: lockfile-only
+    ignore:
+      - dependency-name: "eframe"
+        update-types: ["version-update:semver-major"]
     labels:
       - "dependencies"
       - "rust"

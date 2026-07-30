@@ -2,68 +2,42 @@ use eframe::egui::{self, Color32, Frame, RichText, Rounding, Stroke};
 use web_time::Instant;
 
 use crate::algorithms::{
-    advanced_graphs::*,
-    backtracking::*,
-    best_time_stock::generate_best_time_stock_steps,
-    binary_search::generate_binary_search_steps,
-    bit_math::*,
-    bucket_sort::generate_bucket_sort_steps,
-    car_fleet::generate_car_fleet_steps,
+    advanced_graphs::*, backtracking::*, best_time_stock::generate_best_time_stock_steps,
+    binary_search::generate_binary_search_steps, bit_math::*,
+    bucket_sort::generate_bucket_sort_steps, car_fleet::generate_car_fleet_steps,
     character_replacement::generate_character_replacement_steps,
     climbing_stairs::generate_climbing_stairs_steps,
     container_water::generate_container_water_steps,
     contains_duplicate::generate_contains_duplicate_steps,
-    daily_temperatures::generate_daily_temperatures_steps,
-    dp1d::*,
-    dp2d::*,
-    encode_decode::generate_encode_decode_steps,
-    eval_rpn::generate_eval_rpn_steps,
+    daily_temperatures::generate_daily_temperatures_steps, dp1d::*, dp2d::*,
+    encode_decode::generate_encode_decode_steps, eval_rpn::generate_eval_rpn_steps,
     find_median_sorted_arrays::generate_find_median_sorted_arrays_steps,
     find_min_rotated::generate_find_min_rotated_steps,
-    generate_parentheses::generate_parentheses_combinations_steps,
-    graphs::*,
-    greedy_intervals::*,
-    group_anagrams::generate_group_anagrams_steps,
-    happy_number::generate_happy_number_steps,
-    heap::*,
-    house_robber::generate_house_robber_steps,
+    generate_parentheses::generate_parentheses_combinations_steps, graphs::*, greedy_intervals::*,
+    group_anagrams::generate_group_anagrams_steps, happy_number::generate_happy_number_steps,
+    heap::*, house_robber::generate_house_robber_steps,
     koko_bananas::generate_koko_eating_bananas_steps,
     kth_largest_stream::generate_kth_largest_stream_steps,
     largest_rectangle::generate_largest_rectangle_steps,
     length_of_longest_substring::generate_longest_substring_steps,
-    linked_list_cycle::generate_linked_list_cycle_steps,
+    linked_list_cycle::generate_linked_list_cycle_steps, linked_list_full::*,
     longest_consecutive::generate_longest_consecutive_steps,
-    meeting_rooms::generate_meeting_rooms_steps,
-    merge_two_lists::generate_merge_two_lists_steps,
-    min_cost_stairs::generate_min_cost_stairs_steps,
-    min_heap::generate_min_heap_steps,
-    min_stack::generate_min_stack_steps,
-    min_window_substring::generate_min_window_substring_steps,
+    meeting_rooms::generate_meeting_rooms_steps, merge_two_lists::generate_merge_two_lists_steps,
+    min_cost_stairs::generate_min_cost_stairs_steps, min_heap::generate_min_heap_steps,
+    min_stack::generate_min_stack_steps, min_window_substring::generate_min_window_substring_steps,
     missing_number::generate_missing_number_steps,
-    permutation_in_string::generate_permutation_in_string_steps,
-    plus_one::generate_plus_one_steps,
-    product_except_self::generate_product_steps,
-    reverse_bits::generate_reverse_bits_steps,
+    permutation_in_string::generate_permutation_in_string_steps, plus_one::generate_plus_one_steps,
+    product_except_self::generate_product_steps, reverse_bits::generate_reverse_bits_steps,
     reverse_linked_list::generate_reverse_linked_list_steps,
     search_2d_matrix::generate_search_2d_matrix_steps,
     search_rotated_array::generate_search_rotated_array_steps,
     single_number::generate_single_number_steps,
-    sliding_window_max::generate_sliding_window_max_steps,
-    sorting::generate_sorting_steps,
-    three_sum::generate_three_sum_steps,
-    time_key_value_store::generate_time_key_value_store_steps,
-    trapping_rain::generate_trapping_rain_steps,
-    trees::{
-        generate_balanced_tree_steps, generate_diameter_tree_steps, generate_invert_tree_steps,
-        generate_max_depth_tree_steps, generate_same_tree_steps, generate_subtree_steps,
-    },
-    trie::*,
-    two_sum::generate_two_sum_steps,
-    two_sum_ii::generate_two_sum_ii_steps,
-    valid_anagram::generate_valid_anagram_steps,
-    valid_palindrome::generate_valid_palindrome_steps,
-    valid_parentheses::generate_valid_parentheses_steps,
-    valid_sudoku::generate_valid_sudoku_steps,
+    sliding_window_max::generate_sliding_window_max_steps, sorting::generate_sorting_steps,
+    three_sum::generate_three_sum_steps, time_key_value_store::generate_time_key_value_store_steps,
+    trapping_rain::generate_trapping_rain_steps, trees::*, trie::*,
+    two_sum::generate_two_sum_steps, two_sum_ii::generate_two_sum_ii_steps,
+    valid_anagram::generate_valid_anagram_steps, valid_palindrome::generate_valid_palindrome_steps,
+    valid_parentheses::generate_valid_parentheses_steps, valid_sudoku::generate_valid_sudoku_steps,
 };
 
 use crate::model::*;
@@ -1006,6 +980,80 @@ impl VisualizerApp {
             Problem::SwimInRisingWater => generate_swim_rising_water_steps(),
             Problem::AlienDictionary => generate_alien_dictionary_steps(),
             Problem::CheapestFlights => generate_cheapest_flights_steps(),
+            Problem::ReorderList => generate_reorder_list_steps(&[1, 2, 3, 4, 5]),
+            Problem::RemoveNthNodeFromEnd => generate_remove_nth_node_steps(&[1, 2, 3, 4, 5], 2),
+            Problem::CopyListWithRandomPointer => {
+                generate_copy_list_random_steps(&[7, 13, 11, 10, 1])
+            }
+            Problem::AddTwoNumbers => generate_add_two_numbers_steps(&[2, 4, 3], &[5, 6, 4]),
+            Problem::FindDuplicateNumber => generate_find_duplicate_number_steps(&[1, 3, 4, 2, 2]),
+            Problem::LruCache => generate_lru_cache_steps(
+                2,
+                &[
+                    ("put", 1, 1),
+                    ("put", 2, 2),
+                    ("get", 1, 0),
+                    ("put", 3, 3),
+                    ("get", 2, 0),
+                ],
+            ),
+            Problem::MergeKSortedLists => {
+                generate_merge_k_lists_steps(&[vec![1, 4, 5], vec![1, 3, 4], vec![2, 6]])
+            }
+            Problem::ReverseNodesInKGroup => generate_reverse_k_group_steps(&[1, 2, 3, 4, 5], 2),
+            Problem::BinaryTreeLevelOrderTraversal => generate_level_order_traversal_steps(&[
+                Some(3),
+                Some(9),
+                Some(20),
+                None,
+                None,
+                Some(15),
+                Some(7),
+            ]),
+            Problem::BinaryTreeRightSideView => generate_right_side_view_steps(&[
+                Some(1),
+                Some(2),
+                Some(3),
+                None,
+                Some(5),
+                None,
+                Some(4),
+            ]),
+            Problem::CountGoodNodes => generate_count_good_nodes_steps(&[
+                Some(3),
+                Some(1),
+                Some(4),
+                Some(3),
+                None,
+                Some(1),
+                Some(5),
+            ]),
+            Problem::KthSmallestElementBst => {
+                generate_kth_smallest_bst_steps(&[Some(3), Some(1), Some(4), None, Some(2)], 1)
+            }
+            Problem::ConstructBinaryTreePreorderInorder => {
+                generate_construct_tree_pre_in_steps(&[3, 9, 20, 15, 7], &[9, 3, 15, 20, 7])
+            }
+            Problem::BinaryTreeMaxPathSum => generate_tree_max_path_sum_steps(&[
+                Some(-10),
+                Some(9),
+                Some(20),
+                None,
+                None,
+                Some(15),
+                Some(7),
+            ]),
+            Problem::SerializeDeserializeBinaryTree => {
+                generate_serialize_deserialize_tree_steps(&[
+                    Some(1),
+                    Some(2),
+                    Some(3),
+                    None,
+                    None,
+                    Some(4),
+                    Some(5),
+                ])
+            }
         };
 
         self.current_step_idx = 0;
@@ -2245,18 +2293,27 @@ impl eframe::App for VisualizerApp {
                                             render_complexity_card(ui, app_meta, &p);
                                         }
 
-                                        ui.add_space(10.0);
-                                        ui.label(
-                                            RichText::new("Python Implementation")
-                                                .strong()
-                                                .color(p.text_muted),
-                                        );
-                                        ui.add_space(6.0);
-
                                         let code_lines = approach_code_lines(
                                             self.current_problem,
                                             self.selected_approach_id,
                                         );
+
+                                        ui.add_space(10.0);
+                                        ui.horizontal(|ui| {
+                                            ui.label(
+                                                RichText::new("Python Implementation")
+                                                    .strong()
+                                                    .color(p.text_muted),
+                                            );
+                                            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                                if ui.button(RichText::new("Copy Code").size(11.0)).on_hover_text("Copy full Python solution to clipboard").clicked() {
+                                                    let full_code = code_lines.iter().map(|(_, text)| *text).collect::<Vec<_>>().join("\n");
+                                                    ui.output_mut(|o| o.copied_text = full_code);
+                                                }
+                                            });
+                                        });
+                                        ui.add_space(6.0);
+
                                         let should_auto_focus = self.last_focused_step_idx
                                             != Some(self.current_step_idx);
 
@@ -6708,8 +6765,8 @@ mod tests {
         // Verify the number of implemented problems dynamically
         assert_eq!(
             all_problems.len(),
-            135,
-            "Expected 135 problems in Problem::all()!"
+            150,
+            "Expected 150 problems in Problem::all()!"
         );
 
         let mut failed_problems = Vec::new();
