@@ -2,7 +2,7 @@ use crate::app::{ViewMode, VisualizerApp};
 use crate::model::ThemePalette;
 use crate::ui::theme_helpers::difficulty_color;
 use eframe::egui::{self, Color32, Frame, RichText, Rounding, Stroke};
-use std::time::Instant;
+use web_time::Instant;
 
 pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &ThemePalette) {
     egui::TopBottomPanel::top("header_panel")
