@@ -192,6 +192,7 @@ pub enum AuditStatus {
 
 impl Problem {
     pub fn audit_status(&self) -> AuditStatus {
+        #[allow(clippy::match_single_binding)]
         match self {
             // Add future unaudited problems here:
             // Problem::NewProblem => AuditStatus::Unaudited,
