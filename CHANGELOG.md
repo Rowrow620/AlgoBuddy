@@ -5,6 +5,15 @@ All notable changes to the AlgoBuddy project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - Unreleased
+
+### Refactored
+- **Architecture Modularity**: Successfully extracted the monolithic `src/app.rs` into specialized UI renderers within the `src/ui/` module (e.g., `canvas.rs`, `sidebar.rs`, `dashboard.rs`).
+- **Engine Decoupling**: Isolated deterministic algorithm execution logic into a dedicated `src/engine.rs` module for better testability and contributor onboarding.
+
+### Added
+- **UI Quality-of-Life**: Added a clear ("x") button to the Roadmap search bar (from PR #19) and a reset confirmation dialog for the NeetCode Mastery Dashboard (from PR #25).
+
 ## [0.6.0] - 2026-07-30
 
 ### Added

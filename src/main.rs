@@ -21,7 +21,9 @@
 
 mod algorithms;
 mod app;
+mod engine;
 mod model;
+mod ui;
 mod utils;
 
 use app::VisualizerApp;

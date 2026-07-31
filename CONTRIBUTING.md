@@ -60,11 +60,13 @@ Contributions generally fall into three categories:
 
 ## Architecture & Engine
 
-The AlgoBuddy codebase is structured into four primary component areas:
+The AlgoBuddy codebase is structured into five primary component areas:
 
 - `src/main.rs`: Application entry points for native execution (`eframe::run_native`) and WASM execution (`eframe::WebRunner`).
 - `src/model/`: Problem definitions (`Problem`), category taxonomy (`Category`), difficulty levels (`Difficulty`), metadata specs (`ProblemDetails`), and visual state snapshots (`VisualState`).
-- `src/app.rs`: Main GUI application state (`VisualizerApp`), navigation, playback controls, canvas renderers, and theme palettes.
+- `src/app.rs`: Main GUI application state (`VisualizerApp`).
+- `src/ui/`: UI submodules containing navigation panels, playback controls, canvas renderers, and theme palettes.
+- `src/engine.rs`: Core deterministic algorithm execution engine handling snapshot timeline generation and problem selection.
 - `src/algorithms/`: Step snapshot generator functions (`generate_*_steps`) for each algorithm.
 
 ### Deterministic State Engine
