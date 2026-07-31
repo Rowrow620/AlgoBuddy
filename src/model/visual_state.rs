@@ -26,8 +26,16 @@ pub struct Step {
     pub visual: VisualState,
 }
 
-// ── Visual State Variants per Problem Type ──
-
+/// ── Canonical Visual State Representations ──
+///
+/// Encapsulates all visual layout state data rendered across the 150 AlgoBuddy problems.
+/// Structured into canonical visual layout categories:
+/// - 1D Array & Sequence Layouts (`Array1D`, `ContainsDuplicate`, `LongestConsecutive`, `Product`)
+/// - Pointer & Window Traces (`TwoPointers`, `BinarySearch`, `BestTimeStock`)
+/// - Memory & LIFO Inspectors (`Stack`, `TwoSum`, `ValidAnagram`, `GroupAnagrams`, `TopK`, `EncodeDecode`)
+/// - Sequential Linkages (`LinkedList`, `MergeLinkedLists`, `LinkedListCycle`)
+/// - Hierarchical Views (`TreeVisual`, `HeapVisual`, `Trie`, `DecisionTreeVisual`)
+/// - Graph & Grid Networks (`GridGraph`, `NodeGraph`, `ValidSudoku`)
 #[derive(Debug, Clone)]
 pub enum VisualState {
     ContainsDuplicate {
