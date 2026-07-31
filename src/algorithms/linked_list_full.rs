@@ -88,9 +88,7 @@ pub fn generate_reorder_list_steps(nodes: &[i32]) -> Vec<Step> {
         });
 
         left += 1;
-        if right > 0 {
-            right -= 1;
-        }
+        right = right.saturating_sub(1);
     }
 
     steps.push(Step {

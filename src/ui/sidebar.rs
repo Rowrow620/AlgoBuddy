@@ -53,10 +53,10 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
                         .hint_text("Search problem...")
                         .desired_width(180.0),
                 );
-                if !app.search_query.is_empty() {
-                    if ui.small_button("x").on_hover_text("Clear search").clicked() {
-                        app.search_query.clear();
-                    }
+                if !app.search_query.is_empty()
+                    && ui.small_button("x").on_hover_text("Clear search").clicked()
+                {
+                    app.search_query.clear();
                 }
             });
 

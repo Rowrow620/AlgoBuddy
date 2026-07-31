@@ -1,7 +1,3 @@
-use crate::app::VisualizerApp;
-use crate::model::*;
-use crate::utils;
-
 use crate::algorithms::{
     advanced_graphs::*, backtracking::*, best_time_stock::generate_best_time_stock_steps,
     binary_search::generate_binary_search_steps, bit_math::*,
@@ -40,6 +36,8 @@ use crate::algorithms::{
     valid_anagram::generate_valid_anagram_steps, valid_palindrome::generate_valid_palindrome_steps,
     valid_parentheses::generate_valid_parentheses_steps, valid_sudoku::generate_valid_sudoku_steps,
 };
+use crate::app::VisualizerApp;
+use crate::model::*;
 
 pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
     let app_id = app.selected_approach_id;
@@ -247,7 +245,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::Subtree => {
             let tree = app.parse_tree_input();
-            generate_subtree_steps(&tree, &vec![tree.get(1).cloned().flatten()])
+            generate_subtree_steps(&tree, &[tree.get(1).cloned().flatten()])
         }
         Problem::ClimbingStairs => generate_climbing_stairs_steps(5),
         Problem::MinCostStairs => generate_min_cost_stairs_steps(&[10, 15, 20]),

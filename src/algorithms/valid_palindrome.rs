@@ -127,9 +127,7 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
         });
 
         l += 1;
-        if r > 0 {
-            r -= 1;
-        }
+        r = r.saturating_sub(1);
     }
 
     steps.push(Step {

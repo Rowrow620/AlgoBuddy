@@ -114,9 +114,9 @@ pub fn generate_permutation_in_string_steps(s1: &str, s2: &str) -> Vec<Step> {
     steps.push(Step {
         code_line: 9,
         description: if is_match {
-            format!("Permutation of s1 found at end of s2! Return True.")
+            "Permutation of s1 found at end of s2! Return True.".to_string()
         } else {
-            format!("No permutation of s1 found in s2. Return False.")
+            "No permutation of s1 found in s2. Return False.".to_string()
         },
         visual: VisualState::TwoPointers {
             chars: s2_chars,

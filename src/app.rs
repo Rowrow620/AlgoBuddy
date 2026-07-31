@@ -1,7 +1,5 @@
-use eframe::egui::{self, Color32, Frame, RichText, Rounding, Stroke};
+use eframe::egui;
 use web_time::Instant;
-
-use crate::ui::theme_helpers::difficulty_color;
 
 use crate::model::*;
 
@@ -413,6 +411,7 @@ impl eframe::App for VisualizerApp {
 }
 
 #[cfg(test)]
+#[allow(clippy::field_reassign_with_default)]
 mod tests {
     use super::*;
 

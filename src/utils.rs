@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 // ── Shared Input Parsing & Validation Utilities ──
 
 /// Parses a comma-separated string into a Vec<i32>. If empty or invalid, returns fallback.

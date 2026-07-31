@@ -3,6 +3,7 @@ use crate::model::{Category, ThemePalette};
 use crate::ui::theme_helpers::difficulty_color;
 use eframe::egui::{self, Frame, RichText, Rounding};
 
+#[allow(dead_code)]
 pub fn render_fullscreen_roadmap_dashboard(
     app: &mut VisualizerApp,
     ctx: &egui::Context,

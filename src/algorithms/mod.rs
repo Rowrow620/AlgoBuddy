@@ -1,3 +1,11 @@
+#![allow(
+    clippy::vec_init_then_push,
+    clippy::useless_format,
+    clippy::needless_range_loop,
+    clippy::manual_div_ceil,
+    clippy::unnecessary_min_or_max
+)]
+
 pub mod advanced_graphs;
 pub mod backtracking;
 pub mod best_time_stock;

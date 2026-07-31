@@ -43,7 +43,7 @@ pub fn generate_time_key_value_store_steps() -> Vec<Step> {
 
     steps.push(Step {
         code_line: 8,
-        description: format!("mid=0 (time=1 <= 3): Save candidate 'bar', move left pointer right."),
+        description: "mid=0 (time=1 <= 3): Save candidate 'bar', move left pointer right.".into(),
         visual: VisualState::BinarySearch {
             nums: vec![1, 4],
             target: target_t,
@@ -56,7 +56,7 @@ pub fn generate_time_key_value_store_steps() -> Vec<Step> {
 
     steps.push(Step {
         code_line: 11,
-        description: format!("get('foo', 3) -> Returns candidate 'bar' (timestamp 1)."),
+        description: "get('foo', 3) -> Returns candidate 'bar' (timestamp 1).".into(),
         visual: VisualState::BinarySearch {
             nums: vec![1, 4],
             target: target_t,
@@ -70,9 +70,8 @@ pub fn generate_time_key_value_store_steps() -> Vec<Step> {
     // Query get("foo", 5)
     steps.push(Step {
         code_line: 6,
-        description: format!(
-            "get('foo', timestamp=5): Binary search timestamps [1, 4] for largest time <= 5."
-        ),
+        description:
+            "get('foo', timestamp=5): Binary search timestamps [1, 4] for largest time <= 5.".into(),
         visual: VisualState::BinarySearch {
             nums: vec![1, 4],
             target: 5,
@@ -85,7 +84,7 @@ pub fn generate_time_key_value_store_steps() -> Vec<Step> {
 
     steps.push(Step {
         code_line: 8,
-        description: format!("mid=1 (time=4 <= 5): Save candidate 'bar2'. Found latest timestamp!"),
+        description: "mid=1 (time=4 <= 5): Save candidate 'bar2'. Found latest timestamp!".into(),
         visual: VisualState::BinarySearch {
             nums: vec![1, 4],
             target: 5,
@@ -98,7 +97,7 @@ pub fn generate_time_key_value_store_steps() -> Vec<Step> {
 
     steps.push(Step {
         code_line: 11,
-        description: format!("get('foo', 5) -> Returns candidate 'bar2' (timestamp 4)."),
+        description: "get('foo', 5) -> Returns candidate 'bar2' (timestamp 4).".into(),
         visual: VisualState::BinarySearch {
             nums: vec![1, 4],
             target: 5,

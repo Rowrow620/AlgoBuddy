@@ -7,9 +7,8 @@ pub fn generate_single_number_steps(nums: &[i32]) -> Vec<Step> {
 
     steps.push(Step {
         code_line: 3,
-        description: format!(
-            "Single Number using Bitwise XOR (a ^ a = 0, a ^ 0 = a). Initial res = 0."
-        ),
+        description: "Single Number using Bitwise XOR (a ^ a = 0, a ^ 0 = a). Initial res = 0."
+            .into(),
         visual: VisualState::ContainsDuplicate {
             nums: num_vec.clone(),
             active_idx: None,

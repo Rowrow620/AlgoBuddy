@@ -1,7 +1,6 @@
 use crate::app::VisualizerApp;
 use crate::model::{EncodeDecodePhase, Problem, ProductPhase, ThemePalette, VisualState};
-use eframe::egui::{self, Color32, Frame, Pos2, Rect, RichText, Rounding, Shape, Stroke, Vec2};
-use std::f32::consts::PI;
+use eframe::egui::{self, Color32, Frame, RichText, Rounding, Stroke};
 
 impl VisualizerApp {
     pub(crate) fn render_central_canvas(&mut self, ctx: &egui::Context, p: &ThemePalette) {
@@ -468,6 +467,7 @@ impl VisualizerApp {
 }
 
 impl VisualizerApp {
+    #[allow(clippy::too_many_arguments)]
     fn render_array_1d(
         &self,
         ui: &mut egui::Ui,
@@ -590,7 +590,7 @@ impl VisualizerApp {
                 }
                 for (i, &val) in heap.iter().enumerate() {
                     let is_act = active_idx == Some(i);
-                    let is_swp = swapped.map_or(false, |(a, b)| a == i || b == i);
+                    let is_swp = swapped.is_some_and(|(a, b)| a == i || b == i);
                     let bg = if is_swp {
                         p.red
                     } else if is_act {
@@ -751,6 +751,7 @@ impl VisualizerApp {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_grid_graph(
         &self,
         ui: &mut egui::Ui,
@@ -839,6 +840,7 @@ impl VisualizerApp {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_node_graph(
         &self,
         ui: &mut egui::Ui,
@@ -1009,6 +1011,7 @@ impl VisualizerApp {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_contains_duplicate(
         &self,
         ui: &mut egui::Ui,
@@ -1254,6 +1257,7 @@ impl VisualizerApp {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_longest_consecutive(
         &self,
         ui: &mut egui::Ui,
@@ -1422,6 +1426,7 @@ impl VisualizerApp {
         });
     }
 
+    #[allow(clippy::too_many_arguments, clippy::needless_range_loop)]
     fn render_sudoku(
         &self,
         ui: &mut egui::Ui,
@@ -1521,6 +1526,7 @@ impl VisualizerApp {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_merge_lists(
         &self,
         ui: &mut egui::Ui,
@@ -1650,6 +1656,7 @@ impl VisualizerApp {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_list_cycle(
         &self,
         ui: &mut egui::Ui,
@@ -1763,6 +1770,7 @@ impl VisualizerApp {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_tree(
         &self,
         ui: &mut egui::Ui,
@@ -1894,6 +1902,7 @@ impl VisualizerApp {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_stock(
         &self,
         ui: &mut egui::Ui,
@@ -2020,6 +2029,7 @@ impl VisualizerApp {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_binary_search(
         &self,
         ui: &mut egui::Ui,
@@ -2083,7 +2093,7 @@ impl VisualizerApp {
                                     ptr_label.push_str("MID ");
                                 }
                                 if i == right {
-                                    ptr_label.push_str("R");
+                                    ptr_label.push('R');
                                 }
 
                                 ui.label(
@@ -2113,6 +2123,7 @@ impl VisualizerApp {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_linked_list(
         &self,
         ui: &mut egui::Ui,
@@ -2240,6 +2251,7 @@ impl VisualizerApp {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_two_sum(
         &self,
         ui: &mut egui::Ui,
@@ -2272,7 +2284,7 @@ impl VisualizerApp {
             ui.add_space(4.0 * z);
             ui.horizontal(|ui| {
                 for (i, &num) in nums.iter().enumerate() {
-                    let is_found = found.map_or(false, |(a, b)| a == i || b == i);
+                    let is_found = found.is_some_and(|(a, b)| a == i || b == i);
                     let is_primary = active_idx == Some(i);
                     let is_sec = secondary_idx == Some(i);
 
@@ -2384,6 +2396,7 @@ impl VisualizerApp {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_valid_anagram(
         &self,
         ui: &mut egui::Ui,
@@ -2538,6 +2551,7 @@ impl VisualizerApp {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_two_pointers(
         &self,
         ui: &mut egui::Ui,
@@ -2847,6 +2861,7 @@ impl VisualizerApp {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_topk(
         &self,
         ui: &mut egui::Ui,
@@ -3034,6 +3049,7 @@ impl VisualizerApp {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_encode_decode(
         &self,
         ui: &mut egui::Ui,
@@ -3147,6 +3163,7 @@ impl VisualizerApp {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_product(
         &self,
         ui: &mut egui::Ui,

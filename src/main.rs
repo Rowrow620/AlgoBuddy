@@ -1,24 +1,3 @@
-#![allow(
-    dead_code,
-    unused_imports,
-    clippy::too_many_arguments,
-    clippy::type_complexity,
-    clippy::field_reassign_with_default,
-    clippy::useless_vec,
-    clippy::unnecessary_map_or,
-    clippy::needless_range_loop,
-    clippy::vec_init_then_push,
-    clippy::single_char_add_str,
-    clippy::collapsible_if,
-    clippy::collapsible_else_if,
-    clippy::manual_range_contains,
-    clippy::useless_format,
-    clippy::manual_div_ceil,
-    clippy::unnecessary_min_or_max,
-    clippy::int_plus_one,
-    clippy::implicit_saturating_sub
-)]
-
 mod algorithms;
 mod app;
 mod engine;

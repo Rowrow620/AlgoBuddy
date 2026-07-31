@@ -231,6 +231,7 @@ impl Category {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[allow(dead_code)]
 pub enum AuditStatus {
     Audited,
     Unaudited,

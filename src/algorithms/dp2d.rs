@@ -129,7 +129,7 @@ pub fn generate_stock_cooldown_steps(prices: &[i32]) -> Vec<Step> {
 
     for i in (0..n).rev() {
         // Buy state (1)
-        let buy = if i + 1 <= n {
+        let buy = if i < n {
             grid[i + 1][0].parse::<i32>().unwrap_or(0) - prices[i]
         } else {
             -prices[i]

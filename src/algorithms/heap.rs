@@ -175,9 +175,8 @@ pub fn generate_task_scheduler_steps(tasks: &[char], _n: usize) -> Vec<Step> {
     });
 
     steps.push(Step {
-        description: format!(
-            "Schedule tasks maximizing CPU idle cooling slots: Total intervals computed"
-        ),
+        description: "Schedule tasks maximizing CPU idle cooling slots: Total intervals computed"
+            .into(),
         code_line: 9,
         visual: VisualState::HeapVisual {
             heap_elements: freq_heap,
@@ -196,9 +195,7 @@ pub fn generate_find_median_steps(nums: &[i32]) -> Vec<Step> {
     let mut large_min_heap: Vec<i32> = Vec::new(); // min-heap
 
     steps.push(Step {
-        description: format!(
-            "Initialize MedianFinder with empty Small Max-Heap and Large Min-Heap"
-        ),
+        description: "Initialize MedianFinder with empty Small Max-Heap and Large Min-Heap".into(),
         code_line: 2,
         visual: VisualState::HeapVisual {
             heap_elements: Vec::new(),

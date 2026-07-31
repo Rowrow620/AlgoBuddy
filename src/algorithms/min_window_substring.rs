@@ -112,7 +112,7 @@ pub fn generate_min_window_substring_steps(s: &str, t: &str) -> Vec<Step> {
                 result_str, res_len
             )
         } else {
-            format!("No valid window substring found in s.")
+            "No valid window substring found in s.".to_string()
         },
         visual: VisualState::TwoPointers {
             chars: s_chars,
