@@ -59,6 +59,7 @@ pub struct VisualizerApp {
     theme: Theme,
     colorblind_mode: ColorblindMode,
     show_settings_modal: bool,
+    show_reset_confirm_modal: bool,
     show_unaudited: bool,
     view_mode: ViewMode,
     completed_problems: std::collections::HashSet<u32>,
@@ -136,6 +137,7 @@ impl Default for VisualizerApp {
             theme: Theme::DarkVSCode, // Default to user's favorite VS Code Dark style!
             colorblind_mode: ColorblindMode::Off,
             show_settings_modal: false,
+            show_reset_confirm_modal: false,
             show_unaudited: false, // Default: Only show 100% Audited problems in Public Release!
             view_mode: ViewMode::Visualizer,
             completed_problems: std::collections::HashSet::new(),
@@ -319,6 +321,40 @@ impl VisualizerApp {
                 ['.', '.', '.', '.', '8', '.', '.', '7', '9'],
             ]
         }
+    }
+
+    fn render_reset_confirm_modal(&mut self, ctx: &egui::Context) {
+        if !self.show_reset_confirm_modal {
+            return;
+        }
+
+        egui::Window::new("Confirm Reset")
+            .collapsible(false)
+            .resizable(false)
+            .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
+            .show(ctx, |ui| {
+                ui.label("Are you sure you want to reset all completed problem checkmarks?");
+                ui.add_space(8.0);
+
+                ui.horizontal(|ui| {
+                    if ui.button("Cancel").clicked() {
+                        self.show_reset_confirm_modal = false;
+                    }
+
+                    let dark_red = Color32::from_rgb(210, 40, 65);
+                    let confirm_btn = egui::Button::new(
+                        RichText::new("Confirm Reset")
+                            .color(Color32::WHITE)
+                            .strong(),
+                    )
+                    .fill(dark_red);
+
+                    if ui.add(confirm_btn).clicked() {
+                        self.completed_problems.clear();
+                        self.show_reset_confirm_modal = false;
+                    }
+                });
+            });
     }
 
     fn recompute_steps(&mut self) {
@@ -1285,7 +1321,7 @@ impl VisualizerApp {
                             .button(RichText::new("Reset All Progress").strong().color(p.red))
                             .clicked()
                         {
-                            self.completed_problems.clear();
+                            self.show_reset_confirm_modal = true;
                         }
 
                         ui.add_space(12.0);
@@ -1455,6 +1491,9 @@ impl VisualizerApp {
             self.select_problem(prob);
             self.view_mode = ViewMode::Visualizer;
         }
+
+        // Render the confirmation dialog on top of the dashboard
+        self.render_reset_confirm_modal(ctx);
     }
 }
 
