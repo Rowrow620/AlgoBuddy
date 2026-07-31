@@ -3017,7 +3017,7 @@ impl VisualizerApp {
         ui.heading(
             RichText::new(format!(
                 "3. Result Collector (Target k = {})",
-                self.topk_k_input
+                self.get_input_int(Problem::TopKFrequent, "k", 2)
             ))
             .color(p.emerald_text)
             .size(font_title),
@@ -3370,19 +3370,19 @@ impl VisualizerApp {
                 // Render Sample Word Nodes dynamically
                 let words: Vec<&str> = match self.current_problem {
                     Problem::ImplementTrie => self
-                        .trie_words_input
+                        .get_input_str(Problem::ImplementTrie, "words", "apple, app, ape")
                         .split(',')
                         .map(|s| s.trim())
                         .filter(|s| !s.is_empty())
                         .collect(),
                     Problem::WordDictionary => self
-                        .word_dict_words_input
+                        .get_input_str(Problem::WordDictionary, "words", "bad, dad, mad")
                         .split(',')
                         .map(|s| s.trim())
                         .filter(|s| !s.is_empty())
                         .collect(),
                     Problem::WordSearchII => self
-                        .word_search_ii_words_input
+                        .get_input_str(Problem::WordSearchII, "words", "oath, pea, eat, rain")
                         .split(',')
                         .map(|s| s.trim())
                         .filter(|s| !s.is_empty())

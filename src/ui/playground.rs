@@ -28,21 +28,23 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let input = self.get_input_str_mut(
+                                Problem::ContainsDuplicate,
+                                "nums",
+                                "1, 2, 3, 1",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.contains_dup_nums_input)
-                                        .desired_width(160.0),
-                                )
+                                .add(egui::TextEdit::singleline(input).desired_width(160.0))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("[1,2,3,1]").clicked() {
-                                self.contains_dup_nums_input = "1,2,3,1".into();
+                                self.set_input_str(Problem::ContainsDuplicate, "nums", "1,2,3,1");
                                 should_run = true;
                             }
                             if ui.button("[1,2,3,4]").clicked() {
-                                self.contains_dup_nums_input = "1,2,3,4".into();
+                                self.set_input_str(Problem::ContainsDuplicate, "nums", "1,2,3,4");
                                 should_run = true;
                             }
                         }
@@ -52,11 +54,10 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let nums_input =
+                                self.get_input_str_mut(Problem::TwoSum, "nums", "2, 7, 11, 15");
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.two_sum_nums_input)
-                                        .desired_width(130.0),
-                                )
+                                .add(egui::TextEdit::singleline(nums_input).desired_width(130.0))
                                 .changed()
                             {
                                 should_run = true;
@@ -66,15 +67,13 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
-                            if ui
-                                .add(egui::DragValue::new(&mut self.two_sum_target_input))
-                                .changed()
-                            {
+                            let target_input = self.get_input_int_mut(Problem::TwoSum, "target", 9);
+                            if ui.add(egui::DragValue::new(target_input)).changed() {
                                 should_run = true;
                             }
                             if ui.button("[2,7,11,15] t=9").clicked() {
-                                self.two_sum_nums_input = "2,7,11,15".into();
-                                self.two_sum_target_input = 9;
+                                self.set_input_str(Problem::TwoSum, "nums", "2,7,11,15");
+                                self.set_input_int(Problem::TwoSum, "target", 9);
                                 should_run = true;
                             }
                         }
@@ -84,11 +83,10 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let s_input =
+                                self.get_input_str_mut(Problem::ValidAnagram, "s", "anagram");
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.valid_anagram_s_input)
-                                        .desired_width(90.0),
-                                )
+                                .add(egui::TextEdit::singleline(s_input).desired_width(90.0))
                                 .changed()
                             {
                                 should_run = true;
@@ -98,23 +96,22 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let t_input =
+                                self.get_input_str_mut(Problem::ValidAnagram, "t", "nagaram");
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.valid_anagram_t_input)
-                                        .desired_width(90.0),
-                                )
+                                .add(egui::TextEdit::singleline(t_input).desired_width(90.0))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("anagram / nagaram").clicked() {
-                                self.valid_anagram_s_input = "anagram".into();
-                                self.valid_anagram_t_input = "nagaram".into();
+                                self.set_input_str(Problem::ValidAnagram, "s", "anagram");
+                                self.set_input_str(Problem::ValidAnagram, "t", "nagaram");
                                 should_run = true;
                             }
                             if ui.button("rat / car").clicked() {
-                                self.valid_anagram_s_input = "rat".into();
-                                self.valid_anagram_t_input = "car".into();
+                                self.set_input_str(Problem::ValidAnagram, "s", "rat");
+                                self.set_input_str(Problem::ValidAnagram, "t", "car");
                                 should_run = true;
                             }
                         }
@@ -124,17 +121,23 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let strs_input = self.get_input_str_mut(
+                                Problem::GroupAnagrams,
+                                "strs",
+                                "eat, tea, tan, ate, nat, bat",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.group_anagrams_input)
-                                        .desired_width(200.0),
-                                )
+                                .add(egui::TextEdit::singleline(strs_input).desired_width(200.0))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("eat, tea, tan, ate, nat, bat").clicked() {
-                                self.group_anagrams_input = "eat, tea, tan, ate, nat, bat".into();
+                                self.set_input_str(
+                                    Problem::GroupAnagrams,
+                                    "strs",
+                                    "eat, tea, tan, ate, nat, bat",
+                                );
                                 should_run = true;
                             }
                         }
@@ -144,11 +147,13 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let nums_input = self.get_input_str_mut(
+                                Problem::TopKFrequent,
+                                "nums",
+                                "1, 1, 1, 2, 2, 3",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.topk_nums_input)
-                                        .desired_width(120.0),
-                                )
+                                .add(egui::TextEdit::singleline(nums_input).desired_width(120.0))
                                 .changed()
                             {
                                 should_run = true;
@@ -158,15 +163,16 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let k_input = self.get_input_int_mut(Problem::TopKFrequent, "k", 2);
                             if ui
-                                .add(egui::DragValue::new(&mut self.topk_k_input).range(1..=10))
+                                .add(egui::DragValue::new(k_input).range(1..=10))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("[1,1,1,2,2,3] k=2").clicked() {
-                                self.topk_nums_input = "1,1,1,2,2,3".into();
-                                self.topk_k_input = 2;
+                                self.set_input_str(Problem::TopKFrequent, "nums", "1,1,1,2,2,3");
+                                self.set_input_int(Problem::TopKFrequent, "k", 2);
                                 should_run = true;
                             }
                         }
@@ -176,17 +182,19 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let nums_input = self.get_input_str_mut(
+                                Problem::ProductExceptSelf,
+                                "nums",
+                                "1, 2, 4, 6",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.prod_nums_input)
-                                        .desired_width(160.0),
-                                )
+                                .add(egui::TextEdit::singleline(nums_input).desired_width(160.0))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("[1,2,4,6]").clicked() {
-                                self.prod_nums_input = "1,2,4,6".into();
+                                self.set_input_str(Problem::ProductExceptSelf, "nums", "1,2,4,6");
                                 should_run = true;
                             }
                         }
@@ -196,17 +204,19 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let strs_input = self.get_input_str_mut(
+                                Problem::EncodeDecode,
+                                "strs",
+                                "Hello, World",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.ed_strs_input)
-                                        .desired_width(160.0),
-                                )
+                                .add(egui::TextEdit::singleline(strs_input).desired_width(160.0))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("Hello, World").clicked() {
-                                self.ed_strs_input = "Hello, World".into();
+                                self.set_input_str(Problem::EncodeDecode, "strs", "Hello, World");
                                 should_run = true;
                             }
                         }
@@ -237,19 +247,23 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let nums_input = self.get_input_str_mut(
+                                Problem::LongestConsecutive,
+                                "nums",
+                                "2, 20, 4, 10, 3, 4, 5",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(
-                                        &mut self.longest_consecutive_nums_input,
-                                    )
-                                    .desired_width(180.0),
-                                )
+                                .add(egui::TextEdit::singleline(nums_input).desired_width(180.0))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("[2,20,4,10,3,4,5]").clicked() {
-                                self.longest_consecutive_nums_input = "2,20,4,10,3,4,5".into();
+                                self.set_input_str(
+                                    Problem::LongestConsecutive,
+                                    "nums",
+                                    "2,20,4,10,3,4,5",
+                                );
                                 should_run = true;
                             }
                         }
@@ -259,17 +273,23 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let s_input = self.get_input_str_mut(
+                                Problem::ValidPalindrome,
+                                "s",
+                                "Was it a car or a cat I saw?",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.palindrome_s_input)
-                                        .desired_width(200.0),
-                                )
+                                .add(egui::TextEdit::singleline(s_input).desired_width(200.0))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("Was it a car...").clicked() {
-                                self.palindrome_s_input = "Was it a car or a cat I saw?".into();
+                                self.set_input_str(
+                                    Problem::ValidPalindrome,
+                                    "s",
+                                    "Was it a car or a cat I saw?",
+                                );
                                 should_run = true;
                             }
                         }
@@ -279,17 +299,23 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let prices_input = self.get_input_str_mut(
+                                Problem::BestTimeStock,
+                                "prices",
+                                "10, 1, 5, 6, 7, 1",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.stock_prices_input)
-                                        .desired_width(160.0),
-                                )
+                                .add(egui::TextEdit::singleline(prices_input).desired_width(160.0))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("[10,1,5,6,7,1]").clicked() {
-                                self.stock_prices_input = "10,1,5,6,7,1".into();
+                                self.set_input_str(
+                                    Problem::BestTimeStock,
+                                    "prices",
+                                    "10,1,5,6,7,1",
+                                );
                                 should_run = true;
                             }
                         }
@@ -299,17 +325,16 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let s_input =
+                                self.get_input_str_mut(Problem::ValidParentheses, "s", "([{}])");
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.parentheses_s_input)
-                                        .desired_width(140.0),
-                                )
+                                .add(egui::TextEdit::singleline(s_input).desired_width(140.0))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("([{}])").clicked() {
-                                self.parentheses_s_input = "([{}])".into();
+                                self.set_input_str(Problem::ValidParentheses, "s", "([{}])");
                                 should_run = true;
                             }
                         }
@@ -319,11 +344,13 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let nums_input = self.get_input_str_mut(
+                                Problem::BinarySearch,
+                                "nums",
+                                "-1, 0, 2, 4, 6, 8",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.binary_search_nums_input)
-                                        .desired_width(140.0),
-                                )
+                                .add(egui::TextEdit::singleline(nums_input).desired_width(140.0))
                                 .changed()
                             {
                                 should_run = true;
@@ -333,15 +360,14 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
-                            if ui
-                                .add(egui::DragValue::new(&mut self.binary_search_target_input))
-                                .changed()
-                            {
+                            let target_input =
+                                self.get_input_int_mut(Problem::BinarySearch, "target", 4);
+                            if ui.add(egui::DragValue::new(target_input)).changed() {
                                 should_run = true;
                             }
                             if ui.button("[-1,0,2,4,6,8] t=4").clicked() {
-                                self.binary_search_nums_input = "-1,0,2,4,6,8".into();
-                                self.binary_search_target_input = 4;
+                                self.set_input_str(Problem::BinarySearch, "nums", "-1,0,2,4,6,8");
+                                self.set_input_int(Problem::BinarySearch, "target", 4);
                                 should_run = true;
                             }
                         }
@@ -351,17 +377,19 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let nodes_input = self.get_input_str_mut(
+                                Problem::ReverseLinkedList,
+                                "nodes",
+                                "0, 1, 2, 3",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.linked_list_nodes_input)
-                                        .desired_width(140.0),
-                                )
+                                .add(egui::TextEdit::singleline(nodes_input).desired_width(140.0))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("[0,1,2,3]").clicked() {
-                                self.linked_list_nodes_input = "0,1,2,3".into();
+                                self.set_input_str(Problem::ReverseLinkedList, "nodes", "0,1,2,3");
                                 should_run = true;
                             }
                         }
@@ -371,11 +399,10 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let l1_input =
+                                self.get_input_str_mut(Problem::MergeTwoLists, "list1", "1, 2, 4");
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.merge_list1_input)
-                                        .desired_width(100.0),
-                                )
+                                .add(egui::TextEdit::singleline(l1_input).desired_width(100.0))
                                 .changed()
                             {
                                 should_run = true;
@@ -385,18 +412,17 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let l2_input =
+                                self.get_input_str_mut(Problem::MergeTwoLists, "list2", "1, 3, 5");
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.merge_list2_input)
-                                        .desired_width(100.0),
-                                )
+                                .add(egui::TextEdit::singleline(l2_input).desired_width(100.0))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("[1,2,4] & [1,3,5]").clicked() {
-                                self.merge_list1_input = "1,2,4".into();
-                                self.merge_list2_input = "1,3,5".into();
+                                self.set_input_str(Problem::MergeTwoLists, "list1", "1,2,4");
+                                self.set_input_str(Problem::MergeTwoLists, "list2", "1,3,5");
                                 should_run = true;
                             }
                         }
@@ -406,11 +432,13 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let nodes_input = self.get_input_str_mut(
+                                Problem::LinkedListCycle,
+                                "nodes",
+                                "1, 2, 3, 4",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.cycle_nodes_input)
-                                        .desired_width(120.0),
-                                )
+                                .add(egui::TextEdit::singleline(nodes_input).desired_width(120.0))
                                 .changed()
                             {
                                 should_run = true;
@@ -420,18 +448,17 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let cycle_idx_input =
+                                self.get_input_int_mut(Problem::LinkedListCycle, "cycle_idx", 1);
                             if ui
-                                .add(
-                                    egui::DragValue::new(&mut self.cycle_index_input)
-                                        .range(-1..=10),
-                                )
+                                .add(egui::DragValue::new(cycle_idx_input).range(-1..=10))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("[1,2,3,4] idx=1").clicked() {
-                                self.cycle_nodes_input = "1,2,3,4".into();
-                                self.cycle_index_input = 1;
+                                self.set_input_str(Problem::LinkedListCycle, "nodes", "1,2,3,4");
+                                self.set_input_int(Problem::LinkedListCycle, "cycle_idx", 1);
                                 should_run = true;
                             }
                         }
@@ -446,17 +473,23 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let tree_input = self.get_input_str_mut(
+                                self.current_problem,
+                                "tree_nodes",
+                                "1, 2, 3, 4, 5, 6, 7",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.tree_nodes_input)
-                                        .desired_width(180.0),
-                                )
+                                .add(egui::TextEdit::singleline(tree_input).desired_width(180.0))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("[1,2,3,4,5,6,7]").clicked() {
-                                self.tree_nodes_input = "1,2,3,4,5,6,7".into();
+                                self.set_input_str(
+                                    self.current_problem,
+                                    "tree_nodes",
+                                    "1,2,3,4,5,6,7",
+                                );
                                 should_run = true;
                             }
                         }
@@ -466,11 +499,10 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let nums_input =
+                                self.get_input_str_mut(Problem::TwoSumII, "nums", "2, 7, 11, 15");
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.two_pointer_nums_input)
-                                        .desired_width(140.0),
-                                )
+                                .add(egui::TextEdit::singleline(nums_input).desired_width(140.0))
                                 .changed()
                             {
                                 should_run = true;
@@ -480,15 +512,14 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
-                            if ui
-                                .add(egui::DragValue::new(&mut self.two_pointer_target_input))
-                                .changed()
-                            {
+                            let target_input =
+                                self.get_input_int_mut(Problem::TwoSumII, "target", 9);
+                            if ui.add(egui::DragValue::new(target_input)).changed() {
                                 should_run = true;
                             }
                             if ui.button("[2,7,11,15] t=9").clicked() {
-                                self.two_pointer_nums_input = "2,7,11,15".into();
-                                self.two_pointer_target_input = 9;
+                                self.set_input_str(Problem::TwoSumII, "nums", "2,7,11,15");
+                                self.set_input_int(Problem::TwoSumII, "target", 9);
                                 should_run = true;
                             }
                         }
@@ -501,17 +532,19 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let nums_input = self.get_input_str_mut(
+                                self.current_problem,
+                                "nums",
+                                "-1, 0, 1, 2, -1, -4",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.two_pointer_nums_input)
-                                        .desired_width(180.0),
-                                )
+                                .add(egui::TextEdit::singleline(nums_input).desired_width(180.0))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("Default Preset").clicked() {
-                                self.two_pointer_nums_input = "-1,0,1,2,-1,-4".into();
+                                self.set_input_str(self.current_problem, "nums", "-1,0,1,2,-1,-4");
                                 should_run = true;
                             }
                         }
@@ -521,11 +554,13 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let nums_input = self.get_input_str_mut(
+                                self.current_problem,
+                                "nums",
+                                "4, 5, 6, 7, 0, 1, 2",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.binary_search_nums_input)
-                                        .desired_width(140.0),
-                                )
+                                .add(egui::TextEdit::singleline(nums_input).desired_width(140.0))
                                 .changed()
                             {
                                 should_run = true;
@@ -535,15 +570,14 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
-                            if ui
-                                .add(egui::DragValue::new(&mut self.binary_search_target_input))
-                                .changed()
-                            {
+                            let target_input =
+                                self.get_input_int_mut(self.current_problem, "target", 0);
+                            if ui.add(egui::DragValue::new(target_input)).changed() {
                                 should_run = true;
                             }
                             if ui.button("[4,5,6,7,0,1,2] t=0").clicked() {
-                                self.binary_search_nums_input = "4,5,6,7,0,1,2".into();
-                                self.binary_search_target_input = 0;
+                                self.set_input_str(self.current_problem, "nums", "4,5,6,7,0,1,2");
+                                self.set_input_int(self.current_problem, "target", 0);
                                 should_run = true;
                             }
                         }
@@ -553,11 +587,13 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let words_input = self.get_input_str_mut(
+                                Problem::ImplementTrie,
+                                "words",
+                                "apple, app, ape",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.trie_words_input)
-                                        .desired_width(140.0),
-                                )
+                                .add(egui::TextEdit::singleline(words_input).desired_width(140.0))
                                 .changed()
                             {
                                 should_run = true;
@@ -567,18 +603,17 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let search_input =
+                                self.get_input_str_mut(Problem::ImplementTrie, "search", "app");
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.trie_search_input)
-                                        .desired_width(80.0),
-                                )
+                                .add(egui::TextEdit::singleline(search_input).desired_width(80.0))
                                 .changed()
                             {
                                 should_run = true;
                             }
                             if ui.button("apple, app").clicked() {
-                                self.trie_words_input = "apple, app".into();
-                                self.trie_search_input = "app".into();
+                                self.set_input_str(Problem::ImplementTrie, "words", "apple, app");
+                                self.set_input_str(Problem::ImplementTrie, "search", "app");
                                 should_run = true;
                             }
                         }
@@ -588,11 +623,13 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let words_input = self.get_input_str_mut(
+                                Problem::WordDictionary,
+                                "words",
+                                "bad, dad, mad",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.word_dict_words_input)
-                                        .desired_width(140.0),
-                                )
+                                .add(egui::TextEdit::singleline(words_input).desired_width(140.0))
                                 .changed()
                             {
                                 should_run = true;
@@ -602,11 +639,10 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let pattern_input =
+                                self.get_input_str_mut(Problem::WordDictionary, "pattern", ".ad");
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(&mut self.word_dict_pattern_input)
-                                        .desired_width(80.0),
-                                )
+                                .add(egui::TextEdit::singleline(pattern_input).desired_width(80.0))
                                 .changed()
                             {
                                 should_run = true;
@@ -618,13 +654,13 @@ impl VisualizerApp {
                                     .font(egui::FontId::monospace(12.0))
                                     .color(p.text_muted),
                             );
+                            let words_input = self.get_input_str_mut(
+                                Problem::WordSearchII,
+                                "words",
+                                "oath, pea, eat, rain",
+                            );
                             if ui
-                                .add(
-                                    egui::TextEdit::singleline(
-                                        &mut self.word_search_ii_words_input,
-                                    )
-                                    .desired_width(200.0),
-                                )
+                                .add(egui::TextEdit::singleline(words_input).desired_width(200.0))
                                 .changed()
                             {
                                 should_run = true;

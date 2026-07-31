@@ -31,7 +31,7 @@ pub struct ProblemDetails {
 
 // ── Problem Enum (34 Problems) ──
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Problem {
     ContainsDuplicate,
     TwoSum,

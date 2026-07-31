@@ -35,49 +35,11 @@ pub struct VisualizerApp {
     pub(crate) search_query: String,
     pub(crate) right_tab: RightTab,
 
-    // Inputs per problem
-    pub(crate) contains_dup_nums_input: String,
+    // Dynamic input state maps
+    pub(crate) input_strings: std::collections::HashMap<(Problem, &'static str), String>,
+    pub(crate) input_integers: std::collections::HashMap<(Problem, &'static str), i32>,
 
-    pub(crate) two_sum_nums_input: String,
-    pub(crate) two_sum_target_input: i32,
-
-    pub(crate) valid_anagram_s_input: String,
-    pub(crate) valid_anagram_t_input: String,
-
-    pub(crate) group_anagrams_input: String,
-
-    pub(crate) topk_nums_input: String,
-    pub(crate) topk_k_input: usize,
-
-    pub(crate) ed_strs_input: String,
-
-    pub(crate) prod_nums_input: String,
-
-    pub(crate) palindrome_s_input: String,
-    pub(crate) parentheses_s_input: String,
-
-    pub(crate) stock_prices_input: String,
-    pub(crate) binary_search_nums_input: String,
-    pub(crate) binary_search_target_input: i32,
-    pub(crate) linked_list_nodes_input: String,
-
-    pub(crate) merge_list1_input: String,
-    pub(crate) merge_list2_input: String,
-    pub(crate) cycle_nodes_input: String,
-    pub(crate) cycle_index_input: i32,
-
-    pub(crate) tree_nodes_input: String,
     pub(crate) sudoku_preset_valid: bool,
-    pub(crate) longest_consecutive_nums_input: String,
-
-    pub(crate) two_pointer_nums_input: String,
-    pub(crate) two_pointer_target_input: i32,
-
-    pub(crate) trie_words_input: String,
-    pub(crate) trie_search_input: String,
-    pub(crate) word_dict_words_input: String,
-    pub(crate) word_dict_pattern_input: String,
-    pub(crate) word_search_ii_words_input: String,
 
     // Playback state
     pub(crate) steps: Vec<Step>,
@@ -112,48 +74,9 @@ impl Default for VisualizerApp {
             search_query: String::new(),
             right_tab: RightTab::CodeTrace,
 
-            contains_dup_nums_input: "1, 2, 3, 1".to_string(),
-
-            two_sum_nums_input: "2, 7, 11, 15".to_string(),
-            two_sum_target_input: 9,
-
-            valid_anagram_s_input: "anagram".to_string(),
-            valid_anagram_t_input: "nagaram".to_string(),
-
-            group_anagrams_input: "eat, tea, tan, ate, nat, bat".to_string(),
-
-            topk_nums_input: "1, 1, 1, 2, 2, 3".to_string(),
-            topk_k_input: 2,
-
-            ed_strs_input: "Hello, World".to_string(),
-
-            prod_nums_input: "1, 2, 4, 6".to_string(),
-
-            palindrome_s_input: "Was it a car or a cat I saw?".to_string(),
-            parentheses_s_input: "([{}])".to_string(),
-
-            stock_prices_input: "10, 1, 5, 6, 7, 1".to_string(),
-            binary_search_nums_input: "-1, 0, 2, 4, 6, 8".to_string(),
-            binary_search_target_input: 4,
-            linked_list_nodes_input: "0, 1, 2, 3".to_string(),
-
-            merge_list1_input: "1, 2, 4".to_string(),
-            merge_list2_input: "1, 3, 5".to_string(),
-            cycle_nodes_input: "1, 2, 3, 4".to_string(),
-            cycle_index_input: 1,
-
-            tree_nodes_input: "1, 2, 3, 4, 5, 6, 7".to_string(),
+            input_strings: std::collections::HashMap::new(),
+            input_integers: std::collections::HashMap::new(),
             sudoku_preset_valid: true,
-            longest_consecutive_nums_input: "2, 20, 4, 10, 3, 4, 5".to_string(),
-
-            two_pointer_nums_input: "2, 7, 11, 15".to_string(),
-            two_pointer_target_input: 9,
-
-            trie_words_input: "apple, app, ape".to_string(),
-            trie_search_input: "app".to_string(),
-            word_dict_words_input: "bad, dad, mad".to_string(),
-            word_dict_pattern_input: ".ad".to_string(),
-            word_search_ii_words_input: "oath, pea, eat, rain".to_string(),
 
             steps: Vec::new(),
 
@@ -174,6 +97,57 @@ impl Default for VisualizerApp {
 }
 
 impl VisualizerApp {
+    // ── Input State Map Helpers ──
+
+    pub fn get_input_str<'a>(
+        &'a self,
+        problem: Problem,
+        key: &'static str,
+        fallback: &'a str,
+    ) -> &'a str {
+        self.input_strings
+            .get(&(problem, key))
+            .map(|s| s.as_str())
+            .unwrap_or(fallback)
+    }
+
+    pub fn get_input_str_mut(
+        &mut self,
+        problem: Problem,
+        key: &'static str,
+        fallback: &str,
+    ) -> &mut String {
+        self.input_strings
+            .entry((problem, key))
+            .or_insert_with(|| fallback.to_string())
+    }
+
+    pub fn set_input_str(&mut self, problem: Problem, key: &'static str, val: impl Into<String>) {
+        self.input_strings.insert((problem, key), val.into());
+    }
+
+    pub fn get_input_int(&self, problem: Problem, key: &'static str, fallback: i32) -> i32 {
+        self.input_integers
+            .get(&(problem, key))
+            .copied()
+            .unwrap_or(fallback)
+    }
+
+    pub fn get_input_int_mut(
+        &mut self,
+        problem: Problem,
+        key: &'static str,
+        fallback: i32,
+    ) -> &mut i32 {
+        self.input_integers
+            .entry((problem, key))
+            .or_insert(fallback)
+    }
+
+    pub fn set_input_int(&mut self, problem: Problem, key: &'static str, val: i32) {
+        self.input_integers.insert((problem, key), val);
+    }
+
     pub fn set_show_unaudited(&mut self, show: bool) {
         self.show_unaudited = show;
     }
@@ -242,8 +216,10 @@ impl VisualizerApp {
     }
 
     pub(crate) fn parse_tree_input(&self) -> Vec<Option<i32>> {
+        let input_str =
+            self.get_input_str(self.current_problem, "tree_nodes", "1, 2, 3, 4, 5, 6, 7");
         crate::utils::parse_tree_nodes(
-            &self.tree_nodes_input,
+            input_str,
             &[
                 Some(4),
                 Some(2),
@@ -468,8 +444,8 @@ mod tests {
     fn test_two_sum_logic_correctness() {
         let mut app = VisualizerApp::default();
         app.current_problem = Problem::TwoSum;
-        app.two_sum_nums_input = "2, 7, 11, 15".to_string();
-        app.two_sum_target_input = 9;
+        app.set_input_str(Problem::TwoSum, "nums", "2, 7, 11, 15");
+        app.set_input_int(Problem::TwoSum, "target", 9);
         app.selected_approach_id = 0; // Hash map
         app.recompute_steps();
 
@@ -489,7 +465,7 @@ mod tests {
     fn test_contains_duplicate_logic_correctness() {
         let mut app = VisualizerApp::default();
         app.current_problem = Problem::ContainsDuplicate;
-        app.contains_dup_nums_input = "1, 2, 3, 1".to_string();
+        app.set_input_str(Problem::ContainsDuplicate, "nums", "1, 2, 3, 1");
         app.recompute_steps();
 
         let last_step = app.steps.last().expect("Steps should not be empty");
@@ -514,8 +490,8 @@ mod tests {
     fn test_valid_anagram_logic_correctness() {
         let mut app = VisualizerApp::default();
         app.current_problem = Problem::ValidAnagram;
-        app.valid_anagram_s_input = "anagram".to_string();
-        app.valid_anagram_t_input = "nagaram".to_string();
+        app.set_input_str(Problem::ValidAnagram, "s", "anagram");
+        app.set_input_str(Problem::ValidAnagram, "t", "nagaram");
         app.recompute_steps();
 
         let last_step = app.steps.last().expect("Steps should not be empty");
@@ -533,7 +509,7 @@ mod tests {
 
         // Edge Case 1: Empty input string fallback for Contains Duplicate
         app.current_problem = Problem::ContainsDuplicate;
-        app.contains_dup_nums_input = "".to_string();
+        app.set_input_str(Problem::ContainsDuplicate, "nums", "");
         app.recompute_steps();
         assert!(
             !app.steps.is_empty(),
@@ -542,18 +518,18 @@ mod tests {
 
         // Edge Case 2: Target not found for Two Sum
         app.current_problem = Problem::TwoSum;
-        app.two_sum_nums_input = "1, 2, 3".to_string();
-        app.two_sum_target_input = 999;
+        app.set_input_str(Problem::TwoSum, "nums", "1, 2, 3");
+        app.set_input_int(Problem::TwoSum, "target", 999);
         app.recompute_steps();
         assert!(
             !app.steps.is_empty(),
-            "Two Sum failed when target is missing"
+            "Two Sum failed on non-existent target"
         );
 
         // Edge Case 3: Empty string input for Valid Anagram
         app.current_problem = Problem::ValidAnagram;
-        app.valid_anagram_s_input = "".to_string();
-        app.valid_anagram_t_input = "".to_string();
+        app.set_input_str(Problem::ValidAnagram, "s", "");
+        app.set_input_str(Problem::ValidAnagram, "t", "");
         app.recompute_steps();
         assert!(
             !app.steps.is_empty(),
@@ -561,8 +537,8 @@ mod tests {
         );
 
         // Edge Case 4: Length/Content mismatch for Valid Anagram
-        app.valid_anagram_s_input = "rat".to_string();
-        app.valid_anagram_t_input = "car".to_string();
+        app.set_input_str(Problem::ValidAnagram, "s", "rat");
+        app.set_input_str(Problem::ValidAnagram, "t", "car");
         app.recompute_steps();
         assert!(
             !app.steps.is_empty(),

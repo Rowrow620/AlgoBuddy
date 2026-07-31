@@ -44,7 +44,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
     app.steps = match app.current_problem {
         Problem::ContainsDuplicate => {
             let parsed: Vec<i32> = app
-                .contains_dup_nums_input
+                .get_input_str(Problem::ContainsDuplicate, "nums", "1, 2, 3, 1")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -57,7 +57,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::TwoSum => {
             let parsed: Vec<i32> = app
-                .two_sum_nums_input
+                .get_input_str(Problem::TwoSum, "nums", "2, 7, 11, 15")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -66,16 +66,21 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
             } else {
                 parsed
             };
-            generate_two_sum_steps(&nums, app.two_sum_target_input, app_id)
+            let target = app.get_input_int(Problem::TwoSum, "target", 9);
+            generate_two_sum_steps(&nums, target, app_id)
         }
-        Problem::ValidAnagram => generate_valid_anagram_steps(
-            &app.valid_anagram_s_input,
-            &app.valid_anagram_t_input,
-            app_id,
-        ),
+        Problem::ValidAnagram => {
+            let s = app.get_input_str(Problem::ValidAnagram, "s", "anagram");
+            let t = app.get_input_str(Problem::ValidAnagram, "t", "nagaram");
+            generate_valid_anagram_steps(s, t, app_id)
+        }
         Problem::GroupAnagrams => {
             let strs: Vec<String> = app
-                .group_anagrams_input
+                .get_input_str(
+                    Problem::GroupAnagrams,
+                    "strs",
+                    "eat, tea, tan, ate, nat, bat",
+                )
                 .split(',')
                 .map(|s| s.trim().to_string())
                 .filter(|s| !s.is_empty())
@@ -96,7 +101,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::TopKFrequent => {
             let parsed: Vec<i32> = app
-                .topk_nums_input
+                .get_input_str(Problem::TopKFrequent, "nums", "1, 1, 1, 2, 2, 3")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -106,8 +111,9 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
                 parsed
             };
             let unique = nums.iter().collect::<std::collections::HashSet<_>>().len();
-            let k = app.topk_k_input.clamp(1, unique.max(1));
-            app.topk_k_input = k;
+            let k_val = app.get_input_int(Problem::TopKFrequent, "k", 2);
+            let k = k_val.clamp(1, unique.max(1) as i32) as usize;
+            app.set_input_int(Problem::TopKFrequent, "k", k as i32);
 
             match app_id {
                 0 => generate_bucket_sort_steps(&nums, k),
@@ -117,7 +123,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::ProductExceptSelf => {
             let parsed: Vec<i32> = app
-                .prod_nums_input
+                .get_input_str(Problem::ProductExceptSelf, "nums", "1, 2, 4, 6")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -130,7 +136,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::EncodeDecode => {
             let parsed: Vec<String> = app
-                .ed_strs_input
+                .get_input_str(Problem::EncodeDecode, "strs", "Hello, World")
                 .split(',')
                 .map(|s| s.trim().to_string())
                 .filter(|s| !s.is_empty())
@@ -148,7 +154,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::LongestConsecutive => {
             let parsed: Vec<i32> = app
-                .longest_consecutive_nums_input
+                .get_input_str(Problem::LongestConsecutive, "nums", "2, 20, 4, 10, 3, 4, 5")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -160,11 +166,16 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
             generate_longest_consecutive_steps(&nums)
         }
         Problem::ValidPalindrome => {
-            generate_valid_palindrome_steps(&app.palindrome_s_input, app_id)
+            let s = app.get_input_str(
+                Problem::ValidPalindrome,
+                "s",
+                "Was it a car or a cat I saw?",
+            );
+            generate_valid_palindrome_steps(s, app_id)
         }
         Problem::BestTimeStock => {
             let parsed: Vec<i32> = app
-                .stock_prices_input
+                .get_input_str(Problem::BestTimeStock, "prices", "10, 1, 5, 6, 7, 1")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -175,10 +186,13 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
             };
             generate_best_time_stock_steps(&prices)
         }
-        Problem::ValidParentheses => generate_valid_parentheses_steps(&app.parentheses_s_input),
+        Problem::ValidParentheses => {
+            let s = app.get_input_str(Problem::ValidParentheses, "s", "([{}])");
+            generate_valid_parentheses_steps(s)
+        }
         Problem::BinarySearch => {
             let parsed: Vec<i32> = app
-                .binary_search_nums_input
+                .get_input_str(Problem::BinarySearch, "nums", "-1, 0, 2, 4, 6, 8")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -187,11 +201,12 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
             } else {
                 parsed
             };
-            generate_binary_search_steps(&nums, app.binary_search_target_input)
+            let target = app.get_input_int(Problem::BinarySearch, "target", 4);
+            generate_binary_search_steps(&nums, target)
         }
         Problem::ReverseLinkedList => {
             let parsed: Vec<i32> = app
-                .linked_list_nodes_input
+                .get_input_str(Problem::ReverseLinkedList, "nodes", "0, 1, 2, 3")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -204,12 +219,12 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::MergeTwoLists => {
             let l1: Vec<i32> = app
-                .merge_list1_input
+                .get_input_str(Problem::MergeTwoLists, "list1", "1, 2, 4")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
             let l2: Vec<i32> = app
-                .merge_list2_input
+                .get_input_str(Problem::MergeTwoLists, "list2", "1, 3, 5")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -217,11 +232,12 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::LinkedListCycle => {
             let nodes: Vec<i32> = app
-                .cycle_nodes_input
+                .get_input_str(Problem::LinkedListCycle, "nodes", "1, 2, 3, 4")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
-            generate_linked_list_cycle_steps(&nodes, app.cycle_index_input)
+            let cycle_idx = app.get_input_int(Problem::LinkedListCycle, "cycle_idx", 1);
+            generate_linked_list_cycle_steps(&nodes, cycle_idx)
         }
         Problem::InvertTree => {
             let tree = app.parse_tree_input();
@@ -261,7 +277,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         Problem::MissingNumber => generate_missing_number_steps(&[3, 0, 1]),
         Problem::TwoSumII => {
             let parsed: Vec<i32> = app
-                .two_pointer_nums_input
+                .get_input_str(Problem::TwoSumII, "nums", "2, 7, 11, 15")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -270,11 +286,12 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
             } else {
                 parsed
             };
-            generate_two_sum_ii_steps(&nums, app.two_pointer_target_input)
+            let target = app.get_input_int(Problem::TwoSumII, "target", 9);
+            generate_two_sum_ii_steps(&nums, target)
         }
         Problem::ThreeSum => {
             let parsed: Vec<i32> = app
-                .two_pointer_nums_input
+                .get_input_str(Problem::ThreeSum, "nums", "-1, 0, 1, 2, -1, -4")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -287,7 +304,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::ContainerWater => {
             let parsed: Vec<i32> = app
-                .two_pointer_nums_input
+                .get_input_str(Problem::ContainerWater, "nums", "1, 8, 6, 2, 5, 4, 8, 3, 7")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -300,7 +317,11 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::TrappingRain => {
             let parsed: Vec<i32> = app
-                .two_pointer_nums_input
+                .get_input_str(
+                    Problem::TrappingRain,
+                    "nums",
+                    "0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1",
+                )
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -331,10 +352,11 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
             generate_eval_rpn_steps(&tokens)
         }
         Problem::LongestSubstring => {
-            let s = if app.palindrome_s_input.is_empty() {
+            let s_input = app.get_input_str(Problem::LongestSubstring, "s", "abcabcbb");
+            let s = if s_input.is_empty() {
                 "abcabcbb"
             } else {
-                &app.palindrome_s_input
+                s_input
             };
             generate_longest_substring_steps(s)
         }
@@ -344,7 +366,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::HouseRobber => {
             let parsed: Vec<i32> = app
-                .two_pointer_nums_input
+                .get_input_str(Problem::HouseRobber, "nums", "1, 2, 3, 1")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -369,7 +391,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::SearchRotatedArray => {
             let parsed: Vec<i32> = app
-                .binary_search_nums_input
+                .get_input_str(Problem::SearchRotatedArray, "nums", "4, 5, 6, 7, 0, 1, 2")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -378,11 +400,12 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
             } else {
                 parsed
             };
-            generate_search_rotated_array_steps(&nums, app.binary_search_target_input)
+            let target = app.get_input_int(Problem::SearchRotatedArray, "target", 0);
+            generate_search_rotated_array_steps(&nums, target)
         }
         Problem::FindMinRotated => {
             let parsed: Vec<i32> = app
-                .binary_search_nums_input
+                .get_input_str(Problem::FindMinRotated, "nums", "3, 4, 5, 1, 2")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -399,7 +422,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::KokoEatingBananas => {
             let parsed: Vec<i32> = app
-                .binary_search_nums_input
+                .get_input_str(Problem::KokoEatingBananas, "nums", "3, 6, 7, 11")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -408,34 +431,33 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
             } else {
                 parsed
             };
-            let target_h = if app.binary_search_target_input <= 0 {
-                8
-            } else {
-                app.binary_search_target_input
-            };
+            let raw_target = app.get_input_int(Problem::KokoEatingBananas, "target", 8);
+            let target_h = if raw_target <= 0 { 8 } else { raw_target };
             generate_koko_eating_bananas_steps(&piles, target_h)
         }
         Problem::ImplementTrie => {
             let insert_words: Vec<String> = app
-                .trie_words_input
+                .get_input_str(Problem::ImplementTrie, "words", "apple, app, ape")
                 .split(',')
                 .map(|s| s.trim().to_string())
                 .filter(|s| !s.is_empty())
                 .collect();
-            generate_implement_trie_steps(&insert_words, &app.trie_search_input)
+            let search_word = app.get_input_str(Problem::ImplementTrie, "search", "app");
+            generate_implement_trie_steps(&insert_words, search_word)
         }
         Problem::WordDictionary => {
             let words: Vec<String> = app
-                .word_dict_words_input
+                .get_input_str(Problem::WordDictionary, "words", "bad, dad, mad")
                 .split(',')
                 .map(|s| s.trim().to_string())
                 .filter(|s| !s.is_empty())
                 .collect();
-            generate_word_dictionary_steps(&words, &app.word_dict_pattern_input)
+            let pattern = app.get_input_str(Problem::WordDictionary, "pattern", ".ad");
+            generate_word_dictionary_steps(&words, pattern)
         }
         Problem::WordSearchII => {
             let words: Vec<String> = app
-                .word_search_ii_words_input
+                .get_input_str(Problem::WordSearchII, "words", "oath, pea, eat, rain")
                 .split(',')
                 .map(|s| s.trim().to_string())
                 .filter(|s| !s.is_empty())
@@ -444,7 +466,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::Subsets => {
             let parsed: Vec<i32> = app
-                .contains_dup_nums_input
+                .get_input_str(Problem::Subsets, "nums", "1, 2, 3")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -457,7 +479,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::Permutations => {
             let parsed: Vec<i32> = app
-                .contains_dup_nums_input
+                .get_input_str(Problem::Permutations, "nums", "1, 2, 3")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -472,7 +494,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         Problem::TaskScheduler => generate_task_scheduler_steps(&['A', 'A', 'A', 'B', 'B', 'B'], 2),
         Problem::FindMedianDataStream => {
             let parsed: Vec<i32> = app
-                .contains_dup_nums_input
+                .get_input_str(Problem::FindMedianDataStream, "nums", "1, 2, 5, 10, 3")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -486,7 +508,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         Problem::CombinationSum => generate_combination_sum_steps(&[2, 3, 6, 7], 7),
         Problem::SubsetsII => {
             let parsed: Vec<i32> = app
-                .contains_dup_nums_input
+                .get_input_str(Problem::SubsetsII, "nums", "1, 2, 2")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -513,7 +535,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         Problem::LetterCombinations => generate_letter_combinations_steps("23"),
         Problem::HouseRobberII => {
             let parsed: Vec<i32> = app
-                .contains_dup_nums_input
+                .get_input_str(Problem::HouseRobberII, "nums", "2, 3, 2")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -532,7 +554,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         Problem::CoinChange => generate_coin_change_steps(&[1, 2, 5], 11),
         Problem::MaxProductSubarray => {
             let parsed: Vec<i32> = app
-                .contains_dup_nums_input
+                .get_input_str(Problem::MaxProductSubarray, "nums", "2, 3, -2, 4")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -549,7 +571,11 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::LongestIncreasingSubsequence => {
             let parsed: Vec<i32> = app
-                .contains_dup_nums_input
+                .get_input_str(
+                    Problem::LongestIncreasingSubsequence,
+                    "nums",
+                    "10, 9, 2, 5, 3, 7, 101, 18",
+                )
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -562,7 +588,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::PartitionEqualSubsetSum => {
             let parsed: Vec<i32> = app
-                .contains_dup_nums_input
+                .get_input_str(Problem::PartitionEqualSubsetSum, "nums", "1, 5, 11, 5")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -590,7 +616,11 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         Problem::DetectSquares => generate_detect_squares_steps(),
         Problem::MaximumSubarray => {
             let parsed: Vec<i32> = app
-                .contains_dup_nums_input
+                .get_input_str(
+                    Problem::MaximumSubarray,
+                    "nums",
+                    "-2, 1, -3, 4, -1, 2, 1, -5, 4",
+                )
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -603,7 +633,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::JumpGame => {
             let parsed: Vec<i32> = app
-                .contains_dup_nums_input
+                .get_input_str(Problem::JumpGame, "nums", "2, 3, 1, 1, 4")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
@@ -616,7 +646,7 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
         }
         Problem::JumpGameII => {
             let parsed: Vec<i32> = app
-                .contains_dup_nums_input
+                .get_input_str(Problem::JumpGameII, "nums", "2, 3, 1, 1, 4")
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
