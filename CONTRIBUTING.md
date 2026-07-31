@@ -63,15 +63,15 @@ Contributions generally fall into three categories:
 The AlgoBuddy codebase is structured into five primary component areas:
 
 - `src/main.rs`: Application entry points for native execution (`eframe::run_native`) and WASM execution (`eframe::WebRunner`).
-- `src/model/`: Problem definitions (`Problem`), category taxonomy (`Category`), difficulty levels (`Difficulty`), metadata specs (`ProblemDetails`), and visual state snapshots (`VisualState`). Problem details and code lines are organized by category under `src/model/problems/`.
-- `src/app.rs`: Main GUI application state (`VisualizerApp`).
+- `src/model/`: Problem definitions (`Problem`), category taxonomy (`Category`), difficulty levels (`Difficulty`), metadata specs (`ProblemDetails`), and canonical visual state snapshots (`VisualState`). Problem details and code lines are modularized by category under `src/model/problems/`.
+- `src/app.rs`: Main GUI application state (`VisualizerApp`). Manages dynamic playground input state via `input_strings` and `input_integers` `HashMap` state stores (`get_input_str`, `set_input_str`, `get_input_int`, `set_input_int`).
 - `src/ui/`: UI submodules containing navigation panels, playback controls, canvas renderers, and theme palettes.
 - `src/engine.rs`: Core deterministic algorithm execution engine handling snapshot timeline generation and problem selection.
 - `src/algorithms/`: Step snapshot generator functions (`generate_*_steps`) for each algorithm.
 
-### Deterministic State Engine
+### Deterministic State Engine & Visual Normalization
 
-Algorithms in AlgoBuddy do not execute asynchronously during playback. Generator functions in `src/algorithms/` execute synchronously upfront and return a `Vec<Step>` snapshot vector. The GUI renders state snapshots based on the active timeline index (`current_step_idx`), enabling forward and backward timeline scrubbing.
+Algorithms in AlgoBuddy do not execute asynchronously during playback. Generator functions in `src/algorithms/` execute synchronously upfront and return a `Vec<Step>` snapshot vector. Visual states are normalized into 10 canonical layout categories (`Array1D`, `TwoPointers`, `BinarySearch`, `StackVisual`, `LinkedListVisual`, `TreeVisual`, `HeapVisual`, `GridGraph`, `NodeGraph`, `DecisionTreeVisual`), allowing renderers to stay clean, responsive, and decoupled.
 
 ### Audit Status
 
