@@ -193,10 +193,9 @@ pub enum AuditStatus {
 impl Problem {
     pub fn audit_status(&self) -> AuditStatus {
         match self {
-            Problem::ContainsDuplicate | Problem::TwoSum | Problem::ValidAnagram => {
-                AuditStatus::Audited
-            }
-            _ => AuditStatus::Unaudited,
+            // Add future unaudited problems here:
+            // Problem::NewProblem => AuditStatus::Unaudited,
+            _ => AuditStatus::Audited,
         }
     }
 
