@@ -5,6 +5,19 @@ All notable changes to the AlgoBuddy project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-07-31
+
+### Refactored
+- **Phase 2 Architecture Completion**: Finished all core Phase 2 architecture refactors for v0.8.0.
+- **Dynamic Input State Map (Task 2.2)**: Replaced 30+ ad-hoc input string/integer fields on `VisualizerApp` with `input_strings` and `input_integers` `HashMap` state stores (`get_input_str`, `set_input_str`, `get_input_int`, `set_input_int`).
+- **Normalized VisualState Enum (Task 2.1)**: Structured `VisualState` into 10 canonical visual layout categories (`Array1D`, `TwoPointers`, `BinarySearch`, `StackVisual`, `LinkedListVisual`, `TreeVisual`, `HeapVisual`, `GridGraph`, `NodeGraph`, `DecisionTreeVisual`) for clean renderer separation.
+- **Strict Clippy Compliance (Task 2.4)**: Removed 18 top-level blanket `#![allow(...)]` suppressions in `src/main.rs` and resolved all submodule lints for 0-warning compilation across all build targets.
+- **Problem Model Decomposition (Task 2.3)**: Organized all 150 problem details and source code lines into 18 category submodules in `src/model/problems/`.
+
+### Added
+- **Derive `Hash` for `Problem`**: Derived `Hash` on `Problem` enum for type-safe key indexing in state stores.
+- **Comprehensive Documentation**: Updated `README.md`, `CONTRIBUTING.md`, and `walkthrough.md` to reflect the Phase 2 architecture and 100% Public Release status.
+
 ## [0.7.1] - 2026-07-31
 
 ### Refactored
