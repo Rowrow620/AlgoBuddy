@@ -68,7 +68,7 @@ cargo test
 
 ## Architecture Overview
 
-AlgoBuddy uses a deterministic snapshot model where generator functions in `src/algorithms/` execute synchronously upfront to produce a timeline vector of discrete state snapshots (`Vec<Step>`). The GUI renders snapshots based on the active timeline scrubber index.
+AlgoBuddy uses a deterministic snapshot model where generator functions in `src/algorithms/` execute synchronously upfront to produce a timeline vector of discrete state snapshots (`Vec<Step>`). Execution logic is orchestrated in `src/engine.rs`, while the interactive GUI renders snapshots via cleanly decoupled `src/ui/` component modules based on the active timeline scrubber index.
 
 For detailed architecture diagrams, model definitions, and problem auditing workflows, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
