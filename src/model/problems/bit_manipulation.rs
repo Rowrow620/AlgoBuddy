@@ -1,0 +1,162 @@
+use crate::model::problem::{ApproachMeta, Example, Problem, ProblemDetails};
+use crate::model::taxonomy::{Category, Difficulty};
+
+pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
+    match problem {
+        Problem::SingleNumber => Some(ProblemDetails {
+                id: 136, title: "Single Number", difficulty: Difficulty::Easy, category: Category::BitManipulation,
+                statement: "Given a non-empty array of integers where every element appears twice except for one, find it.",
+                examples: &[Example { input: "nums = [4, 1, 2, 1, 2]", output: "4", explanation: "4 is non-duplicate." }],
+                constraints: &["1 <= nums.length <= 3*10^4"], leetcode_url: "https://leetcode.com/problems/single-number/",
+                approaches: &[ApproachMeta { id: 0, name: "Bitwise XOR", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Bitwise XOR properties (a ^ a = 0 and a ^ 0 = a) cancel out paired numbers, isolating the single number in O(N) time and O(1) space.", description: "a ^ a = 0 cancels duplicates." }],
+            }),
+        Problem::CountBits => Some(ProblemDetails {
+                id: 191, title: "Number of 1 Bits", difficulty: Difficulty::Easy, category: Category::BitManipulation,
+                statement: "Return the number of set bits (1s) in a 32-bit unsigned integer.",
+                examples: &[Example { input: "n = 11 (0000...1011)", output: "3", explanation: "3 set bits." }],
+                constraints: &["1 <= n <= 2^31 - 1"], leetcode_url: "https://leetcode.com/problems/number-of-1-bits/",
+                approaches: &[ApproachMeta { id: 0, name: "Brian Kernighan's Algorithm", time_complexity: "O(1)", space_complexity: "O(1)", rationale: "Kernighan's operation n &= (n - 1) clears the lowest set bit, counting set bits in O(set_bits) operations.", description: "n &= n - 1 clears lowest 1 bit." }],
+            }),
+        Problem::CountingBits => Some(ProblemDetails {
+                id: 338, title: "Counting Bits", difficulty: Difficulty::Easy, category: Category::BitManipulation,
+                statement: "Given n, return an array ans of length n + 1 where ans[i] is the number of 1's in binary representation of i.",
+                examples: &[Example { input: "n = 5", output: "[0,1,1,2,1,2]", explanation: "Bits for 0..5." }],
+                constraints: &["0 <= n <= 10^5"], leetcode_url: "https://leetcode.com/problems/counting-bits/",
+                approaches: &[ApproachMeta { id: 0, name: "Dynamic Programming (Bit Shift / Offset)", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "Using DP transition bits[i] = bits[i >> 1] + (i & 1) computes bit counts for 0..N in linear O(N) time.", description: "dp[i] = 1 + dp[i - offset]." }],
+            }),
+        Problem::ReverseBits => Some(ProblemDetails {
+                id: 190, title: "Reverse Bits", difficulty: Difficulty::Easy, category: Category::BitManipulation,
+                statement: "Reverse bits of a given 32-bit unsigned integer.",
+                examples: &[Example { input: "n = 43261596 (00000010100101000001111010011100)", output: "964176192", explanation: "Reversed bits." }],
+                constraints: &["32-bit integer"], leetcode_url: "https://leetcode.com/problems/reverse-bits/",
+                approaches: &[ApproachMeta { id: 0, name: "Bitwise Shift & Or", time_complexity: "O(1)", space_complexity: "O(1)", rationale: "Looping 32 bits and shifting the target bit to position (31 - i) reverses bit order in deterministic O(1) time.", description: "Shift bit i to 31 - i." }],
+            }),
+        Problem::MissingNumber => Some(ProblemDetails {
+                id: 268, title: "Missing Number", difficulty: Difficulty::Easy, category: Category::BitManipulation,
+                statement: "Given an array containing n distinct numbers in range [0, n], return the missing number.",
+                examples: &[Example { input: "nums = [3, 0, 1]", output: "2", explanation: "Range [0..3], 2 is missing." }],
+                constraints: &["1 <= n <= 10^4"], leetcode_url: "https://leetcode.com/problems/missing-number/",
+                approaches: &[ApproachMeta { id: 0, name: "Gauss Sum Formula", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Gauss sum formula N*(N+1)/2 gives expected total; subtracting actual array sum finds missing number in O(N) time and O(1) space.", description: "expected_sum - actual_sum." }],
+            }),
+        Problem::Number1Bits => Some(ProblemDetails {
+                id: 191, title: "Number of 1 Bits", difficulty: Difficulty::Easy, category: Category::BitManipulation,
+                statement: "Write a function that takes the binary representation of a positive integer and returns the number of set bits it has (also known as Hamming weight).",
+                examples: &[Example { input: "n = 11 (binary 00000000000000000000000000001011)", output: "3", explanation: "Total 3 set bits." }],
+                constraints: &["1 <= n <= 2^31 - 1"], leetcode_url: "https://leetcode.com/problems/number-of-1-bits/",
+                approaches: &[ApproachMeta { id: 0, name: "Bitwise AND n & (n - 1) Clearing", time_complexity: "O(1)", space_complexity: "O(1)", rationale: "Repeatedly clearing the lowest set bit using n &= (n - 1) counts 1-bits in constant O(1) time.", description: "Loop while n != 0 executing n &= (n - 1)." }],
+            }),
+        Problem::SumTwoIntegers => Some(ProblemDetails {
+                id: 371, title: "Sum of Two Integers", difficulty: Difficulty::Medium, category: Category::BitManipulation,
+                statement: "Given two integers a and b, return the sum of the two integers without using the operators + and -.",
+                examples: &[Example { input: "a = 1, b = 2", output: "3", explanation: "Bitwise XOR sum and AND carry bit shifts." }],
+                constraints: &["-1000 <= a, b <= 1000"], leetcode_url: "https://leetcode.com/problems/sum-of-two-integers/",
+                approaches: &[ApproachMeta { id: 0, name: "Bitwise XOR and Shifted Carry", time_complexity: "O(1)", space_complexity: "O(1)", rationale: "(a ^ b) computes sum without carry; (a & b) << 1 computes carry bits until carry is 0.", description: "Bitwise XOR and left-shift AND carry loop." }],
+            }),
+        Problem::ReverseInteger => Some(ProblemDetails {
+                id: 7, title: "Reverse Integer", difficulty: Difficulty::Medium, category: Category::BitManipulation,
+                statement: "Given a signed 32-bit integer x, return x with its digits reversed. If reversing x causes the value to go outside the signed 32-bit integer range [-2^31, 2^31 - 1], then return 0.",
+                examples: &[Example { input: "x = 123", output: "321", explanation: "Reverse digits of 123 to get 321." }],
+                constraints: &["-2^31 <= x <= 2^31 - 1"], leetcode_url: "https://leetcode.com/problems/reverse-integer/",
+                approaches: &[ApproachMeta { id: 0, name: "Modulo & 32-Bit Overflow Boundary Check", time_complexity: "O(log10 X)", space_complexity: "O(1)", rationale: "Extracting digits via x % 10 and checking 32-bit INT_MAX boundaries before multiplying.", description: "Extract digits with modulo 10 and check overflow." }],
+            }),
+        _ => None,
+    }
+}
+
+pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize, &'static str)>> {
+    match (problem, approach_id) {
+        (Problem::SingleNumber, _) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def singleNumber(self, nums: List[int]) -> int:"),
+            (3, "        res = 0"),
+            (4, "        for n in nums: res ^= n"),
+            (5, "        return res"),
+        ]),
+        (Problem::CountBits, _) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def hammingWeight(self, n: int) -> int:"),
+            (3, "        res = 0"),
+            (4, "        while n: n &= (n - 1); res += 1"),
+            (5, "        return res"),
+        ]),
+        (Problem::CountingBits, _) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def countBits(self, n: int) -> List[int]:"),
+            (3, "        dp = [0] * (n + 1); offset = 1"),
+            (4, "        for i in range(1, n + 1):"),
+            (5, "            if offset * 2 == i: offset = i"),
+            (6, "            dp[i] = 1 + dp[i - offset]"),
+            (7, "        return dp"),
+        ]),
+        (Problem::ReverseBits, _) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def reverseBits(self, n: int) -> int:"),
+            (3, "        res = 0"),
+            (4, "        for i in range(32):"),
+            (
+                5,
+                "            bit = (n >> i) & 1; res |= (bit << (31 - i))",
+            ),
+            (6, "        return res"),
+        ]),
+        (Problem::MissingNumber, _) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def missingNumber(self, nums: List[int]) -> int:"),
+            (3, "        res = len(nums)"),
+            (4, "        for i in range(len(nums)): res += (i - nums[i])"),
+            (5, "        return res"),
+        ]),
+        (Problem::Number1Bits, _) => Some(number_1_bits_code_lines()),
+        (Problem::SumTwoIntegers, _) => Some(sum_two_integers_code_lines()),
+        (Problem::ReverseInteger, _) => Some(reverse_integer_code_lines()),
+        _ => None,
+    }
+}
+
+// ── Helper Code Line Generators ──
+
+pub fn number_1_bits_code_lines() -> Vec<(usize, &'static str)> {
+    vec![
+        (1, "class Solution:"),
+        (2, "    def hammingWeight(self, n: int) -> int:"),
+        (3, "        res = 0"),
+        (4, "        while n:"),
+        (5, "            n &= (n - 1)"),
+        (6, "            res += 1"),
+        (7, "        return res"),
+    ]
+}
+
+pub fn sum_two_integers_code_lines() -> Vec<(usize, &'static str)> {
+    vec![
+        (1, "class Solution:"),
+        (2, "    def getSum(self, a: int, b: int) -> int:"),
+        (3, "        mask = 0xFFFFFFFF"),
+        (4, "        while (b & mask) > 0:"),
+        (5, "            carry = (a & b) << 1"),
+        (6, "            a = (a ^ b)"),
+        (7, "            b = carry"),
+        (8, "        return (a & mask) if b > 0 else a"),
+    ]
+}
+
+pub fn reverse_integer_code_lines() -> Vec<(usize, &'static str)> {
+    vec![
+        (1, "class Solution:"),
+        (2, "    def reverse(self, x: int) -> int:"),
+        (3, "        MIN = -2147483648; MAX = 2147483647; res = 0"),
+        (4, "        while x:"),
+        (5, "            digit = int(math.fmod(x, 10))"),
+        (6, "            x = int(x / 10)"),
+        (
+            7,
+            "            if (res > MAX // 10 or (res == MAX // 10 and digit >= 7)): return 0",
+        ),
+        (
+            8,
+            "            if (res < MIN // 10 or (res == MIN // 10 and digit <= -8)): return 0",
+        ),
+        (9, "            res = (res * 10) + digit"),
+        (10, "        return res"),
+    ]
+}
