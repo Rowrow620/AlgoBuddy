@@ -124,7 +124,7 @@ dependencies = [
 
 [[package]]
 name = "algobuddy"
-version = "0.8.0"
+version = "0.8.1"
 dependencies = [
  "console_error_panic_hook",
  "eframe",

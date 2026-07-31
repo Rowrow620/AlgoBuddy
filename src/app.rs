@@ -369,6 +369,7 @@ impl eframe::App for VisualizerApp {
 
         if self.view_mode == ViewMode::RoadmapDashboard {
             crate::ui::sidebar::render_roadmap_sidebar(self, ctx, &p);
+            crate::ui::dashboard::render_fullscreen_roadmap_dashboard(self, ctx, &p);
             return;
         }
 
