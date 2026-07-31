@@ -63,7 +63,7 @@ Contributions generally fall into three categories:
 The AlgoBuddy codebase is structured into five primary component areas:
 
 - `src/main.rs`: Application entry points for native execution (`eframe::run_native`) and WASM execution (`eframe::WebRunner`).
-- `src/model/`: Problem definitions (`Problem`), category taxonomy (`Category`), difficulty levels (`Difficulty`), metadata specs (`ProblemDetails`), and visual state snapshots (`VisualState`).
+- `src/model/`: Problem definitions (`Problem`), category taxonomy (`Category`), difficulty levels (`Difficulty`), metadata specs (`ProblemDetails`), and visual state snapshots (`VisualState`). Problem details and code lines are organized by category under `src/model/problems/`.
 - `src/app.rs`: Main GUI application state (`VisualizerApp`).
 - `src/ui/`: UI submodules containing navigation panels, playback controls, canvas renderers, and theme palettes.
 - `src/engine.rs`: Core deterministic algorithm execution engine handling snapshot timeline generation and problem selection.
@@ -73,24 +73,22 @@ The AlgoBuddy codebase is structured into five primary component areas:
 
 Algorithms in AlgoBuddy do not execute asynchronously during playback. Generator functions in `src/algorithms/` execute synchronously upfront and return a `Vec<Step>` snapshot vector. The GUI renders state snapshots based on the active timeline index (`current_step_idx`), enabling forward and backward timeline scrubbing.
 
-### Audit Gating System
+### Audit Status
 
-Problems in AlgoBuddy carry an audit status (`is_audited(&self) -> bool`):
-- **Public Release Mode** (Default): Displays verified, fully audited problem visualizers.
-- **Developer Mode** (`cargo run -- --dev`): Unlocks all 150 implemented problem visualizers, marking unaudited implementations with an `[EXP]` tag.
+All 150 NeetCode problems in AlgoBuddy are live in **Public Release Mode**. The `audit_status()` method on `Problem` (`src/model/problem.rs`) marks implementations as `AuditStatus::Audited`. Developer Mode (`cargo run -- --dev`) unlocks developer tools and diagnostic overlays.
 
 ---
 
-## Auditing & Promoting Problems
+## Unit Testing & Contributing Visualizers
 
-To audit an existing problem visualizer and promote it to Public Release status:
+To contribute a unit test or visualizer improvement:
 
-1. Launch the application in Developer Mode (`cargo run -- --dev`).
+1. Create a feature branch off `dev`: `git checkout -b test-[problem-slug] dev`
 2. Verify that the algorithm step generator produces accurate state snapshots for standard and edge-case inputs.
 3. Ensure active line highlighting (`code_line`) matches the associated source code snippet.
 4. Add a unit test in `src/app.rs` under `#[cfg(test)] mod tests` asserting expected output values.
-5. In `src/model/problem.rs`, update the `is_audited` match arm for the target problem to return `true`.
-6. Run `cargo test` to verify build and test compliance.
+5. Run `cargo test` and `cargo clippy --all-targets -- -D warnings` locally.
+6. Submit a Pull Request targeting the `dev` branch.
 
 ---
 
