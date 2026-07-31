@@ -5,14 +5,21 @@ All notable changes to the AlgoBuddy project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.0] - Unreleased
+## [0.7.1] - 2026-07-31
 
 ### Refactored
-- **Architecture Modularity**: Successfully extracted the monolithic `src/app.rs` into specialized UI renderers within the `src/ui/` module (e.g., `canvas.rs`, `sidebar.rs`, `dashboard.rs`).
+- **Problem Model Decomposition**: Split the monolithic `src/model/problem.rs` file (~4,000 lines) into 18 category-based submodules under `src/model/problems/` (e.g. `arrays_hashing.rs`, `trees.rs`, `two_pointers.rs`, `graphs.rs`), with `src/model/problems/mod.rs` dispatching problem details and code lines.
+- **UI Component Extraction**: Decomposed the monolithic `src/app.rs` file into specialized UI renderers within `src/ui/` (`canvas.rs`, `sidebar.rs`, `dashboard.rs`, `header.rs`, `inspector.rs`, `modals.rs`, `playground.rs`, `theme_helpers.rs`).
 - **Engine Decoupling**: Isolated deterministic algorithm execution logic into a dedicated `src/engine.rs` module for better testability and contributor onboarding.
 
 ### Added
-- **UI Quality-of-Life**: Added a clear ("x") button to the Roadmap search bar (from PR #19) and a reset confirmation dialog for the NeetCode Mastery Dashboard (from PR #25).
+- **100% Public Release Mode**: Bulk-audited all 150 NeetCode problems to `AuditStatus::Audited`, making every visualizer available in Public Release Mode without requiring `--dev`.
+- **New GitHub Issue Templates**: Added `unit_test.md` (guided unit test contribution requests) and `feature_proposal.md` (Feature Proposal / RFC template) to `.github/ISSUE_TEMPLATE/`.
+- **UI Quality-of-Life**: Integrated search query clear ("x") button in the Roadmap sidebar (from PR #19) and a reset confirmation dialog on the NeetCode Mastery Dashboard (from PR #25).
+
+### Fixed
+- **WASM Timer Compatibility**: Replaced native `std::time::Instant` with `web_time::Instant` across UI panels and engine timing to ensure WebAssembly targets compile cleanly for browser execution.
+- **Clippy Strict Compliance**: Resolved single-binding match linting warnings in problem model dispatches.
 
 ## [0.6.0] - 2026-07-30
 
