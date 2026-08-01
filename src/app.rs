@@ -566,4 +566,23 @@ mod tests {
             "Valid Anagram failed on mismatch input"
         );
     }
+
+    #[test]
+    fn test_best_time_stock_logic_correctness() {
+        let mut app = VisualizerApp::default();
+        app.current_problem = Problem::BestTimeStock;
+        app.set_input_str(Problem::BestTimeStock, "prices", "7, 1, 5, 3, 6, 4");
+        app.recompute_steps();
+
+        let last_step = app.steps.last().expect("Steps should not be empty");
+
+        if let VisualState::BestTimeStock { max_profit, .. } = &last_step.visual {
+            assert_eq!(
+                *max_profit, 5,
+                "Maximum profit should be 5 for prices [7, 1, 5, 3, 6, 4]"
+            );
+        } else {
+            panic!("Expected VisualState::BestTimeStock");
+        }
+    }
 }
