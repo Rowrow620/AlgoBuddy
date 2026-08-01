@@ -505,6 +505,26 @@ mod tests {
     }
 
     #[test]
+    fn test_valid_parentheses_logic_correctness() {
+        let mut app = VisualizerApp::default();
+        app.current_problem = Problem::ValidParentheses;
+        app.set_input_str(Problem::ValidParentheses, "s", "()[]{}");
+        app.recompute_steps();
+
+        let last_step = app.steps.last().expect("Steps should not be empty");
+
+        if let VisualState::Stack { is_valid, .. } = &last_step.visual {
+            assert_eq!(
+                *is_valid,
+                Some(true),
+                "Valid Parentheses should return true for balanced brackets"
+            );
+        } else {
+            panic!("Expected VisualState::Stack");
+        }
+    }
+
+    #[test]
     fn test_boundary_and_edge_case_safety() {
         let mut app = VisualizerApp::default();
 
