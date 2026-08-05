@@ -205,7 +205,9 @@ pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &The
                         app.current_step_idx += 1;
                     }
                 }
-                if ui.button("Reset").clicked() {
+                if ui.button("Reset [R]")
+                    .on_hover_text("Reset timeline to step 1 (Shortcut: R)")
+                    .clicked() {
                     app.is_playing = false;
                     app.current_step_idx = 0;
                 }
