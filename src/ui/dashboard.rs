@@ -133,11 +133,18 @@ pub fn render_fullscreen_roadmap_dashboard(
                                         );
                                     });
                                     ui.add_space(4.0);
+                                    let ratio = solved_in_cat as f32 / total_in_cat as f32;
+
+                                    let progress_fill = if ratio > 0.75 {
+                                        p.emerald_text
+                                    } else if ratio >= 0.25 {
+                                        p.cyan
+                                    } else {
+                                        p.amber
+                                    };
+
                                     ui.add(
-                                        egui::ProgressBar::new(
-                                            solved_in_cat as f32 / total_in_cat as f32,
-                                        )
-                                        .text(""),
+                                        egui::ProgressBar::new(ratio).fill(progress_fill).text(""),
                                     );
                                 });
                             ui.add_space(6.0);
