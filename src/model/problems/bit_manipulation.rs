@@ -10,13 +10,6 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
                 constraints: &["1 <= nums.length <= 3*10^4"], leetcode_url: "https://leetcode.com/problems/single-number/",
                 approaches: &[ApproachMeta { id: 0, name: "Bitwise XOR", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Bitwise XOR properties (a ^ a = 0 and a ^ 0 = a) cancel out paired numbers, isolating the single number in O(N) time and O(1) space.", description: "a ^ a = 0 cancels duplicates." }],
             }),
-        Problem::CountBits => Some(ProblemDetails {
-                id: 191, title: "Number of 1 Bits", difficulty: Difficulty::Easy, category: Category::BitManipulation,
-                statement: "Return the number of set bits (1s) in a 32-bit unsigned integer.",
-                examples: &[Example { input: "n = 11 (0000...1011)", output: "3", explanation: "3 set bits." }],
-                constraints: &["1 <= n <= 2^31 - 1"], leetcode_url: "https://leetcode.com/problems/number-of-1-bits/",
-                approaches: &[ApproachMeta { id: 0, name: "Brian Kernighan's Algorithm", time_complexity: "O(1)", space_complexity: "O(1)", rationale: "Kernighan's operation n &= (n - 1) clears the lowest set bit, counting set bits in O(set_bits) operations.", description: "n &= n - 1 clears lowest 1 bit." }],
-            }),
         Problem::CountingBits => Some(ProblemDetails {
                 id: 338, title: "Counting Bits", difficulty: Difficulty::Easy, category: Category::BitManipulation,
                 statement: "Given n, return an array ans of length n + 1 where ans[i] is the number of 1's in binary representation of i.",
@@ -70,13 +63,6 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
             (2, "    def singleNumber(self, nums: List[int]) -> int:"),
             (3, "        res = 0"),
             (4, "        for n in nums: res ^= n"),
-            (5, "        return res"),
-        ]),
-        (Problem::CountBits, _) => Some(vec![
-            (1, "class Solution:"),
-            (2, "    def hammingWeight(self, n: int) -> int:"),
-            (3, "        res = 0"),
-            (4, "        while n: n &= (n - 1); res += 1"),
             (5, "        return res"),
         ]),
         (Problem::CountingBits, _) => Some(vec![

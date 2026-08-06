@@ -29,7 +29,7 @@ pub struct ProblemDetails {
     pub approaches: &'static [ApproachMeta],
 }
 
-// ── Problem Enum (34 Problems) ──
+// ── Problem Enum (150 Problems) ──
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Problem {
@@ -55,6 +55,7 @@ pub enum Problem {
     BalancedTree,
     SameTree,
     Subtree,
+    LowestCommonAncestorBst,
     ClimbingStairs,
     MinCostStairs,
     KthLargestStream,
@@ -63,7 +64,6 @@ pub enum Problem {
     HappyNumber,
     PlusOne,
     SingleNumber,
-    CountBits,
     CountingBits,
     ReverseBits,
     MissingNumber,
@@ -178,6 +178,7 @@ pub enum Problem {
     BinaryTreeLevelOrderTraversal,
     BinaryTreeRightSideView,
     CountGoodNodes,
+    ValidateBinarySearchTree,
     KthSmallestElementBst,
     ConstructBinaryTreePreorderInorder,
     BinaryTreeMaxPathSum,
@@ -228,6 +229,7 @@ impl Problem {
             Problem::BalancedTree,
             Problem::SameTree,
             Problem::Subtree,
+            Problem::LowestCommonAncestorBst,
             Problem::ImplementTrie,
             Problem::WordDictionary,
             Problem::WordSearchII,
@@ -263,7 +265,6 @@ impl Problem {
             Problem::HappyNumber,
             Problem::PlusOne,
             Problem::SingleNumber,
-            Problem::CountBits,
             Problem::CountingBits,
             Problem::ReverseBits,
             Problem::MissingNumber,
@@ -327,7 +328,6 @@ impl Problem {
             Problem::EvalRPN,
             Problem::LongestSubstring,
             Problem::Search2DMatrix,
-            Problem::HouseRobber,
             Problem::GenerateParentheses,
             Problem::DailyTemperatures,
             Problem::CarFleet,
@@ -352,6 +352,7 @@ impl Problem {
             Problem::BinaryTreeLevelOrderTraversal,
             Problem::BinaryTreeRightSideView,
             Problem::CountGoodNodes,
+            Problem::ValidateBinarySearchTree,
             Problem::KthSmallestElementBst,
             Problem::ConstructBinaryTreePreorderInorder,
             Problem::BinaryTreeMaxPathSum,
@@ -409,9 +410,7 @@ impl Problem {
             Problem::HappyNumber => Some("n = ∑(digit²)  ➔  detect cycle in HashSet"),
             Problem::PlusOne => Some("digits[i] = (digits[i] + 1) % 10"),
             Problem::SingleNumber => Some("a ⊕ a = 0  ➔  res ^= n"),
-            Problem::CountBits | Problem::Number1Bits => {
-                Some("n = n & (n - 1)  ➔  clears lowest set bit")
-            }
+            Problem::Number1Bits => Some("n = n & (n - 1)  ➔  clears lowest set bit"),
             Problem::CountingBits => Some("dp[i] = 1 + dp[i - offset]"),
             Problem::ReverseBits => Some("bit = (n >> i) & 1  ➔  res |= bit << (31 - i)"),
             Problem::MissingNumber => Some("∑(0..n) - ∑(nums)  ➔  res ^= i ⊕ nums[i]"),
@@ -424,6 +423,10 @@ impl Problem {
             Problem::LongestSubstring => Some("while s[r] ∈ set ➔ set.remove(s[l]); l++"),
             Problem::Search2DMatrix => Some("val = matrix[m // COLS][m % COLS]"),
             Problem::HouseRobber => Some("rob[i] = max(rob[i-1], rob[i-2] + nums[i])"),
+            Problem::LowestCommonAncestorBst => {
+                Some("p, q < root: search left; p, q > root: search right")
+            }
+            Problem::ValidateBinarySearchTree => Some("lower < node.val < upper"),
             Problem::GenerateParentheses => Some("open < n ➔ '(', closed < open ➔ ')'"),
             Problem::DailyTemperatures => Some("while t > stack[-1].val ➔ pop() & dist = i - idx"),
             Problem::CarFleet => Some("time = (target - p) / s; if t ≤ prev ➔ fleet merge"),

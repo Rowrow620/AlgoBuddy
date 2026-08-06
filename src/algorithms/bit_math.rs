@@ -39,10 +39,6 @@ pub fn generate_number_1_bits_steps(n: u32) -> Vec<Step> {
     steps
 }
 
-pub fn generate_count_bits_steps(n: u32) -> Vec<Step> {
-    generate_number_1_bits_steps(n)
-}
-
 pub fn generate_counting_bits_array_steps(n: usize) -> Vec<Step> {
     let mut steps = Vec::new();
     let mut dp = vec![0i32; n + 1];

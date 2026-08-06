@@ -58,7 +58,11 @@ impl VisualizerApp {
                                 let label = if is_active {
                                     "Active"
                                 } else if is_sec {
-                                    "Child"
+                                    if self.current_problem == Problem::LowestCommonAncestorBst {
+                                        "Target"
+                                    } else {
+                                        "Child"
+                                    }
                                 } else {
                                     ""
                                 };
