@@ -225,14 +225,16 @@ pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &The
                 ui.separator();
                 ui.label(RichText::new("Speed:").strong().color(p.text_primary));
                 let mut mult = (500.0 / app.playback_speed_ms as f32 * 100.0).round() / 100.0;
-                if ui
+
+                let speed_response = ui
                     .add(
                         egui::Slider::new(&mut mult, 0.25..=4.0)
                             .step_by(0.25)
                             .custom_formatter(|val, _| format!("{:.2}x", val)),
                     )
-                    .changed()
-                {
+                    .on_hover_text("Sets the step playback speed.");
+
+                if speed_response.changed() {
                     app.playback_speed_ms = (500.0 / mult).round() as u64;
                 }
             });
