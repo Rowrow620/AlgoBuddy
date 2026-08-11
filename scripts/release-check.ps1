@@ -40,7 +40,7 @@ try {
 
     if ($ExpectedVersion) {
         $manifest = Get-Content "Cargo.toml" -Raw
-        if ($manifest -notmatch "(?m)^version = `"$([regex]::Escape($ExpectedVersion))`"$") {
+        if ($manifest -notmatch "(?m)^version = `"$([regex]::Escape($ExpectedVersion))`"\r?$") {
             throw "Cargo.toml does not declare version $ExpectedVersion."
         }
 
