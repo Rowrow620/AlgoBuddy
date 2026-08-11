@@ -108,7 +108,7 @@ Before submitting a Pull Request, ensure your changes adhere to these requiremen
 - **Clippy Clean**: Run `cargo clippy --all-targets -- -D warnings` to verify zero warnings.
 - **Unit Tests**: Add unit tests for any new algorithm step generators or parser functions.
 - **Synchronized State**: Keep timeline descriptions, inspector values, canvas state, final results, and highlighted source lines consistent at every step.
-- **Plain Text Interface**: Do not add emoji to UI labels, documentation, code comments, contributor templates, or release notes. Use concise plain text instead.
+- **Plain Text Interface**: Do not add decorative emoji to UI labels, documentation, code comments, contributor templates, or release notes. A functional text symbol may represent an established control state, such as `★`/`☆` for favorites, when the control also provides a clear tooltip.
 - **Commit Messages**: Write concise, descriptive commit messages (e.g., `feat: add visualizer for problem #X`, `fix: resolve bounds checking on timeline scrubber`).
 
 ---

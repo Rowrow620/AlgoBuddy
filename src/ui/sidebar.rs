@@ -163,8 +163,8 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
                                 let diff_color = difficulty_color(prob.difficulty(), p);
 
                                 ui.horizontal(|ui| {
-                                    let favorite_rt = RichText::new("[x]")
-                                        .font(egui::FontId::proportional(12.0))
+                                    let favorite_rt = RichText::new("★")
+                                        .font(egui::FontId::proportional(13.0))
                                         .color(p.amber)
                                         .strong();
                                     if ui
@@ -281,12 +281,12 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
 
                                 ui.horizontal(|ui| {
                                     let (favorite_text, favorite_color) = if is_fav {
-                                        ("[x]", p.amber)
+                                        ("★", p.amber)
                                     } else {
-                                        ("[ ]", p.text_muted)
+                                        ("☆", p.text_muted)
                                     };
                                     let favorite_rt = RichText::new(favorite_text)
-                                        .font(egui::FontId::proportional(12.0))
+                                        .font(egui::FontId::proportional(13.0))
                                         .color(favorite_color)
                                         .strong();
                                     if ui
