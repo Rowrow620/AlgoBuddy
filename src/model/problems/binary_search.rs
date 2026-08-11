@@ -7,8 +7,11 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
                 id: 704, title: "Binary Search", difficulty: Difficulty::Easy, category: Category::BinarySearch,
                 statement: "Given sorted array nums and target, return index of target or -1.",
                 examples: &[Example { input: "nums = [-1, 0, 2, 4, 6, 8], target = 4", output: "3", explanation: "Found at index 3." }],
-                constraints: &["1 <= nums.length <= 10000"], leetcode_url: "https://leetcode.com/problems/binary-search/",
-                approaches: &[ApproachMeta { id: 0, name: "Binary Search Iterative", time_complexity: "O(log N)", space_complexity: "O(1)", rationale: "Halving the search space at each midpoint step guarantees logarithmic O(log N) runtime on sorted arrays.", description: "Midpoint bounds." }],
+                constraints: &["1 <= nums.length <= 10000", "nums is sorted in strictly increasing order"], leetcode_url: "https://leetcode.com/problems/binary-search/",
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Binary Search Iterative", time_complexity: "O(log N)", space_complexity: "O(1)", rationale: "Halving the search space at each midpoint step guarantees logarithmic O(log N) runtime on sorted arrays.", description: "Midpoint bounds." },
+                    ApproachMeta { id: 1, name: "Linear Scan", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Checking values from left to right works without using the sorted order, but may inspect every element.", description: "Compare each array value with the target in index order." },
+                ],
             }),
         Problem::Search2DMatrix => Some(ProblemDetails {
                 id: 74, title: "Search a 2D Matrix", difficulty: Difficulty::Medium, category: Category::BinarySearch,
@@ -58,7 +61,7 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
 
 pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize, &'static str)>> {
     match (problem, approach_id) {
-        (Problem::BinarySearch, _) => Some(vec![
+        (Problem::BinarySearch, 0) => Some(vec![
             (1, "class Solution:"),
             (2, "    def search(self, nums: List[int], target: int) -> int:"),
             (3, "        l, r = 0, len(nums) - 1"),
@@ -71,6 +74,14 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
             (10, "            else:"),
             (11, "                return m"),
             (12, "        return -1"),
+        ]),
+        (Problem::BinarySearch, 1) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def search(self, nums: List[int], target: int) -> int:"),
+            (3, "        for i, num in enumerate(nums):"),
+            (4, "            if num == target:"),
+            (5, "                return i"),
+            (6, "        return -1"),
         ]),
         (Problem::Search2DMatrix, _) => Some(vec![
             (1, "class Solution:"),

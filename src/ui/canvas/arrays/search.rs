@@ -11,8 +11,8 @@ impl VisualizerApp {
         prices: &[i32],
         left_buy: usize,
         right_sell: usize,
-        current_profit: i32,
-        max_profit: i32,
+        current_profit: i64,
+        max_profit: i64,
     ) {
         let z = self.canvas_zoom;
         let font_title = (16.0 * z).max(10.0);
@@ -20,8 +20,13 @@ impl VisualizerApp {
         let font_price = (16.0 * z).max(9.0);
         let margin = (10.0 * z).max(4.0);
 
+        let approach_name = self
+            .current_problem
+            .details()
+            .approach_by_id(self.selected_approach_id)
+            .map_or("Buy & Sell Stock", |approach| approach.name);
         ui.heading(
-            RichText::new("Sliding Window / Buy & Sell Stock Trace")
+            RichText::new(format!("{approach_name} Trace"))
                 .color(p.cyan)
                 .size(font_title),
         );
@@ -58,9 +63,17 @@ impl VisualizerApp {
                                 let label = if is_buy && is_sell {
                                     "Buy & Sell"
                                 } else if is_buy {
-                                    "Buy (l)"
+                                    if self.selected_approach_id == 1 {
+                                        "Buy (i)"
+                                    } else {
+                                        "Buy (l)"
+                                    }
                                 } else if is_sell {
-                                    "Sell (r)"
+                                    if self.selected_approach_id == 1 {
+                                        "Sell (j)"
+                                    } else {
+                                        "Sell (r)"
+                                    }
                                 } else {
                                     ""
                                 };
@@ -92,9 +105,13 @@ impl VisualizerApp {
                 .show(ui, |ui| {
                     ui.vertical(|ui| {
                         ui.label(
-                            RichText::new("Current Profit (prices[r] - prices[l])")
-                                .font(egui::FontId::proportional((11.0 * z).max(8.0)))
-                                .color(p.text_muted),
+                            RichText::new(if self.selected_approach_id == 1 {
+                                "Current Profit (prices[j] - prices[i])"
+                            } else {
+                                "Current Profit (prices[r] - prices[l])"
+                            })
+                            .font(egui::FontId::proportional((11.0 * z).max(8.0)))
+                            .color(p.text_muted),
                         );
                         ui.label(
                             RichText::new(format!("${}", current_profit))
@@ -147,10 +164,28 @@ impl VisualizerApp {
         let font_sz = (18.0 * z).max(9.0);
         let font_title = (18.0 * z).max(10.0);
 
+        let approach_name = self
+            .current_problem
+            .details()
+            .approach_by_id(self.selected_approach_id)
+            .map_or("Search", |approach| approach.name);
+        let search_status = if self.selected_approach_id == 0 {
+            format!("bounds (l={left}, r={right})")
+        } else {
+            mid.map_or_else(
+                || {
+                    if left < nums.len() {
+                        "ready to scan".to_owned()
+                    } else {
+                        "scan complete".to_owned()
+                    }
+                },
+                |index| format!("checking index {index}"),
+            )
+        };
         ui.heading(
             RichText::new(format!(
-                "Binary Search bounds (l={}, r={}) | Target = {}",
-                left, right, target
+                "{approach_name} {search_status} | Target = {target}"
             ))
             .color(p.cyan)
             .size(font_title),
@@ -187,13 +222,17 @@ impl VisualizerApp {
                         .show(ui, |ui| {
                             ui.vertical(|ui| {
                                 let mut ptr_label = String::new();
-                                if i == left {
+                                if self.selected_approach_id == 0 && i == left {
                                     ptr_label.push_str("L ");
                                 }
                                 if is_mid {
-                                    ptr_label.push_str("MID ");
+                                    ptr_label.push_str(if self.selected_approach_id == 1 {
+                                        "i "
+                                    } else {
+                                        "MID "
+                                    });
                                 }
-                                if i == right {
+                                if self.selected_approach_id == 0 && i == right {
                                     ptr_label.push('R');
                                 }
 

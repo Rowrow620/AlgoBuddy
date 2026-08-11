@@ -91,6 +91,8 @@ impl VisualizerApp {
 
         ui.horizontal(|ui| {
             if let Some(d) = depth_val {
+                let is_balance_difference =
+                    self.current_problem == Problem::BalancedTree && self.selected_approach_id == 1;
                 egui::Frame::none()
                     .fill(p.cell_bg)
                     .rounding(Rounding::same(8.0 * z))
@@ -99,15 +101,23 @@ impl VisualizerApp {
                     .show(ui, |ui| {
                         ui.vertical(|ui| {
                             ui.label(
-                                RichText::new("Current / Max Tree Depth")
-                                    .font(egui::FontId::proportional((11.0 * z).max(8.0)))
-                                    .color(p.text_muted),
+                                RichText::new(if is_balance_difference {
+                                    "Current Node Height Difference"
+                                } else {
+                                    "Current / Max Tree Depth"
+                                })
+                                .font(egui::FontId::proportional((11.0 * z).max(8.0)))
+                                .color(p.text_muted),
                             );
                             ui.label(
-                                RichText::new(format!("Depth: {}", d))
-                                    .font(egui::FontId::monospace((18.0 * z).max(10.0)))
-                                    .strong()
-                                    .color(p.cyan),
+                                RichText::new(if is_balance_difference {
+                                    format!("Difference: {d}")
+                                } else {
+                                    format!("Depth: {d}")
+                                })
+                                .font(egui::FontId::monospace((18.0 * z).max(10.0)))
+                                .strong()
+                                .color(p.cyan),
                             );
                         });
                     });

@@ -8,21 +8,30 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
                 statement: "Reverse a singly linked list.",
                 examples: &[Example { input: "head = [0, 1, 2, 3]", output: "[3, 2, 1, 0]", explanation: "Next pointers flipped." }],
                 constraints: &["0 <= length <= 1000"], leetcode_url: "https://leetcode.com/problems/reverse-linked-list/",
-                approaches: &[ApproachMeta { id: 0, name: "Iterative Pointers (prev, curr)", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Reversing link pointers iteratively requires only 3 pointer variables (prev, curr, nxt), achieving O(N) time and O(1) space.", description: "Flip next pointers." }],
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Iterative Pointers (prev, curr)", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Reversing link pointers iteratively requires only 3 pointer variables (prev, curr, nxt), achieving O(N) time and O(1) space.", description: "Flip next pointers." },
+                    ApproachMeta { id: 1, name: "Recursive Pointer Reversal", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "Recursing to the tail and reversing each link while the calls unwind visits every node once, but uses one stack frame per node.", description: "Reverse links while recursive calls unwind." },
+                ],
             }),
         Problem::MergeTwoLists => Some(ProblemDetails {
                 id: 21, title: "Merge Two Sorted Linked Lists", difficulty: Difficulty::Easy, category: Category::LinkedList,
                 statement: "Merge two sorted linked lists into one sorted list.",
                 examples: &[Example { input: "list1 = [1, 2, 4], list2 = [1, 3, 5]", output: "[1, 1, 2, 3, 4, 5]", explanation: "Merged in order." }],
                 constraints: &["0 <= list1.length <= 100"], leetcode_url: "https://leetcode.com/problems/merge-two-sorted-lists/",
-                approaches: &[ApproachMeta { id: 0, name: "Two Pointers Merge", time_complexity: "O(N + M)", space_complexity: "O(1)", rationale: "Splicing existing list nodes together using two pointers merges sorted lists in O(N + M) time with zero extra allocations.", description: "Tail node attachments." }],
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Two Pointers Merge", time_complexity: "O(N + M)", space_complexity: "O(1)", rationale: "Splicing existing list nodes together using two pointers merges sorted lists in O(N + M) time with zero extra allocations.", description: "Tail node attachments." },
+                    ApproachMeta { id: 1, name: "Collect, Sort, and Rebuild", time_complexity: "O((N + M) log(N + M))", space_complexity: "O(N + M)", rationale: "Collecting every value, sorting the combined array, and rebuilding a list is straightforward, but gives up the ordering already present in both inputs.", description: "Collect all values, sort them, then build a new list." },
+                ],
             }),
         Problem::LinkedListCycle => Some(ProblemDetails {
                 id: 141, title: "Linked List Cycle Detection", difficulty: Difficulty::Easy, category: Category::LinkedList,
                 statement: "Return true if there is a cycle in the linked list.",
                 examples: &[Example { input: "head = [1, 2, 3, 4], index = 1", output: "true", explanation: "Tail connects to index 1." }],
                 constraints: &["0 <= length <= 1000"], leetcode_url: "https://leetcode.com/problems/linked-list-cycle/",
-                approaches: &[ApproachMeta { id: 0, name: "Floyd's Tortoise & Hare", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Floyd's fast pointer moves at 2x speed; if a cycle exists, the distance between slow and fast decreases by 1 each step (O(N) catch-up).", description: "Slow and fast pointers." }],
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Floyd's Tortoise & Hare", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Floyd's fast pointer moves at 2x speed; if a cycle exists, the distance between slow and fast decreases by 1 each step (O(N) catch-up).", description: "Slow and fast pointers." },
+                    ApproachMeta { id: 1, name: "Visited Node Set", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "Recording each visited node makes the first repeated node an explicit cycle signal, trading linear extra memory for a simpler traversal.", description: "Store visited node identities and stop on the first repeat." },
+                ],
             }),
         Problem::ReorderList => Some(ProblemDetails {
                 id: 143, title: "Reorder List", difficulty: Difficulty::Medium, category: Category::LinkedList,
@@ -86,6 +95,15 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
 
 pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize, &'static str)>> {
     match (problem, approach_id) {
+        (Problem::ReverseLinkedList, 1) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:"),
+            (3, "        if not head or not head.next: return head"),
+            (4, "        new_head = self.reverseList(head.next)"),
+            (5, "        head.next.next = head"),
+            (6, "        head.next = None"),
+            (7, "        return new_head"),
+        ]),
         (Problem::ReverseLinkedList, _) => Some(vec![
             (1, "class Solution:"),
             (2, "    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:"),
@@ -97,6 +115,17 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
             (8, "            curr = nxt"),
             (9, "        return prev"),
         ]),
+        (Problem::MergeTwoLists, 1) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def mergeTwoLists(self, list1: Optional[ListNode], list2: Optional[ListNode]) -> Optional[ListNode]:"),
+            (3, "        values = []"),
+            (4, "        while list1: values.append(list1.val); list1 = list1.next"),
+            (5, "        while list2: values.append(list2.val); list2 = list2.next"),
+            (6, "        values.sort()"),
+            (7, "        dummy = tail = ListNode()"),
+            (8, "        for value in values: tail.next = ListNode(value); tail = tail.next"),
+            (9, "        return dummy.next"),
+        ]),
         (Problem::MergeTwoLists, _) => Some(vec![
             (1, "class Solution:"),
             (2, "    def mergeTwoLists(self, list1: Optional[ListNode], list2: Optional[ListNode]) -> Optional[ListNode]:"),
@@ -107,6 +136,17 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
             (7, "            tail = tail.next"),
             (8, "        tail.next = list1 if list1 else list2"),
             (9, "        return dummy.next"),
+        ]),
+        (Problem::LinkedListCycle, 1) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def hasCycle(self, head: Optional[ListNode]) -> bool:"),
+            (3, "        seen = set()"),
+            (4, "        curr = head"),
+            (5, "        while curr:"),
+            (6, "            if curr in seen: return True"),
+            (7, "            seen.add(curr)"),
+            (8, "            curr = curr.next"),
+            (9, "        return False"),
         ]),
         (Problem::LinkedListCycle, _) => Some(vec![
             (1, "class Solution:"),

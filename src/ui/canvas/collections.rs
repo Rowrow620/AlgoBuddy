@@ -13,24 +13,44 @@ impl VisualizerApp {
         label: &str,
     ) {
         let z = self.canvas_zoom;
+        let is_plain_collection = self.selected_approach_id == 1
+            && matches!(
+                self.current_problem,
+                Problem::KthLargestStream | Problem::LastStone
+            );
         ui.heading(
-            RichText::new(format!("Dual Tree & Array Heap View: {}", label))
-                .color(p.amber)
-                .size(16.0 * z),
+            RichText::new(if is_plain_collection {
+                format!("Array / Multiset View: {label}")
+            } else {
+                format!("Dual Tree & Array Heap View: {label}")
+            })
+            .color(p.amber)
+            .size(16.0 * z),
         );
         ui.add_space(12.0 * z);
 
-        // Heap children of index i are stored at 2i+1 and 2i+2.
         ui.group(|ui| {
             ui.label(
-                RichText::new("UNDERLYING HEAP ARRAY [Index: 2*i + 1, 2*i + 2]")
-                    .font(egui::FontId::monospace(11.0 * z))
-                    .color(p.cyan),
+                RichText::new(if is_plain_collection {
+                    "COLLECTION VALUES IN CURRENT ORDER"
+                } else {
+                    "UNDERLYING HEAP ARRAY [Index: 2*i + 1, 2*i + 2]"
+                })
+                .font(egui::FontId::monospace(11.0 * z))
+                .color(p.cyan),
             );
             ui.add_space(6.0 * z);
             ui.horizontal(|ui| {
                 if heap.is_empty() {
-                    ui.label(RichText::new("(Heap is Empty)").italics().color(p.text_dim));
+                    ui.label(
+                        RichText::new(if is_plain_collection {
+                            "(Collection is empty)"
+                        } else {
+                            "(Heap is Empty)"
+                        })
+                        .italics()
+                        .color(p.text_dim),
+                    );
                 }
                 for (i, &val) in heap.iter().enumerate() {
                     let is_act = active_idx == Some(i);
@@ -67,9 +87,12 @@ impl VisualizerApp {
             });
         });
 
+        if is_plain_collection {
+            return;
+        }
+
         ui.add_space(16.0 * z);
 
-        // Lay out the same array positions as a binary tree.
         ui.group(|ui| {
             ui.label(
                 RichText::new("BINARY TREE STRUCTURAL VIEW")
@@ -242,10 +265,14 @@ impl VisualizerApp {
         let font_char = (16.0 * z).max(9.0);
         let margin = (8.0 * z).max(4.0);
         let is_generation = self.current_problem == Problem::GenerateParentheses;
+        let is_pair_reduction =
+            self.current_problem == Problem::ValidParentheses && self.selected_approach_id == 1;
 
         ui.heading(
             RichText::new(if is_generation {
                 "Generate Parentheses Backtracking"
+            } else if is_pair_reduction {
+                "Repeated Adjacent-Pair Removal"
             } else {
                 "Vertical Stack Push / Pop Trace"
             })
@@ -267,11 +294,10 @@ impl VisualizerApp {
                 );
                 ui.horizontal(|ui| {
                     for (i, &c) in chars.iter().enumerate() {
-                        let fill = if active_idx == Some(i) {
-                            p.amber
-                        } else {
-                            p.cell_bg
-                        };
+                        let is_active = active_idx == Some(i)
+                            || (is_pair_reduction
+                                && active_idx.is_some_and(|pair_start| i == pair_start + 1));
+                        let fill = if is_active { p.amber } else { p.cell_bg };
                         egui::Frame::none()
                             .fill(fill)
                             .rounding(Rounding::same(6.0 * z))
@@ -288,61 +314,63 @@ impl VisualizerApp {
                 });
             });
 
-            ui.add_space(30.0 * z);
+            if !is_pair_reduction {
+                ui.add_space(30.0 * z);
 
-            ui.group(|ui| {
-                ui.label(
-                    RichText::new(if is_generation {
-                        "BACKTRACK STACK (Top on right/bottom)"
-                    } else {
-                        "STACK (Top on right/bottom)"
-                    })
-                    .font(egui::FontId::monospace((11.0 * z).max(8.0)))
-                    .color(p.text_muted),
-                );
-                ui.vertical(|ui| {
-                    if stack.is_empty() {
-                        ui.label(
-                            RichText::new(if is_generation {
-                                "Current prefix is empty"
-                            } else {
-                                "Stack is Empty []"
-                            })
-                            .italics()
-                            .color(p.text_dim),
-                        );
-                    } else {
-                        for (idx, &c) in stack.iter().rev().enumerate() {
-                            let is_top = idx == 0;
-                            let fill = if is_top { p.purple } else { p.cell_bg };
-                            egui::Frame::none()
-                                .fill(fill)
-                                .rounding(Rounding::same(6.0 * z))
-                                .stroke(Stroke::new(1.0_f32 * z, p.cyan))
-                                .inner_margin(margin)
-                                .show(ui, |ui| {
-                                    ui.horizontal(|ui| {
-                                        if is_top {
+                ui.group(|ui| {
+                    ui.label(
+                        RichText::new(if is_generation {
+                            "BACKTRACK STACK (Top on right/bottom)"
+                        } else {
+                            "STACK (Top on right/bottom)"
+                        })
+                        .font(egui::FontId::monospace((11.0 * z).max(8.0)))
+                        .color(p.text_muted),
+                    );
+                    ui.vertical(|ui| {
+                        if stack.is_empty() {
+                            ui.label(
+                                RichText::new(if is_generation {
+                                    "Current prefix is empty"
+                                } else {
+                                    "Stack is Empty []"
+                                })
+                                .italics()
+                                .color(p.text_dim),
+                            );
+                        } else {
+                            for (idx, &c) in stack.iter().rev().enumerate() {
+                                let is_top = idx == 0;
+                                let fill = if is_top { p.purple } else { p.cell_bg };
+                                egui::Frame::none()
+                                    .fill(fill)
+                                    .rounding(Rounding::same(6.0 * z))
+                                    .stroke(Stroke::new(1.0_f32 * z, p.cyan))
+                                    .inner_margin(margin)
+                                    .show(ui, |ui| {
+                                        ui.horizontal(|ui| {
+                                            if is_top {
+                                                ui.label(
+                                                    RichText::new("TOP ->")
+                                                        .font(egui::FontId::monospace(
+                                                            (10.0 * z).max(8.0),
+                                                        ))
+                                                        .color(p.amber),
+                                                );
+                                            }
                                             ui.label(
-                                                RichText::new("TOP ->")
-                                                    .font(egui::FontId::monospace(
-                                                        (10.0 * z).max(8.0),
-                                                    ))
-                                                    .color(p.amber),
+                                                RichText::new(c.to_string())
+                                                    .font(egui::FontId::monospace(font_char))
+                                                    .strong()
+                                                    .color(Color32::WHITE),
                                             );
-                                        }
-                                        ui.label(
-                                            RichText::new(c.to_string())
-                                                .font(egui::FontId::monospace(font_char))
-                                                .strong()
-                                                .color(Color32::WHITE),
-                                        );
+                                        });
                                     });
-                                });
+                            }
                         }
-                    }
+                    });
                 });
-            });
+            }
         });
 
         if let Some(valid) = is_valid {

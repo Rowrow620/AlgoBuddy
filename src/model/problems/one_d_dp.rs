@@ -8,14 +8,20 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
                 statement: "It takes n steps to reach top. Each time you can climb 1 or 2 steps. How many distinct ways?",
                 examples: &[Example { input: "n = 3", output: "3", explanation: "1+1+1, 1+2, 2+1." }],
                 constraints: &["1 <= n <= 45"], leetcode_url: "https://leetcode.com/problems/climbing-stairs/",
-                approaches: &[ApproachMeta { id: 0, name: "Dynamic Programming (Fibonacci)", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Ways to step n equal Fibonacci(n); maintaining 2 variables (dp[i-1], dp[i-2]) solves the problem in O(N) time and O(1) space.", description: "dp[i] = dp[i-1] + dp[i-2]." }],
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Dynamic Programming (Fibonacci)", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Ways to step n equal Fibonacci(n); maintaining 2 variables (dp[i-1], dp[i-2]) solves the problem in O(N) time and O(1) space.", description: "dp[i] = dp[i-1] + dp[i-2]." },
+                    ApproachMeta { id: 1, name: "Naive Recursive Branching", time_complexity: "O(2^N)", space_complexity: "O(N)", rationale: "Recursively trying a one-step and two-step move directly mirrors the definition but recomputes the same remaining stair counts many times.", description: "Return climb(n - 1) + climb(n - 2) without memoization." },
+                ],
             }),
         Problem::MinCostStairs => Some(ProblemDetails {
                 id: 746, title: "Min Cost Climbing Stairs", difficulty: Difficulty::Easy, category: Category::OneDDp,
                 statement: "Return minimum cost to reach top of floor by taking 1 or 2 steps.",
                 examples: &[Example { input: "cost = [10, 15, 20]", output: "15", explanation: "Start at index 1, pay 15." }],
                 constraints: &["2 <= cost.length <= 1000"], leetcode_url: "https://leetcode.com/problems/min-cost-climbing-stairs/",
-                approaches: &[ApproachMeta { id: 0, name: "Bottom-Up DP", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Subproblem optimal transition dp[i] = cost[i] + min(dp[i-1], dp[i-2]) computes minimum cost in a single O(N) DP pass.", description: "dp[i] = min(dp[i-1]+cost[i-1], dp[i-2]+cost[i-2])." }],
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Bottom-Up DP", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Subproblem optimal transition dp[i] = cost[i] + min(dp[i-1], dp[i-2]) computes minimum cost in a single O(N) DP pass.", description: "dp[i] = min(dp[i-1]+cost[i-1], dp[i-2]+cost[i-2])." },
+                    ApproachMeta { id: 1, name: "Naive Recursive Choice Search", time_complexity: "O(2^N)", space_complexity: "O(N)", rationale: "Branching from every stair into one-step and two-step choices is a direct exhaustive baseline but recalculates suffix costs exponentially often.", description: "Recursively take the cheaper one-step or two-step continuation without memoization." },
+                ],
             }),
         Problem::HouseRobber => Some(ProblemDetails {
                 id: 198, title: "House Robber", difficulty: Difficulty::Medium, category: Category::OneDDp,
@@ -93,7 +99,7 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
 
 pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize, &'static str)>> {
     match (problem, approach_id) {
-        (Problem::ClimbingStairs, _) => Some(vec![
+        (Problem::ClimbingStairs, 0) => Some(vec![
             (1, "class Solution:"),
             (2, "    def climbStairs(self, n: int) -> int:"),
             (3, "        if n <= 2: return n"),
@@ -103,7 +109,16 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
             (7, ""),
             (8, "        return two"),
         ]),
-        (Problem::MinCostStairs, _) => Some(vec![
+        (Problem::ClimbingStairs, 1) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def climbStairs(self, n: int) -> int:"),
+            (3, "        if n <= 2: return n"),
+            (
+                4,
+                "        return self.climbStairs(n - 1) + self.climbStairs(n - 2)",
+            ),
+        ]),
+        (Problem::MinCostStairs, 0) => Some(vec![
             (1, "class Solution:"),
             (
                 2,
@@ -115,6 +130,20 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
             (6, "            cost[i] += min(cost[i + 1], cost[i + 2])"),
             (7, ""),
             (8, "        return min(cost[0], cost[1])"),
+        ]),
+        (Problem::MinCostStairs, 1) => Some(vec![
+            (1, "class Solution:"),
+            (
+                2,
+                "    def minCostClimbingStairs(self, cost: List[int]) -> int:",
+            ),
+            (3, "        def dfs(i):"),
+            (4, "            if i >= len(cost): return 0"),
+            (
+                5,
+                "            return cost[i] + min(dfs(i + 1), dfs(i + 2))",
+            ),
+            (6, "        return min(dfs(0), dfs(1))"),
         ]),
         (Problem::HouseRobber, _) => Some(house_robber_code_lines()),
         (Problem::HouseRobberII, _) => Some(house_robber_ii_code_lines()),

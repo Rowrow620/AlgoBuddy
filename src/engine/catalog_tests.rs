@@ -14,6 +14,36 @@ struct SourceLineMismatch {
 }
 
 #[test]
+fn every_easy_problem_exposes_a_comparison_approach() {
+    let missing = Problem::all()
+        .iter()
+        .filter(|problem| problem.difficulty() == Difficulty::Easy)
+        .filter_map(|problem| {
+            let details = problem.details();
+            let has_primary = details.approach_by_id(0).is_some();
+            let has_comparison = details.approach_by_id(1).is_some();
+            (!has_primary || !has_comparison).then_some(format!(
+                "{:?} (#{} {}) has approach IDs {:?}",
+                problem,
+                details.id,
+                details.title,
+                details
+                    .approaches
+                    .iter()
+                    .map(|approach| approach.id)
+                    .collect::<Vec<_>>()
+            ))
+        })
+        .collect::<Vec<_>>();
+
+    assert!(
+        missing.is_empty(),
+        "Easy problems missing primary/comparison approaches:\n{}",
+        missing.join("\n")
+    );
+}
+
+#[test]
 fn problem_catalog_has_complete_metadata_and_valid_traces() {
     let expected_category_counts = [
         (Category::ArraysAndHashing, 9),
@@ -525,6 +555,7 @@ fn validate_visual_state(visual: &VisualState, context: &str, failures: &mut Vec
             cycle_target_idx,
             slow_idx,
             fast_idx,
+            visited_indices,
             ..
         } => {
             check_index(
@@ -536,6 +567,9 @@ fn validate_visual_state(visual: &VisualState, context: &str, failures: &mut Vec
             );
             check_index("slow index", *slow_idx, nodes.len(), context, failures);
             check_index("fast index", *fast_idx, nodes.len(), context, failures);
+            for &index in visited_indices {
+                check_required_index("visited index", index, nodes.len(), context, failures);
+            }
         }
         VisualState::TreeVisual {
             tree_nodes,
@@ -693,6 +727,7 @@ fn validate_visual_state(visual: &VisualState, context: &str, failures: &mut Vec
                 failures,
             );
         }
+        VisualState::TraceUnavailable { .. } => {}
     }
 }
 

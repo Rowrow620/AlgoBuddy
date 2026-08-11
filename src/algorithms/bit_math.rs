@@ -39,6 +39,59 @@ pub fn generate_number_1_bits_steps(n: u32) -> Vec<Step> {
     steps
 }
 
+pub fn generate_number_1_bits_fixed_scan_steps(n: u32) -> Vec<Step> {
+    let bits: Vec<i32> = (0..32).map(|bit| ((n >> bit) & 1) as i32).collect();
+    let mut count = 0usize;
+    let mut steps = vec![Step {
+        code_line: 3,
+        description: format!("Initialize count = 0 before checking all 32 bit positions of {n}."),
+        visual: VisualState::Array1D {
+            title: "Number of 1 Bits: Fixed Position Scan".into(),
+            elements: bits.clone(),
+            active_idx: None,
+            secondary_idx: None,
+            pointers: Vec::new(),
+            status_message: "bits shown least-significant first".into(),
+            is_success: None,
+        },
+    }];
+
+    for bit in 0..32 {
+        count += bits[bit] as usize;
+        steps.push(Step {
+            code_line: 5,
+            description: format!(
+                "Inspect bit {bit}: value = {}; running count = {count}.",
+                bits[bit]
+            ),
+            visual: VisualState::Array1D {
+                title: "Number of 1 Bits: Fixed Position Scan".into(),
+                elements: bits.clone(),
+                active_idx: Some(bit),
+                secondary_idx: None,
+                pointers: Vec::new(),
+                status_message: format!("bit {bit} contributes {}", bits[bit]),
+                is_success: None,
+            },
+        });
+    }
+
+    steps.push(Step {
+        code_line: 6,
+        description: format!("All 32 positions were checked; Hamming weight = {count}."),
+        visual: VisualState::Array1D {
+            title: "Number of 1 Bits: Fixed Position Scan".into(),
+            elements: bits,
+            active_idx: None,
+            secondary_idx: None,
+            pointers: Vec::new(),
+            status_message: format!("return {count}"),
+            is_success: Some(true),
+        },
+    });
+    steps
+}
+
 pub fn generate_counting_bits_array_steps(n: usize) -> Vec<Step> {
     let mut steps = Vec::new();
     let mut dp = vec![0i32; n + 1];
@@ -94,6 +147,77 @@ pub fn generate_counting_bits_array_steps(n: usize) -> Vec<Step> {
         },
     });
 
+    steps
+}
+
+pub(crate) const COUNTING_BITS_INDEPENDENT_SCAN_LIMIT: usize = 128;
+
+pub fn generate_counting_bits_independent_scan_steps(n: usize) -> Vec<Step> {
+    if n > COUNTING_BITS_INDEPENDENT_SCAN_LIMIT {
+        let message = format!(
+            "Independent bit-scan visualization supports n up to {}; lower n before building the clone-heavy trace.",
+            COUNTING_BITS_INDEPENDENT_SCAN_LIMIT
+        );
+        return vec![Step {
+            code_line: 3,
+            description: message.clone(),
+            visual: VisualState::TraceUnavailable { message },
+        }];
+    }
+
+    let mut answer = Vec::with_capacity(n + 1);
+    let mut steps = vec![Step {
+        code_line: 3,
+        description: format!(
+            "Build counts for 0..={n}; each integer gets its own independent 32-position scan."
+        ),
+        visual: VisualState::Array1D {
+            title: "Counting Bits: Independent Scans".into(),
+            elements: Vec::new(),
+            active_idx: None,
+            secondary_idx: None,
+            pointers: Vec::new(),
+            status_message: "answer = []".into(),
+            is_success: None,
+        },
+    }];
+
+    for value in 0..=n {
+        let mut count = 0i32;
+        for bit in 0..32 {
+            count += ((value >> bit) & 1) as i32;
+        }
+        answer.push(count);
+        steps.push(Step {
+            code_line: 8,
+            description: format!(
+                "Scan all 32 positions of {value} ({value:032b}) independently; append count {count}."
+            ),
+            visual: VisualState::Array1D {
+                title: "Counting Bits: Independent Scans".into(),
+                elements: answer.clone(),
+                active_idx: Some(value),
+                secondary_idx: None,
+                pointers: vec![("value", value)],
+                status_message: format!("answer[{value}] = {count}"),
+                is_success: None,
+            },
+        });
+    }
+
+    steps.push(Step {
+        code_line: 9,
+        description: format!("Independent scans complete: {:?}.", answer),
+        visual: VisualState::Array1D {
+            title: "Counting Bits: Independent Scans".into(),
+            elements: answer,
+            active_idx: None,
+            secondary_idx: None,
+            pointers: Vec::new(),
+            status_message: "return answer".into(),
+            is_success: Some(true),
+        },
+    });
     steps
 }
 
@@ -769,4 +893,45 @@ pub fn generate_detect_squares_steps() -> Vec<Step> {
     });
 
     steps
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fixed_position_scan_counts_set_bits() {
+        let steps = generate_number_1_bits_fixed_scan_steps(11);
+        assert!(steps
+            .last()
+            .expect("trace must not be empty")
+            .description
+            .contains("Hamming weight = 3"));
+    }
+
+    #[test]
+    fn independent_scans_match_expected_counts() {
+        let steps = generate_counting_bits_independent_scan_steps(5);
+        assert!(matches!(
+            &steps.last().expect("trace must not be empty").visual,
+            VisualState::Array1D {
+                elements,
+                is_success: Some(true),
+                ..
+            } if elements == &[0, 1, 1, 2, 1, 2]
+        ));
+    }
+
+    #[test]
+    fn independent_scans_stop_before_an_oversized_trace() {
+        let steps =
+            generate_counting_bits_independent_scan_steps(COUNTING_BITS_INDEPENDENT_SCAN_LIMIT + 1);
+        assert!(matches!(
+            steps.as_slice(),
+            [Step {
+                visual: VisualState::TraceUnavailable { .. },
+                ..
+            }]
+        ));
+    }
 }

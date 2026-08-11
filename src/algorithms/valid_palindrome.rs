@@ -1,6 +1,30 @@
 use crate::model::{Step, VisualState};
 
+pub(crate) const PALINDROME_VISUALIZATION_LIMIT: usize = 1_000;
+
 pub fn generate_valid_palindrome_steps(s: &str, approach_id: usize) -> Vec<Step> {
+    if s.chars().any(|character| !(' '..='~').contains(&character)) {
+        let message = "Valid Palindrome traces require printable ASCII input, matching the problem's input contract."
+            .to_string();
+        return vec![Step {
+            code_line: 3,
+            description: message.clone(),
+            visual: VisualState::TraceUnavailable { message },
+        }];
+    }
+
+    if s.chars().count() > PALINDROME_VISUALIZATION_LIMIT {
+        let message = format!(
+            "Palindrome traces accept at most {} characters because each step stores the current character state.",
+            PALINDROME_VISUALIZATION_LIMIT
+        );
+        return vec![Step {
+            code_line: 3,
+            description: message.clone(),
+            visual: VisualState::TraceUnavailable { message },
+        }];
+    }
+
     if approach_id == 1 {
         generate_palindrome_reverse(s)
     } else {
@@ -90,10 +114,7 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
             break;
         }
 
-        let char_l = chars[l].to_ascii_lowercase();
-        let char_r = chars[r].to_ascii_lowercase();
-
-        if char_l != char_r {
+        if !chars[l].eq_ignore_ascii_case(&chars[r]) {
             steps.push(Step {
                 code_line: 10,
                 description: format!(
@@ -150,14 +171,13 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
 
 fn generate_palindrome_reverse(s: &str) -> Vec<Step> {
     let mut steps = Vec::new();
-    let original_chars: Vec<char> = s.chars().collect();
 
     steps.push(Step {
         code_line: 3,
         description: "Initialized newStr = \"\" for collecting lowercase alphanumeric characters."
             .to_string(),
         visual: VisualState::TwoPointers {
-            chars: original_chars.clone(),
+            chars: Vec::new(),
             left: 0,
             right: 0,
             is_valid: None,
@@ -268,5 +288,48 @@ mod tests {
             crate::model::Problem::ValidPalindrome.formula(),
             Some("all previously compared alphanumeric pairs matched")
         );
+    }
+
+    #[test]
+    fn filter_and_reverse_trace_normalizes_before_comparing() {
+        let palindrome = generate_valid_palindrome_steps("A man, a plan, a canal: Panama", 1);
+        assert_eq!(final_result(&palindrome), Some(true));
+        assert_eq!(
+            palindrome
+                .iter()
+                .map(|step| step.code_line)
+                .collect::<Vec<_>>(),
+            vec![3, 6, 7]
+        );
+
+        let mismatch = generate_valid_palindrome_steps("race a car", 1);
+        assert_eq!(final_result(&mismatch), Some(false));
+    }
+
+    #[test]
+    fn both_approaches_reject_non_ascii_input() {
+        for approach_id in [0, 1] {
+            assert!(matches!(
+                generate_valid_palindrome_steps("İ", approach_id).as_slice(),
+                [Step {
+                    visual: VisualState::TraceUnavailable { .. },
+                    ..
+                }]
+            ));
+        }
+    }
+
+    #[test]
+    fn both_approaches_reject_oversized_visualizations() {
+        let input = "a".repeat(PALINDROME_VISUALIZATION_LIMIT + 1);
+        for approach_id in [0, 1] {
+            assert!(matches!(
+                generate_valid_palindrome_steps(&input, approach_id).as_slice(),
+                [Step {
+                    visual: VisualState::TraceUnavailable { .. },
+                    ..
+                }]
+            ));
+        }
     }
 }

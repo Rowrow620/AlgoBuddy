@@ -8,14 +8,20 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
                 statement: "Design a class to find the k-th largest element in a stream.",
                 examples: &[Example { input: "k = 3, nums = [4, 5, 8, 2], val = 3", output: "4", explanation: "Min-heap of size k=3." }],
                 constraints: &["1 <= k <= 10^4"], leetcode_url: "https://leetcode.com/problems/kth-largest-element-in-a-stream/",
-                approaches: &[ApproachMeta { id: 0, name: "Min-Heap of Size k", time_complexity: "O(N log k)", space_complexity: "O(k)", rationale: "A min-heap of size k keeps the k largest elements at all times; the top element is always the k-th largest in O(log k) per add.", description: "Maintain min-heap of size k." }],
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Min-Heap of Size k", time_complexity: "O(N log k)", space_complexity: "O(k)", rationale: "A min-heap of size k keeps the k largest elements at all times; the top element is always the k-th largest in O(log k) per add.", description: "Maintain min-heap of size k." },
+                    ApproachMeta { id: 1, name: "Append and Sort Entire Stream", time_complexity: "O(N log N) per add", space_complexity: "O(N)", rationale: "Appending each new value and sorting every value makes the k-th largest easy to index, but repeats a full sort on every update.", description: "Store the full stream, sort it after each add, and index the k-th largest." },
+                ],
             }),
         Problem::LastStone => Some(ProblemDetails {
                 id: 1046, title: "Last Stone Weight", difficulty: Difficulty::Easy, category: Category::HeapPriorityQueue,
                 statement: "Smash two heaviest stones y and x until at most 1 stone remains.",
                 examples: &[Example { input: "stones = [2, 7, 4, 1, 8, 1]", output: "1", explanation: "Smash 8 and 7, remaining 1." }],
                 constraints: &["1 <= stones.length <= 30"], leetcode_url: "https://leetcode.com/problems/last-stone-weight/",
-                approaches: &[ApproachMeta { id: 0, name: "Max-Heap Simulation", time_complexity: "O(N log N)", space_complexity: "O(N)", rationale: "A max-heap always provides the two heaviest stones in O(log N) time per smash iteration.", description: "Repeatedly smash top 2." }],
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Max-Heap Simulation", time_complexity: "O(N log N)", space_complexity: "O(N)", rationale: "A max-heap always provides the two heaviest stones in O(log N) time per smash iteration.", description: "Repeatedly smash top 2." },
+                    ApproachMeta { id: 1, name: "Repeated Linear Maximum Search", time_complexity: "O(N^2)", space_complexity: "O(1)", rationale: "Scanning the remaining stones to remove the heaviest stone twice per round avoids a heap, but repeats linear searches until one stone remains.", description: "Find and remove the two largest stones with linear scans each round." },
+                ],
             }),
         Problem::KClosestPoints => Some(ProblemDetails {
                 id: 973, title: "K Closest Points to Origin", difficulty: Difficulty::Medium, category: Category::HeapPriorityQueue,
@@ -58,6 +64,15 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
 
 pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize, &'static str)>> {
     match (problem, approach_id) {
+        (Problem::KthLargestStream, 1) => Some(vec![
+            (1, "class KthLargest:"),
+            (2, "    def __init__(self, k: int, nums: List[int]):"),
+            (3, "        self.values, self.k = list(nums), k"),
+            (4, "    def add(self, val: int) -> int:"),
+            (5, "        self.values.append(val)"),
+            (6, "        self.values.sort(reverse=True)"),
+            (7, "        return self.values[self.k - 1]"),
+        ]),
         (Problem::KthLargestStream, _) => Some(vec![
             (1, "class KthLargest:"),
             (2, "    def __init__(self, k: int, nums: List[int]):"),
@@ -74,6 +89,21 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
                 "        if len(self.minHeap) > self.k: heapq.heappop(self.minHeap)",
             ),
             (9, "        return self.minHeap[0]"),
+        ]),
+        (Problem::LastStone, 1) => Some(vec![
+            (1, "class Solution:"),
+            (
+                2,
+                "    def lastStoneWeight(self, stones: List[int]) -> int:",
+            ),
+            (3, "        while len(stones) > 1:"),
+            (4, "            first = max(stones); stones.remove(first)"),
+            (5, "            second = max(stones); stones.remove(second)"),
+            (
+                6,
+                "            if first != second: stones.append(first - second)",
+            ),
+            (7, "        return stones[0] if stones else 0"),
         ]),
         (Problem::LastStone, _) => Some(vec![
             (1, "class Solution:"),

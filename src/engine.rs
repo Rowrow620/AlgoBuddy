@@ -5,6 +5,10 @@ mod dispatch;
 mod input;
 
 pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
+    let details = app.current_problem.details();
+    if details.approach_by_id(app.selected_approach_id).is_none() {
+        app.selected_approach_id = details.default_approach_id();
+    }
     app.steps = dispatch::generate_steps(app);
     reset_playback(app);
 }
@@ -26,7 +30,23 @@ mod catalog_tests;
 pub(crate) fn select_problem(app: &mut VisualizerApp, problem: Problem) {
     if app.current_problem != problem {
         app.current_problem = problem;
-        app.selected_approach_id = 0;
+        app.selected_approach_id = problem.details().default_approach_id();
         app.recompute_steps();
     }
+}
+
+pub(crate) fn select_approach(app: &mut VisualizerApp, approach_id: usize) -> bool {
+    if app.selected_approach_id == approach_id
+        || app
+            .current_problem
+            .details()
+            .approach_by_id(approach_id)
+            .is_none()
+    {
+        return false;
+    }
+
+    app.selected_approach_id = approach_id;
+    app.recompute_steps();
+    true
 }

@@ -2,6 +2,7 @@ mod algorithms;
 mod app;
 mod engine;
 mod model;
+mod shortcuts;
 mod ui;
 mod utils;
 

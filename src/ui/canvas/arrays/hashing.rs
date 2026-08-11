@@ -63,22 +63,14 @@ impl VisualizerApp {
                         .inner_margin(margin)
                         .show(ui, |ui| {
                             ui.vertical(|ui| {
-                                let sec_name = if self.selected_approach_id == 0 {
-                                    "prevMap[diff]"
-                                } else {
-                                    "j"
-                                };
-                                let label = if is_primary {
-                                    "i"
-                                } else if is_sec {
-                                    sec_name
-                                } else {
-                                    ""
-                                };
-                                let header = if label.is_empty() {
+                                let header = if is_primary {
                                     format!("i={}", i)
+                                } else if is_sec && self.selected_approach_id == 1 {
+                                    format!("j={}", i)
+                                } else if is_sec {
+                                    format!("index={} (prevMap[diff])", i)
                                 } else {
-                                    format!("i={} ({})", i, label)
+                                    format!("index={}", i)
                                 };
                                 ui.label(
                                     RichText::new(header)
@@ -157,6 +149,7 @@ impl VisualizerApp {
         t: &str,
         s_counts: &[usize; 26],
         t_counts: &[usize; 26],
+        strings_are_sorted: bool,
         active_s: Option<usize>,
         active_t: Option<usize>,
         is_anagram: Option<bool>,
@@ -167,8 +160,13 @@ impl VisualizerApp {
         let font_char = (16.0 * z).max(9.0);
         let margin = (8.0 * z).max(4.0);
 
+        let comparison_title = if self.selected_approach_id == 1 {
+            "Sort + Compare"
+        } else {
+            "Character Frequency Comparison"
+        };
         ui.heading(
-            RichText::new("Character Comparison")
+            RichText::new(comparison_title)
                 .color(p.cyan)
                 .size(font_title),
         );
@@ -177,9 +175,17 @@ impl VisualizerApp {
         ui.horizontal(|ui| {
             ui.group(|ui| {
                 ui.label(
-                    RichText::new(format!("STRING s: \"{}\"", s))
-                        .font(egui::FontId::monospace(font_label))
-                        .color(p.text_muted),
+                    RichText::new(format!(
+                        "{} s: \"{}\"",
+                        if strings_are_sorted {
+                            "SORTED"
+                        } else {
+                            "STRING"
+                        },
+                        s
+                    ))
+                    .font(egui::FontId::monospace(font_label))
+                    .color(p.text_muted),
                 );
                 ui.horizontal(|ui| {
                     for (i, c) in s.chars().enumerate() {
@@ -208,9 +214,17 @@ impl VisualizerApp {
 
             ui.group(|ui| {
                 ui.label(
-                    RichText::new(format!("STRING t: \"{}\"", t))
-                        .font(egui::FontId::monospace(font_label))
-                        .color(p.text_muted),
+                    RichText::new(format!(
+                        "{} t: \"{}\"",
+                        if strings_are_sorted {
+                            "SORTED"
+                        } else {
+                            "STRING"
+                        },
+                        t
+                    ))
+                    .font(egui::FontId::monospace(font_label))
+                    .color(p.text_muted),
                 );
                 ui.horizontal(|ui| {
                     for (i, c) in t.chars().enumerate() {

@@ -8,7 +8,10 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
                 statement: "Return true if the input bracket string is valid.",
                 examples: &[Example { input: "s = \"([{}])\"", output: "true", explanation: "Matched brackets." }],
                 constraints: &["1 <= s.length <= 1000"], leetcode_url: "https://leetcode.com/problems/valid-parentheses/",
-                approaches: &[ApproachMeta { id: 0, name: "Stack Matching", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "A LIFO stack matches closing brackets with the most recently opened bracket in O(N) time and O(N) memory.", description: "Push open, pop matching close." }],
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Stack Matching", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "A LIFO stack matches closing brackets with the most recently opened bracket in O(N) time and O(N) memory.", description: "Push open, pop matching close." },
+                    ApproachMeta { id: 1, name: "Repeated Pair Elimination", time_complexity: "O(N^2)", space_complexity: "O(N)", rationale: "Repeatedly scanning for adjacent matching pairs is easy to reason about, but each deletion may require another full scan and string copy.", description: "Remove one adjacent matching pair at a time until the expression is empty or no pair remains." },
+                ],
             }),
         Problem::MinStack => Some(ProblemDetails {
                 id: 155, title: "Min Stack", difficulty: Difficulty::Medium, category: Category::Stack,
@@ -58,7 +61,7 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
 
 pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize, &'static str)>> {
     match (problem, approach_id) {
-        (Problem::ValidParentheses, _) => Some(vec![
+        (Problem::ValidParentheses, 0) => Some(vec![
             (1, "class Solution:"),
             (2, "    def isValid(self, s: str) -> bool:"),
             (3, "        stack = []"),
@@ -72,6 +75,21 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
             (11, "            else:"),
             (12, "                stack.append(c)"),
             (13, "        return not stack"),
+        ]),
+        (Problem::ValidParentheses, 1) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def isValid(self, s: str) -> bool:"),
+            (3, "        chars = list(s)"),
+            (4, "        matching = {(\"(\", \")\"), (\"[\", \"]\"), (\"{\", \"}\")}"),
+            (5, "        while chars:"),
+            (6, "            pair = None"),
+            (7, "            for i in range(len(chars) - 1):"),
+            (8, "                if (chars[i], chars[i + 1]) in matching:"),
+            (9, "                    pair = i"),
+            (10, "                    break"),
+            (11, "            if pair is None: return False"),
+            (12, "            del chars[pair : pair + 2]"),
+            (13, "        return True"),
         ]),
         (Problem::MinStack, _) => Some(vec![
             (1, "class MinStack:"),

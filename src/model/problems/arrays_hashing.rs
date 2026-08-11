@@ -4,26 +4,101 @@ use crate::model::taxonomy::{Category, Difficulty};
 pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
     match problem {
         Problem::ContainsDuplicate => Some(ProblemDetails {
-                id: 217, title: "Contains Duplicate", difficulty: Difficulty::Easy, category: Category::ArraysAndHashing,
-                statement: "Given an integer array nums, return true if any value appears at least twice in the array.",
-                examples: &[Example { input: "nums = [1, 2, 3, 1]", output: "true", explanation: "Digit 1 appears twice." }],
-                constraints: &["1 <= nums.length <= 10^5"], leetcode_url: "https://leetcode.com/problems/contains-duplicate/",
-                approaches: &[ApproachMeta { id: 0, name: "Hash Set Lookup", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "Checking presence in a Hash Set takes O(1) average time per element, avoiding the O(N^2) nested loop comparison.", description: "Insert into set, return true on collision." }],
-            }),
+            id: 217,
+            title: "Contains Duplicate",
+            difficulty: Difficulty::Easy,
+            category: Category::ArraysAndHashing,
+            statement: "Given an integer array nums, return true if any value appears at least twice in the array.",
+            examples: &[Example {
+                input: "nums = [1, 2, 3, 1]",
+                output: "true",
+                explanation: "Digit 1 appears twice.",
+            }],
+            constraints: &["1 <= nums.length <= 10^5"],
+            leetcode_url: "https://leetcode.com/problems/contains-duplicate/",
+            approaches: &[
+                ApproachMeta {
+                    id: 0,
+                    name: "Hash Set Lookup",
+                    time_complexity: "O(N)",
+                    space_complexity: "O(N)",
+                    rationale: "Checking a Hash Set takes O(1) average time per element and avoids comparing every pair.",
+                    description: "Insert each value into a set and stop when a value is already present.",
+                },
+                ApproachMeta {
+                    id: 1,
+                    name: "Sort + Adjacent Scan",
+                    time_complexity: "O(N log N)",
+                    space_complexity: "O(N)",
+                    rationale: "Sorting places duplicate values next to each other, after which one linear scan can detect a match.",
+                    description: "Sort the values, then compare each adjacent pair.",
+                },
+            ],
+        }),
         Problem::TwoSum => Some(ProblemDetails {
-                id: 1, title: "Two Sum", difficulty: Difficulty::Easy, category: Category::ArraysAndHashing,
-                statement: "Given an array of integers nums and a target, return indices of the two numbers that add up to target.",
-                examples: &[Example { input: "nums = [2, 7, 11, 15], target = 9", output: "[0, 1]", explanation: "nums[0] + nums[1] == 9" }],
-                constraints: &["2 <= nums.length <= 10^4"], leetcode_url: "https://leetcode.com/problems/two-sum/",
-                approaches: &[ApproachMeta { id: 0, name: "Hash Map (One Pass)", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "Storing seen numbers in a Hash Map allows complement lookup in O(1) time instead of brute-force O(N^2) pair checking.", description: "Use hash map complement lookup." }],
-            }),
+            id: 1,
+            title: "Two Sum",
+            difficulty: Difficulty::Easy,
+            category: Category::ArraysAndHashing,
+            statement: "Given an array of integers nums and a target, return indices of the two numbers that add up to target.",
+            examples: &[Example {
+                input: "nums = [2, 7, 11, 15], target = 9",
+                output: "[0, 1]",
+                explanation: "nums[0] + nums[1] == 9",
+            }],
+            constraints: &["2 <= nums.length <= 10^4"],
+            leetcode_url: "https://leetcode.com/problems/two-sum/",
+            approaches: &[
+                ApproachMeta {
+                    id: 0,
+                    name: "Hash Map (One Pass)",
+                    time_complexity: "O(N)",
+                    space_complexity: "O(N)",
+                    rationale: "A Hash Map finds each value's complement in O(1) average time instead of checking every pair.",
+                    description: "Store each visited value and look up the complement in one pass.",
+                },
+                ApproachMeta {
+                    id: 1,
+                    name: "Brute Force Pair Scan",
+                    time_complexity: "O(N^2)",
+                    space_complexity: "O(1)",
+                    rationale: "Trying every distinct pair is the simplest baseline and makes the quadratic cost visible.",
+                    description: "Check every pair of indices until their values sum to the target.",
+                },
+            ],
+        }),
         Problem::ValidAnagram => Some(ProblemDetails {
-                id: 242, title: "Valid Anagram", difficulty: Difficulty::Easy, category: Category::ArraysAndHashing,
-                statement: "Given two strings s and t, return true if t is an anagram of s.",
-                examples: &[Example { input: "s = \"anagram\", t = \"nagaram\"", output: "true", explanation: "Frequencies match." }],
-                constraints: &["1 <= s.length <= 5*10^4"], leetcode_url: "https://leetcode.com/problems/valid-anagram/",
-                approaches: &[ApproachMeta { id: 0, name: "Hash Map Frequency Counter", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Using two Hash Maps to count character frequencies processes both strings in a single O(N) pass. Storing at most 26 letter keys requires O(1) auxiliary space.", description: "Count char frequencies using hash maps." }],
-            }),
+            id: 242,
+            title: "Valid Anagram",
+            difficulty: Difficulty::Easy,
+            category: Category::ArraysAndHashing,
+            statement: "Given two strings s and t, return true if t is an anagram of s.",
+            examples: &[Example {
+                input: "s = \"anagram\", t = \"nagaram\"",
+                output: "true",
+                explanation: "Frequencies match.",
+            }],
+            constraints: &["1 <= s.length <= 5*10^4", "s and t contain lowercase English letters"],
+            leetcode_url: "https://leetcode.com/problems/valid-anagram/",
+            approaches: &[
+                ApproachMeta {
+                    id: 0,
+                    name: "Frequency Counters",
+                    time_complexity: "O(N)",
+                    space_complexity: "O(1)",
+                    rationale: "Two fixed-size counters process both lowercase strings in one pass and use only 26 slots each.",
+                    description: "Count each letter in both strings, then compare the counters.",
+                },
+                ApproachMeta {
+                    id: 1,
+                    name: "Sort + Compare",
+                    time_complexity: "O(N log N)",
+                    space_complexity: "O(N)",
+                    rationale: "Anagrams contain the same characters, so their sorted character sequences must be identical.",
+                    description: "Sort both strings and compare the resulting character sequences.",
+                },
+            ],
+        }),
         Problem::GroupAnagrams => Some(ProblemDetails {
                 id: 49, title: "Group Anagrams", difficulty: Difficulty::Medium, category: Category::ArraysAndHashing,
                 statement: "Given an array of strings strs, group the anagrams together.",
@@ -86,18 +161,10 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
             (1, "class Solution:"),
             (2, "    def containsDuplicate(self, nums: List[int]) -> bool:"),
             (3, "        nums.sort()"),
-            (4, "        for i in range(len(nums) - 1):"),
-            (5, "            if nums[i] == nums[i + 1]:"),
+            (4, "        for i in range(1, len(nums)):"),
+            (5, "            if nums[i - 1] == nums[i]:"),
             (6, "                return True"),
             (7, "        return False"),
-        ]),
-        (Problem::ContainsDuplicate, _) => Some(vec![
-            (1, "class Solution:"),
-            (2, "    def containsDuplicate(self, nums: List[int]) -> bool:"),
-            (3, "        for i in range(len(nums)):"),
-            (4, "            for j in range(i + 1, len(nums)):"),
-            (5, "                if nums[i] == nums[j]: return True"),
-            (6, "        return False"),
         ]),
         (Problem::TwoSum, 0) => Some(vec![
             (1, "class Solution:"),
@@ -112,39 +179,32 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
         ]),
         (Problem::TwoSum, 1) => Some(vec![
             (1, "class Solution:"),
-            (2, "    def twoSum(self, numbers: List[int], target: int) -> List[int]:"),
-            (3, "        l, r = 0, len(numbers) - 1"),
-            (4, "        while l < r:"),
-            (5, "            curSum = numbers[l] + numbers[r]"),
-            (6, "            if curSum == target: return [l + 1, r + 1]"),
-            (7, "            elif curSum < target: l += 1"),
-            (8, "            else: r -= 1"),
-            (9, "        return []"),
-        ]),
-        (Problem::TwoSum, _) => Some(vec![
-            (1, "class Solution:"),
             (2, "    def twoSum(self, nums: List[int], target: int) -> List[int]:"),
             (3, "        for i in range(len(nums)):"),
             (4, "            for j in range(i + 1, len(nums)):"),
-            (5, "                if nums[i] + nums[j] == target: return [i, j]"),
-            (6, "        return []"),
+            (5, "                if nums[i] + nums[j] == target:"),
+            (6, "                    return [i, j]"),
+            (7, "        return []"),
         ]),
         (Problem::ValidAnagram, 0) => Some(vec![
             (1, "class Solution:"),
             (2, "    def isAnagram(self, s: str, t: str) -> bool:"),
             (3, "        if len(s) != len(t): return False"),
-            (4, "        countS, countT = {}, {}"),
+            (4, "        count_s, count_t = [0] * 26, [0] * 26"),
             (5, "        for i in range(len(s)):"),
-            (6, "            countS[s[i]] = 1 + countS.get(s[i], 0)"),
-            (7, "            countT[t[i]] = 1 + countT.get(t[i], 0)"),
+            (6, "            count_s[ord(s[i]) - ord('a')] += 1"),
+            (7, "            count_t[ord(t[i]) - ord('a')] += 1"),
             (8, ""),
-            (9, "        return countS == countT"),
+            (9, "        return count_s == count_t"),
         ]),
-        (Problem::ValidAnagram, _) => Some(vec![
+        (Problem::ValidAnagram, 1) => Some(vec![
             (1, "class Solution:"),
             (2, "    def isAnagram(self, s: str, t: str) -> bool:"),
-            (3, "        if len(s) != len(t): return False"),
-            (4, "        return sorted(s) == sorted(t)"),
+            (3, "        if len(s) != len(t):"),
+            (4, "            return False"),
+            (5, "        sorted_s = sorted(s)"),
+            (6, "        sorted_t = sorted(t)"),
+            (7, "        return sorted_s == sorted_t"),
         ]),
         (Problem::GroupAnagrams, 0) => Some(vec![
             (1, "class Solution:"),
@@ -275,4 +335,39 @@ pub fn product_code_lines() -> Vec<(usize, &'static str)> {
         (15, ""),
         (16, "        return output"),
     ]
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn easy_problem_variants_have_matching_source_shapes() {
+        let contains_duplicate = get_code_lines(Problem::ContainsDuplicate, 1)
+            .expect("sorting source must be registered")
+            .into_iter()
+            .map(|(_, line)| line)
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(contains_duplicate.contains("nums.sort()"));
+        assert!(contains_duplicate.contains("nums[i - 1] == nums[i]"));
+
+        let two_sum = get_code_lines(Problem::TwoSum, 1)
+            .expect("brute-force source must be registered")
+            .into_iter()
+            .map(|(_, line)| line)
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(two_sum.contains("for j in range(i + 1"));
+        assert!(!two_sum.contains("l, r ="));
+
+        let valid_anagram = get_code_lines(Problem::ValidAnagram, 1)
+            .expect("sorting source must be registered")
+            .into_iter()
+            .map(|(_, line)| line)
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(valid_anagram.contains("sorted_s = sorted(s)"));
+        assert!(valid_anagram.contains("sorted_t = sorted(t)"));
+    }
 }

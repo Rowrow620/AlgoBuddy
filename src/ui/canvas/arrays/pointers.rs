@@ -19,17 +19,23 @@ impl VisualizerApp {
         let font_char = (16.0 * z).max(9.0);
         let margin = (8.0 * z).max(4.0);
 
-        ui.heading(
-            RichText::new("Two Pointers Convergence")
-                .color(p.cyan)
-                .size(font_title),
-        );
+        let heading = if self.current_problem == Problem::ValidPalindrome {
+            self.current_problem
+                .details()
+                .approach_by_id(self.selected_approach_id)
+                .map_or("Palindrome Check", |approach| approach.name)
+        } else {
+            "Two Pointers Convergence"
+        };
+        ui.heading(RichText::new(heading).color(p.cyan).size(font_title));
         ui.add_space(8.0 * z);
 
+        let uses_pointer_scan =
+            !(self.current_problem == Problem::ValidPalindrome && self.selected_approach_id == 1);
         ui.horizontal_wrapped(|ui| {
             for (i, &c) in chars.iter().enumerate() {
-                let is_left = i == left;
-                let is_right = i == right;
+                let is_left = uses_pointer_scan && i == left;
+                let is_right = uses_pointer_scan && i == right;
 
                 let fill = if is_left && is_right {
                     p.purple

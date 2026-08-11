@@ -28,6 +28,7 @@ AlgoBuddy is a cross-platform algorithm visualizer built in Rust using `eframe` 
 - **18 Roadmap Categories**: Navigation is structured into 18 algorithmic topic categories featuring all **150 problems**: Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Tries, Backtracking, Heap / Priority Queue, 1D Dynamic Programming, Bit Manipulation, Math & Geometry, Greedy, Intervals, Graphs, 2D Dynamic Programming, and Advanced Graphs.
 - **Complete Problem Catalog**: All 150 NeetCode roadmap problems are available in every build. Catalog completeness is separate from the ongoing per-visualizer manual QA program.
 - **Deterministic State Engine**: Models algorithm execution as discrete state snapshots, enabling forward and backward timeline scrubbing, variable speed playback (0.25x - 4.00x), and synchronized source line highlighting.
+- **Solution Comparisons**: Problems can provide multiple approaches with their own trace, source listing, complexity analysis, invariant, and visual state. Every Easy roadmap problem includes a common baseline or suboptimal comparison approach.
 - **Specialized Visual Renderers**: Typed visual states drive dedicated renderers for arrays, hash-based collections, linked lists, trees and tries, graphs, and heaps.
 - **Theme & Accessibility System**: Includes built-in dark/light themes alongside Protan/Deuteran Red-Green colorblind safe palettes.
 

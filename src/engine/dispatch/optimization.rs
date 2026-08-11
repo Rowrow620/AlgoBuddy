@@ -1,9 +1,25 @@
 use super::*;
 
 pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
+    let approach_id = app.selected_approach_id;
     match app.current_problem {
+        Problem::ClimbingStairs if approach_id == 1 => {
+            crate::algorithms::climbing_stairs::generate_climbing_stairs_recursive_steps(5)
+        }
         Problem::ClimbingStairs => generate_climbing_stairs_steps(5),
+        Problem::MinCostStairs if approach_id == 1 => {
+            crate::algorithms::min_cost_stairs::generate_min_cost_stairs_recursive_steps(&[
+                10, 15, 20,
+            ])
+        }
         Problem::MinCostStairs => generate_min_cost_stairs_steps(&[10, 15, 20]),
+        Problem::MeetingRooms if approach_id == 1 => {
+            crate::algorithms::meeting_rooms::generate_meeting_rooms_all_pairs_steps(&[
+                (0, 30),
+                (5, 10),
+                (15, 20),
+            ])
+        }
         Problem::MeetingRooms => generate_meeting_rooms_steps(&[(0, 30), (5, 10), (15, 20)]),
         Problem::HouseRobber => {
             let nums = input::i32_list(

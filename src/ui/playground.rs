@@ -10,7 +10,7 @@ impl VisualizerApp {
             .stroke(Stroke::new(1.0_f32, p.amber))
             .inner_margin(egui::Margin::symmetric(14.0, 8.0))
             .show(ui, |ui| {
-                ui.horizontal(|ui| {
+                ui.horizontal_wrapped(|ui| {
                     ui.label(
                         RichText::new("Custom Input Playground:")
                             .font(egui::FontId::proportional(12.0))
@@ -47,6 +47,28 @@ impl VisualizerApp {
                                 self.set_input_str(Problem::ContainsDuplicate, "nums", "1,2,3,4");
                                 should_run = true;
                             }
+                            let value_count = crate::utils::parse_i32_vec(
+                                self.get_input_str(
+                                    Problem::ContainsDuplicate,
+                                    "nums",
+                                    "1, 2, 3, 1",
+                                ),
+                                &[],
+                            )
+                            .len();
+                            if value_count
+                                > crate::algorithms::contains_duplicate::CONTAINS_DUPLICATE_VISUALIZATION_LIMIT
+                            {
+                                ui.label(
+                                    RichText::new(format!(
+                                        "Detailed trace limit: {} values",
+                                        crate::algorithms::contains_duplicate::CONTAINS_DUPLICATE_VISUALIZATION_LIMIT
+                                    ))
+                                    .size(11.0)
+                                    .strong()
+                                    .color(p.red),
+                                );
+                            }
                         }
                         Problem::TwoSum => {
                             ui.label(
@@ -75,6 +97,38 @@ impl VisualizerApp {
                                 self.set_input_str(Problem::TwoSum, "nums", "2,7,11,15");
                                 self.set_input_int(Problem::TwoSum, "target", 9);
                                 should_run = true;
+                            }
+                            let value_count = crate::utils::parse_i32_vec(
+                                self.get_input_str(
+                                    Problem::TwoSum,
+                                    "nums",
+                                    "2, 7, 11, 15",
+                                ),
+                                &[],
+                            )
+                            .len();
+                            let (approach_name, visualization_limit) =
+                                if self.selected_approach_id == 1 {
+                                    (
+                                        "Brute Force",
+                                        crate::algorithms::two_sum::BRUTE_FORCE_VISUALIZATION_LIMIT,
+                                    )
+                                } else {
+                                    (
+                                        "Hash Map",
+                                        crate::algorithms::two_sum::HASH_MAP_VISUALIZATION_LIMIT,
+                                    )
+                                };
+                            if value_count > visualization_limit {
+                                ui.label(
+                                    RichText::new(format!(
+                                        "{} trace limit: {} values",
+                                        approach_name, visualization_limit
+                                    ))
+                                    .size(11.0)
+                                    .strong()
+                                    .color(p.red),
+                                );
                             }
                         }
                         Problem::ValidAnagram => {
@@ -113,6 +167,40 @@ impl VisualizerApp {
                                 self.set_input_str(Problem::ValidAnagram, "s", "rat");
                                 self.set_input_str(Problem::ValidAnagram, "t", "car");
                                 should_run = true;
+                            }
+                            let s_value = self.get_input_str(
+                                Problem::ValidAnagram,
+                                "s",
+                                "anagram",
+                            );
+                            let t_value = self.get_input_str(
+                                Problem::ValidAnagram,
+                                "t",
+                                "nagaram",
+                            );
+                            let accepts_input = s_value
+                                .bytes()
+                                .all(|byte| byte.is_ascii_lowercase())
+                                && t_value.bytes().all(|byte| byte.is_ascii_lowercase());
+                            if !accepts_input {
+                                ui.label(
+                                    RichText::new("Trace inputs must use lowercase a-z only")
+                                        .size(11.0)
+                                        .strong()
+                                        .color(p.red),
+                                );
+                            } else if s_value.len().max(t_value.len())
+                                > crate::algorithms::valid_anagram::VALID_ANAGRAM_VISUALIZATION_LIMIT
+                            {
+                                ui.label(
+                                    RichText::new(format!(
+                                        "Detailed trace limit: {} characters each",
+                                        crate::algorithms::valid_anagram::VALID_ANAGRAM_VISUALIZATION_LIMIT
+                                    ))
+                                    .size(11.0)
+                                    .strong()
+                                    .color(p.red),
+                                );
                             }
                         }
                         Problem::GroupAnagrams => {
@@ -465,9 +553,7 @@ impl VisualizerApp {
                         Problem::InvertTree
                         | Problem::MaxDepthTree
                         | Problem::DiameterTree
-                        | Problem::BalancedTree
-                        | Problem::SameTree
-                        | Problem::Subtree => {
+                        | Problem::BalancedTree => {
                             ui.label(
                                 RichText::new("tree nodes =")
                                     .font(egui::FontId::monospace(12.0))
@@ -490,6 +576,82 @@ impl VisualizerApp {
                                     "tree_nodes",
                                     "1,2,3,4,5,6,7",
                                 );
+                                should_run = true;
+                            }
+                        }
+                        Problem::SameTree => {
+                            ui.label(
+                                RichText::new("p =")
+                                    .font(egui::FontId::monospace(12.0))
+                                    .color(p.text_muted),
+                            );
+                            if ui
+                                .add(
+                                    egui::TextEdit::singleline(self.get_input_str_mut(
+                                        Problem::SameTree,
+                                        "tree_p",
+                                        "1, 2, 3",
+                                    ))
+                                    .desired_width(120.0),
+                                )
+                                .changed()
+                            {
+                                should_run = true;
+                            }
+                            ui.label(
+                                RichText::new("q =")
+                                    .font(egui::FontId::monospace(12.0))
+                                    .color(p.text_muted),
+                            );
+                            if ui
+                                .add(
+                                    egui::TextEdit::singleline(self.get_input_str_mut(
+                                        Problem::SameTree,
+                                        "tree_q",
+                                        "1, 2, 3",
+                                    ))
+                                    .desired_width(120.0),
+                                )
+                                .changed()
+                            {
+                                should_run = true;
+                            }
+                        }
+                        Problem::Subtree => {
+                            ui.label(
+                                RichText::new("root =")
+                                    .font(egui::FontId::monospace(12.0))
+                                    .color(p.text_muted),
+                            );
+                            if ui
+                                .add(
+                                    egui::TextEdit::singleline(self.get_input_str_mut(
+                                        Problem::Subtree,
+                                        "tree_root",
+                                        "3, 4, 5, 1, 2",
+                                    ))
+                                    .desired_width(150.0),
+                                )
+                                .changed()
+                            {
+                                should_run = true;
+                            }
+                            ui.label(
+                                RichText::new("subRoot =")
+                                    .font(egui::FontId::monospace(12.0))
+                                    .color(p.text_muted),
+                            );
+                            if ui
+                                .add(
+                                    egui::TextEdit::singleline(self.get_input_str_mut(
+                                        Problem::Subtree,
+                                        "tree_sub_root",
+                                        "4, 1, 2",
+                                    ))
+                                    .desired_width(120.0),
+                                )
+                                .changed()
+                            {
                                 should_run = true;
                             }
                         }

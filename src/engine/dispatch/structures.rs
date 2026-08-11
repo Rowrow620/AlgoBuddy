@@ -1,6 +1,7 @@
 use super::*;
 
 pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
+    let app_id = app.selected_approach_id;
     match app.current_problem {
         Problem::ReverseLinkedList => {
             let nodes = input::i32_list(
@@ -10,7 +11,7 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
                 "0, 1, 2, 3",
                 &[0, 1, 2, 3],
             );
-            generate_reverse_linked_list_steps(&nodes)
+            generate_reverse_linked_list_steps(&nodes, app_id)
         }
         Problem::MergeTwoLists => {
             let l1: Vec<i32> = app
@@ -23,7 +24,7 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
                 .split(',')
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
-            generate_merge_two_lists_steps(&l1, &l2)
+            generate_merge_two_lists_steps(&l1, &l2, app_id)
         }
         Problem::LinkedListCycle => {
             let nodes: Vec<i32> = app
@@ -32,31 +33,45 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
                 .filter_map(|s| s.trim().parse().ok())
                 .collect();
             let cycle_idx = app.get_input_int(Problem::LinkedListCycle, "cycle_idx", 1);
-            generate_linked_list_cycle_steps(&nodes, cycle_idx)
+            generate_linked_list_cycle_steps(&nodes, cycle_idx, app_id)
         }
         Problem::InvertTree => {
             let tree = app.parse_tree_input();
-            generate_invert_tree_steps(&tree)
+            generate_invert_tree_steps(&tree, app_id)
         }
         Problem::MaxDepthTree => {
             let tree = app.parse_tree_input();
-            generate_max_depth_tree_steps(&tree)
+            generate_max_depth_tree_steps(&tree, app_id)
         }
         Problem::DiameterTree => {
             let tree = app.parse_tree_input();
-            generate_diameter_tree_steps(&tree)
+            generate_diameter_tree_steps(&tree, app_id)
         }
         Problem::BalancedTree => {
             let tree = app.parse_tree_input();
-            generate_balanced_tree_steps(&tree)
+            generate_balanced_tree_steps(&tree, app_id)
         }
         Problem::SameTree => {
-            let tree = app.parse_tree_input();
-            generate_same_tree_steps(&tree, &tree)
+            let p = crate::utils::parse_tree_nodes(
+                app.get_input_str(Problem::SameTree, "tree_p", "1, 2, 3"),
+                &[Some(1), Some(2), Some(3)],
+            );
+            let q = crate::utils::parse_tree_nodes(
+                app.get_input_str(Problem::SameTree, "tree_q", "1, 2, 3"),
+                &[Some(1), Some(2), Some(3)],
+            );
+            generate_same_tree_steps(&p, &q, app_id)
         }
         Problem::Subtree => {
-            let tree = app.parse_tree_input();
-            generate_subtree_steps(&tree, &[tree.get(1).cloned().flatten()])
+            let root = crate::utils::parse_tree_nodes(
+                app.get_input_str(Problem::Subtree, "tree_root", "3, 4, 5, 1, 2"),
+                &[Some(3), Some(4), Some(5), Some(1), Some(2)],
+            );
+            let sub_root = crate::utils::parse_tree_nodes(
+                app.get_input_str(Problem::Subtree, "tree_sub_root", "4, 1, 2"),
+                &[Some(4), Some(1), Some(2)],
+            );
+            generate_subtree_steps(&root, &sub_root, app_id)
         }
         Problem::LowestCommonAncestorBst => generate_lowest_common_ancestor_bst_steps(
             &[
@@ -75,8 +90,8 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
             2,
             8,
         ),
-        Problem::KthLargestStream => generate_kth_largest_stream_steps(3, &[4, 5, 8, 2], 3),
-        Problem::LastStone => generate_last_stone_weight_steps(&[2, 7, 4, 1, 8, 1]),
+        Problem::KthLargestStream => generate_kth_largest_stream_steps(3, &[4, 5, 8, 2], 3, app_id),
+        Problem::LastStone => generate_last_stone_weight_steps(&[2, 7, 4, 1, 8, 1], app_id),
         Problem::ImplementTrie => {
             let insert_words = input::string_list_allow_empty(
                 app,

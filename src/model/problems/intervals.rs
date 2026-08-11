@@ -8,7 +8,10 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
                 statement: "Given an array of meeting time intervals, determine if a person could attend all meetings.",
                 examples: &[Example { input: "intervals = [[0,30],[5,10],[15,20]]", output: "false", explanation: "[0,30] and [5,10] overlap." }],
                 constraints: &["0 <= intervals.length <= 10^4"], leetcode_url: "https://leetcode.com/problems/meeting-rooms/",
-                approaches: &[ApproachMeta { id: 0, name: "Sort Intervals by Start Time", time_complexity: "O(N log N)", space_complexity: "O(1)", rationale: "Sorting interval start times in O(N log N) allows checking adjacent meeting overlaps in a single O(N) pass.", description: "Check adjacent overlap." }],
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Sort Intervals by Start Time", time_complexity: "O(N log N)", space_complexity: "O(1)", rationale: "Sorting interval start times in O(N log N) allows checking adjacent meeting overlaps in a single O(N) pass.", description: "Check adjacent overlap." },
+                    ApproachMeta { id: 1, name: "Brute Force Pair Comparison", time_complexity: "O(N^2)", space_complexity: "O(1)", rationale: "Comparing every distinct pair directly avoids sorting but performs a quadratic number of overlap tests in the worst case.", description: "Return false when any pair has intersecting interiors." },
+                ],
             }),
         Problem::InsertInterval => Some(ProblemDetails {
                 id: 57, title: "Insert Interval", difficulty: Difficulty::Medium, category: Category::Intervals,
@@ -51,7 +54,7 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
 
 pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize, &'static str)>> {
     match (problem, approach_id) {
-        (Problem::MeetingRooms, _) => Some(vec![
+        (Problem::MeetingRooms, 0) => Some(vec![
             (1, "class Solution:"),
             (
                 2,
@@ -65,6 +68,24 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
             ),
             (6, "        return True"),
         ]),
+        (Problem::MeetingRooms, 1) => {
+            Some(vec![
+            (1, "class Solution:"),
+            (
+                2,
+                "    def canAttendMeetings(self, intervals: List[Interval]) -> bool:",
+            ),
+            (3, "        for i in range(len(intervals)):"),
+            (4, "            for j in range(i + 1, len(intervals)):"),
+            (5, "                first, second = intervals[i], intervals[j]"),
+            (
+                6,
+                "                if max(first.start, second.start) < min(first.end, second.end):",
+            ),
+            (7, "                    return False"),
+            (8, "        return True"),
+        ])
+        }
         (Problem::InsertInterval, _) => Some(insert_interval_code_lines()),
         (Problem::MergeIntervals, _) => Some(merge_intervals_code_lines()),
         (Problem::NonOverlappingIntervals, _) => Some(non_overlapping_intervals_code_lines()),

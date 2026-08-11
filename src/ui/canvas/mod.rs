@@ -1,5 +1,9 @@
-use crate::app::VisualizerApp;
+use crate::app::{
+    canvas_zoom_in, canvas_zoom_out, VisualizerApp, CANVAS_ZOOM_DEFAULT, CANVAS_ZOOM_MAX,
+    CANVAS_ZOOM_MIN,
+};
 use crate::model::{ThemePalette, VisualState};
+use crate::shortcuts::ShortcutAction;
 use eframe::egui::{self, Frame, RichText, Rounding, Stroke};
 
 mod arrays;
@@ -25,7 +29,8 @@ impl VisualizerApp {
                     let ctrl_down = ctx.input(|i| i.modifiers.ctrl);
                     if ctrl_down && scroll_delta != 0.0 {
                         let factor = if scroll_delta > 0.0 { 1.08 } else { 0.92 };
-                        self.canvas_zoom = (self.canvas_zoom * factor).clamp(0.7, 2.2);
+                        self.canvas_zoom =
+                            (self.canvas_zoom * factor).clamp(CANVAS_ZOOM_MIN, CANVAS_ZOOM_MAX);
                     }
                 }
 
@@ -46,14 +51,53 @@ impl VisualizerApp {
                                     egui::Layout::right_to_left(egui::Align::Center),
                                     |ui| {
                                         let zoom_pct = (self.canvas_zoom * 100.0).round() as u32;
-                                        if ui.button("Reset").clicked() {
-                                            self.canvas_zoom = 1.0;
+                                        let reset_help = self.shortcut_bindings.hint(
+                                            ShortcutAction::ResetZoom,
+                                            "Reset visualization zoom to 100%",
+                                        );
+                                        let reset_response =
+                                            ui.button("Reset").on_hover_text(&reset_help);
+                                        reset_response.widget_info(|| {
+                                            egui::WidgetInfo::labeled(
+                                                egui::WidgetType::Button,
+                                                ui.is_enabled(),
+                                                &reset_help,
+                                            )
+                                        });
+                                        if reset_response.clicked() {
+                                            self.canvas_zoom = CANVAS_ZOOM_DEFAULT;
                                         }
-                                        if ui.button("+").clicked() {
-                                            self.canvas_zoom = (self.canvas_zoom + 0.1).min(2.2);
+                                        let zoom_in_help = self.shortcut_bindings.hint(
+                                            ShortcutAction::ZoomIn,
+                                            "Zoom in on the visualization",
+                                        );
+                                        let zoom_in_response =
+                                            ui.button("+").on_hover_text(&zoom_in_help);
+                                        zoom_in_response.widget_info(|| {
+                                            egui::WidgetInfo::labeled(
+                                                egui::WidgetType::Button,
+                                                ui.is_enabled(),
+                                                &zoom_in_help,
+                                            )
+                                        });
+                                        if zoom_in_response.clicked() {
+                                            self.canvas_zoom = canvas_zoom_in(self.canvas_zoom);
                                         }
-                                        if ui.button("−").clicked() {
-                                            self.canvas_zoom = (self.canvas_zoom - 0.1).max(0.7);
+                                        let zoom_out_help = self.shortcut_bindings.hint(
+                                            ShortcutAction::ZoomOut,
+                                            "Zoom out of the visualization",
+                                        );
+                                        let zoom_out_response =
+                                            ui.button("−").on_hover_text(&zoom_out_help);
+                                        zoom_out_response.widget_info(|| {
+                                            egui::WidgetInfo::labeled(
+                                                egui::WidgetType::Button,
+                                                ui.is_enabled(),
+                                                &zoom_out_help,
+                                            )
+                                        });
+                                        if zoom_out_response.clicked() {
+                                            self.canvas_zoom = canvas_zoom_out(self.canvas_zoom);
                                         }
                                         ui.label(
                                             RichText::new(format!("Zoom: {}%", zoom_pct))
@@ -88,6 +132,21 @@ impl VisualizerApp {
                     ui.add_space(14.0);
 
                     egui::ScrollArea::both().show(ui, |ui| match &step.visual {
+                        VisualState::TraceUnavailable { message } => {
+                            egui::Frame::group(ui.style())
+                                .fill(p.step_box_bg)
+                                .rounding(Rounding::same(8.0))
+                                .stroke(Stroke::new(1.0_f32, p.red))
+                                .inner_margin(12.0)
+                                .show(ui, |ui| {
+                                    ui.heading(
+                                        RichText::new("Trace unavailable for this input")
+                                            .color(p.red),
+                                    );
+                                    ui.add_space(6.0);
+                                    ui.label(RichText::new(message).color(p.text_primary));
+                                });
+                        }
                         VisualState::ContainsDuplicate {
                             nums,
                             active_idx,
@@ -144,6 +203,7 @@ impl VisualizerApp {
                             t,
                             s_counts,
                             t_counts,
+                            strings_are_sorted,
                             active_s_idx,
                             active_t_idx,
                             is_anagram,
@@ -155,6 +215,7 @@ impl VisualizerApp {
                                 t,
                                 s_counts,
                                 t_counts,
+                                *strings_are_sorted,
                                 *active_s_idx,
                                 *active_t_idx,
                                 *is_anagram,
@@ -231,6 +292,7 @@ impl VisualizerApp {
                             p1_idx,
                             p2_idx,
                             merged_so_far,
+                            phase,
                         } => {
                             self.render_merge_lists(
                                 ui,
@@ -240,6 +302,7 @@ impl VisualizerApp {
                                 *p1_idx,
                                 *p2_idx,
                                 merged_so_far,
+                                *phase,
                             );
                         }
                         VisualState::LinkedListCycle {
@@ -247,6 +310,7 @@ impl VisualizerApp {
                             cycle_target_idx,
                             slow_idx,
                             fast_idx,
+                            visited_indices,
                             has_cycle,
                         } => {
                             self.render_list_cycle(
@@ -256,6 +320,7 @@ impl VisualizerApp {
                                 *cycle_target_idx,
                                 *slow_idx,
                                 *fast_idx,
+                                visited_indices,
                                 *has_cycle,
                             );
                         }

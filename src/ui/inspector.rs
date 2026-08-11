@@ -1,6 +1,6 @@
 use crate::app::{RightTab, VisualizerApp};
 use crate::model::problem::approach_code_lines;
-use crate::model::{ApproachMeta, Step, ThemePalette};
+use crate::model::{ApproachMeta, Problem, Step, ThemePalette};
 use crate::ui::theme_helpers::difficulty_color;
 use eframe::egui::{self, Color32, Frame, RichText, Rounding};
 
@@ -93,7 +93,10 @@ pub fn render_right_sidebar_inspector(
                                                 .color(p.text_primary),
                                         );
 
-                                        if let Some(formula) = app.current_problem.formula() {
+                                        if let Some(formula) = app
+                                            .current_problem
+                                            .formula_for_approach(app.selected_approach_id)
+                                        {
                                             ui.add_space(6.0);
                                             egui::Frame::none()
                                                 .fill(p.cell_bg)
@@ -119,7 +122,13 @@ pub fn render_right_sidebar_inspector(
                                     });
 
                                 ui.add_space(6.0);
-                                render_variable_scope_chips(ui, step, p);
+                                render_variable_scope_chips(
+                                    ui,
+                                    step,
+                                    app.current_problem,
+                                    app.selected_approach_id,
+                                    p,
+                                );
                             });
 
                         ui.add_space(6.0);
@@ -135,8 +144,7 @@ pub fn render_right_sidebar_inspector(
                                 if let Some(app_meta) = app
                                     .current_problem
                                     .details()
-                                    .approaches
-                                    .get(app.selected_approach_id)
+                                    .approach_by_id(app.selected_approach_id)
                                 {
                                     render_complexity_card(ui, app_meta, p);
                                 }
@@ -386,7 +394,7 @@ fn render_complexity_card(ui: &mut egui::Ui, app_meta: &ApproachMeta, p: &ThemeP
             );
             ui.add_space(6.0);
 
-            ui.horizontal(|ui| {
+            ui.horizontal_wrapped(|ui| {
                 let tc_color = if app_meta.time_complexity.contains("O(1)")
                     || app_meta.time_complexity.contains("O(log")
                     || app_meta.time_complexity == "O(N)"
@@ -450,8 +458,21 @@ fn render_complexity_card(ui: &mut egui::Ui, app_meta: &ApproachMeta, p: &ThemeP
         });
 }
 
-fn render_variable_scope_chips(ui: &mut egui::Ui, step: &Step, p: &ThemePalette) {
-    let vars = step.visual.variables();
+fn render_variable_scope_chips(
+    ui: &mut egui::Ui,
+    step: &Step,
+    problem: Problem,
+    approach_id: usize,
+    p: &ThemePalette,
+) {
+    let mut vars = step.visual.variables(approach_id);
+    if problem == Problem::BalancedTree && approach_id == 1 {
+        for (name, _) in &mut vars {
+            if *name == "depth" {
+                *name = "height_difference";
+            }
+        }
+    }
     if vars.is_empty() {
         return;
     }

@@ -1,5 +1,5 @@
 use crate::app::VisualizerApp;
-use crate::model::ThemePalette;
+use crate::model::{MergeListPhase, Problem, ThemePalette};
 use eframe::egui::{self, Color32, RichText, Rounding, Stroke};
 
 impl VisualizerApp {
@@ -13,6 +13,7 @@ impl VisualizerApp {
         p1_idx: Option<usize>,
         p2_idx: Option<usize>,
         merged: &[i32],
+        phase: MergeListPhase,
     ) {
         let z = self.canvas_zoom;
         let font_title = (16.0 * z).max(10.0);
@@ -20,11 +21,12 @@ impl VisualizerApp {
         let font_node = (14.0 * z).max(9.0);
         let margin = (8.0 * z).max(4.0);
 
-        ui.heading(
-            RichText::new("Merge Two Sorted Linked Lists")
-                .color(p.cyan)
-                .size(font_title),
-        );
+        let approach_name = self
+            .current_problem
+            .details()
+            .approach_by_id(self.selected_approach_id)
+            .map_or("Merge Two Sorted Linked Lists", |approach| approach.name);
+        ui.heading(RichText::new(approach_name).color(p.cyan).size(font_title));
         ui.add_space(8.0 * z);
 
         ui.horizontal(|ui| {
@@ -97,9 +99,17 @@ impl VisualizerApp {
 
         ui.group(|ui| {
             ui.label(
-                RichText::new("MERGED SORTED LIST (TAIL ATTACHMENTS)")
-                    .font(egui::FontId::monospace(font_label))
-                    .color(p.emerald_text),
+                RichText::new(match phase {
+                    MergeListPhase::Collecting => "COLLECTED VALUES (UNSORTED)",
+                    MergeListPhase::SortedValues => "SORTED VALUES",
+                    MergeListPhase::Rebuilding => "REBUILT LINKED LIST (IN PROGRESS)",
+                    MergeListPhase::Complete if self.selected_approach_id == 1 => {
+                        "REBUILT SORTED LINKED LIST"
+                    }
+                    _ => "MERGED SORTED LIST (TAIL ATTACHMENTS)",
+                })
+                .font(egui::FontId::monospace(font_label))
+                .color(p.emerald_text),
             );
             ui.horizontal(|ui| {
                 if merged.is_empty() {
@@ -116,10 +126,20 @@ impl VisualizerApp {
                             .inner_margin((10.0 * z).max(4.0))
                             .show(ui, |ui| {
                                 ui.label(
-                                    RichText::new(format!("( {} ) ->", val))
-                                        .font(egui::FontId::monospace((16.0 * z).max(10.0)))
-                                        .strong()
-                                        .color(Color32::WHITE),
+                                    RichText::new(
+                                        if matches!(
+                                            phase,
+                                            MergeListPhase::Collecting
+                                                | MergeListPhase::SortedValues
+                                        ) {
+                                            format!("[ {} ]", val)
+                                        } else {
+                                            format!("( {} ) ->", val)
+                                        },
+                                    )
+                                    .font(egui::FontId::monospace((16.0 * z).max(10.0)))
+                                    .strong()
+                                    .color(Color32::WHITE),
                                 );
                             });
                     }
@@ -142,6 +162,7 @@ impl VisualizerApp {
         cycle_target: Option<usize>,
         slow: Option<usize>,
         fast: Option<usize>,
+        visited: &std::collections::BTreeSet<usize>,
         has_cycle: Option<bool>,
     ) {
         let z = self.canvas_zoom;
@@ -150,11 +171,14 @@ impl VisualizerApp {
         let font_node = (16.0 * z).max(9.0);
         let margin = (10.0 * z).max(4.0);
 
-        ui.heading(
-            RichText::new("Floyd's Tortoise and Hare Cycle Detection")
-                .color(p.cyan)
-                .size(font_title),
-        );
+        let uses_visited_set =
+            self.current_problem == Problem::LinkedListCycle && self.selected_approach_id == 1;
+        let approach_name = self
+            .current_problem
+            .details()
+            .approach_by_id(self.selected_approach_id)
+            .map_or("Linked List Cycle Detection", |approach| approach.name);
+        ui.heading(RichText::new(approach_name).color(p.cyan).size(font_title));
         ui.add_space(8.0 * z);
 
         ui.group(|ui| {
@@ -168,6 +192,7 @@ impl VisualizerApp {
                     let is_slow = slow == Some(i);
                     let is_fast = fast == Some(i);
                     let is_cycle_target = cycle_target == Some(i);
+                    let is_visited = visited.contains(&i);
 
                     let fill = if is_slow && is_fast {
                         p.purple
@@ -177,6 +202,8 @@ impl VisualizerApp {
                         p.pink
                     } else if is_cycle_target {
                         p.amber
+                    } else if is_visited {
+                        p.emerald
                     } else {
                         p.cell_bg
                     };
@@ -189,12 +216,16 @@ impl VisualizerApp {
                         .show(ui, |ui| {
                             ui.vertical(|ui| {
                                 let mut label = String::new();
-                                if is_slow && is_fast {
+                                if uses_visited_set && is_slow {
+                                    label.push_str("current");
+                                } else if is_slow && is_fast {
                                     label.push_str("S & F");
                                 } else if is_slow {
                                     label.push_str("slow");
                                 } else if is_fast {
                                     label.push_str("fast");
+                                } else if uses_visited_set && is_visited {
+                                    label.push_str("seen");
                                 }
 
                                 ui.label(
@@ -229,12 +260,35 @@ impl VisualizerApp {
             });
         });
 
+        if uses_visited_set {
+            ui.add_space(12.0 * z);
+            ui.group(|ui| {
+                ui.label(
+                    RichText::new(format!("VISITED NODE SET: {:?}", visited))
+                        .font(egui::FontId::monospace(font_label))
+                        .color(p.emerald_text),
+                );
+            });
+        }
+
         if let Some(cycle) = has_cycle {
             ui.add_space(20.0 * z);
-            if cycle {
+            if cycle && uses_visited_set {
+                ui.heading(
+                    RichText::new("Cycle Detected: Current Node Was Already Visited")
+                        .color(p.emerald_text)
+                        .size((18.0 * z).max(11.0)),
+                );
+            } else if cycle {
                 ui.heading(
                     RichText::new("Cycle Detected! Slow & Fast Pointers Met.")
                         .color(p.emerald_text)
+                        .size((18.0 * z).max(11.0)),
+                );
+            } else if uses_visited_set {
+                ui.heading(
+                    RichText::new("No Cycle Exists (Traversal Reached the End)")
+                        .color(p.red)
                         .size((18.0 * z).max(11.0)),
                 );
             } else {
@@ -264,11 +318,16 @@ impl VisualizerApp {
         let font_node = (16.0 * z).max(9.0);
         let margin = (10.0 * z).max(4.0);
 
-        ui.heading(
-            RichText::new("Singly-Linked List Pointer Reversal")
-                .color(p.cyan)
-                .size(font_title),
-        );
+        let recursive =
+            self.current_problem == Problem::ReverseLinkedList && self.selected_approach_id == 1;
+        let approach_name = self
+            .current_problem
+            .details()
+            .approach_by_id(self.selected_approach_id)
+            .map_or("Singly-Linked List Pointer Reversal", |approach| {
+                approach.name
+            });
+        ui.heading(RichText::new(approach_name).color(p.cyan).size(font_title));
         ui.add_space(8.0 * z);
 
         ui.group(|ui| {
@@ -301,14 +360,26 @@ impl VisualizerApp {
                         .show(ui, |ui| {
                             ui.vertical(|ui| {
                                 let mut label = String::new();
-                                if is_prev {
-                                    label.push_str("prev ");
-                                }
-                                if is_curr {
-                                    label.push_str("curr ");
-                                }
-                                if is_nxt {
-                                    label.push_str("nxt ");
+                                if recursive {
+                                    if is_prev {
+                                        label.push_str("linked child ");
+                                    }
+                                    if is_curr {
+                                        label.push_str("frame ");
+                                    }
+                                    if is_nxt {
+                                        label.push_str("recurse ");
+                                    }
+                                } else {
+                                    if is_prev {
+                                        label.push_str("prev ");
+                                    }
+                                    if is_curr {
+                                        label.push_str("curr ");
+                                    }
+                                    if is_nxt {
+                                        label.push_str("nxt ");
+                                    }
                                 }
 
                                 ui.label(

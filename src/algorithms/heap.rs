@@ -1,6 +1,31 @@
 use crate::model::{Step, VisualState};
 
-pub fn generate_last_stone_weight_steps(stones: &[i32]) -> Vec<Step> {
+const LAST_STONE_LINEAR_TRACE_LIMIT: usize = 40;
+
+pub fn generate_last_stone_weight_steps(stones: &[i32], approach_id: usize) -> Vec<Step> {
+    if stones.len() > LAST_STONE_LINEAR_TRACE_LIMIT {
+        return vec![Step {
+            code_line: 3,
+            description: format!(
+                "Last Stone Weight visualization supports up to {} stones; shorten the input to build the detailed trace.",
+                LAST_STONE_LINEAR_TRACE_LIMIT
+            ),
+            visual: VisualState::TraceUnavailable {
+                message: format!(
+                    "Detailed stone traces accept at most {} values because each smash stores the remaining collection.",
+                    LAST_STONE_LINEAR_TRACE_LIMIT
+                ),
+            },
+        }];
+    }
+    match approach_id {
+        0 => generate_last_stone_heap_steps(stones),
+        1 => generate_last_stone_linear_steps(stones),
+        _ => Vec::new(),
+    }
+}
+
+fn generate_last_stone_heap_steps(stones: &[i32]) -> Vec<Step> {
     let mut steps = Vec::new();
     let mut heap: Vec<i32> = stones.to_vec();
     heap.sort_by(|a, b| b.cmp(a)); // Max-heap ordering for demonstration
@@ -60,6 +85,99 @@ pub fn generate_last_stone_weight_steps(stones: &[i32]) -> Vec<Step> {
         },
     });
 
+    steps
+}
+
+fn generate_last_stone_linear_steps(stones: &[i32]) -> Vec<Step> {
+    let mut remaining = stones.to_vec();
+    let mut steps = vec![Step {
+        description: format!("Start with the unsorted stones: {:?}.", remaining),
+        code_line: 3,
+        visual: VisualState::HeapVisual {
+            heap_elements: remaining.clone(),
+            active_idx: None,
+            swapped_pair: None,
+            heap_type_label: "Unsorted stones".to_string(),
+        },
+    }];
+
+    while remaining.len() > 1 {
+        let first_index = remaining
+            .iter()
+            .enumerate()
+            .max_by_key(|(_, value)| *value)
+            .map(|(index, _)| index)
+            .expect("at least two stones remain");
+        let first = remaining[first_index];
+        steps.push(Step {
+            description: format!("Linear scan finds the heaviest stone, {}.", first),
+            code_line: 4,
+            visual: VisualState::HeapVisual {
+                heap_elements: remaining.clone(),
+                active_idx: Some(first_index),
+                swapped_pair: None,
+                heap_type_label: "First maximum".to_string(),
+            },
+        });
+        remaining.remove(first_index);
+
+        let second_index = remaining
+            .iter()
+            .enumerate()
+            .max_by_key(|(_, value)| *value)
+            .map(|(index, _)| index)
+            .expect("one stone remains after removing the first maximum");
+        let second = remaining[second_index];
+        steps.push(Step {
+            description: format!(
+                "A second linear scan finds the next heaviest stone, {}.",
+                second
+            ),
+            code_line: 5,
+            visual: VisualState::HeapVisual {
+                heap_elements: remaining.clone(),
+                active_idx: Some(second_index),
+                swapped_pair: None,
+                heap_type_label: "Second maximum".to_string(),
+            },
+        });
+        remaining.remove(second_index);
+
+        if first != second {
+            remaining.push(first - second);
+        }
+        steps.push(Step {
+            description: if first == second {
+                format!("Smash {} and {}; both stones are destroyed.", first, second)
+            } else {
+                format!(
+                    "Smash {} and {}; append the remaining weight {}.",
+                    first,
+                    second,
+                    first - second
+                )
+            },
+            code_line: 6,
+            visual: VisualState::HeapVisual {
+                heap_elements: remaining.clone(),
+                active_idx: remaining.len().checked_sub(1),
+                swapped_pair: None,
+                heap_type_label: "Remaining unsorted stones".to_string(),
+            },
+        });
+    }
+
+    let result = remaining.first().copied().unwrap_or(0);
+    steps.push(Step {
+        description: format!("Last stone weight is {}.", result),
+        code_line: 7,
+        visual: VisualState::HeapVisual {
+            heap_elements: remaining,
+            active_idx: None,
+            swapped_pair: None,
+            heap_type_label: format!("Final stone weight: {}", result),
+        },
+    });
     steps
 }
 
@@ -345,4 +463,41 @@ pub fn generate_design_twitter_steps() -> Vec<Step> {
         },
     });
     steps
+}
+
+#[cfg(test)]
+mod last_stone_tests {
+    use super::*;
+
+    fn final_value(steps: &[Step]) -> i32 {
+        match &steps.last().expect("trace has a final step").visual {
+            VisualState::HeapVisual { heap_elements, .. } => {
+                heap_elements.first().copied().unwrap_or(0)
+            }
+            visual => panic!("unexpected final visual: {visual:?}"),
+        }
+    }
+
+    #[test]
+    fn repeated_linear_maximum_matches_heap_simulation() {
+        let stones = [2, 7, 4, 1, 8, 1];
+        assert_eq!(
+            final_value(&generate_last_stone_weight_steps(&stones, 0)),
+            1
+        );
+        assert_eq!(
+            final_value(&generate_last_stone_weight_steps(&stones, 1)),
+            1
+        );
+    }
+
+    #[test]
+    fn repeated_linear_trace_has_a_snapshot_limit() {
+        let stones = vec![1; LAST_STONE_LINEAR_TRACE_LIMIT + 1];
+        let steps = generate_last_stone_weight_steps(&stones, 1);
+        assert!(matches!(
+            steps[0].visual,
+            VisualState::TraceUnavailable { .. }
+        ));
+    }
 }

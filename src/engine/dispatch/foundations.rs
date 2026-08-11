@@ -108,11 +108,11 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
                 "10, 1, 5, 6, 7, 1",
                 &[10, 1, 5, 6, 7, 1],
             );
-            generate_best_time_stock_steps(&prices)
+            generate_best_time_stock_steps(&prices, app_id)
         }
         Problem::ValidParentheses => {
             let s = app.get_input_str(Problem::ValidParentheses, "s", "([{}])");
-            generate_valid_parentheses_steps(s)
+            generate_valid_parentheses_steps(s, app_id)
         }
         Problem::BinarySearch => {
             let nums = input::i32_list(
@@ -123,7 +123,7 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
                 &[-1, 0, 2, 4, 6, 8],
             );
             let target = app.get_input_int(Problem::BinarySearch, "target", 4);
-            generate_binary_search_steps(&nums, target)
+            generate_binary_search_steps(&nums, target, app_id)
         }
         Problem::TwoSumII => {
             let nums = input::i32_list(

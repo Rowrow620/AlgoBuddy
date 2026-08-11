@@ -42,18 +42,71 @@ fn empty_numeric_input_keeps_existing_fallback() {
 }
 
 #[test]
-fn approach_selection_keeps_existing_routing() {
+fn approach_selection_rebuilds_the_trace_and_preserves_input() {
     let mut app = VisualizerApp::default();
     app.current_problem = Problem::ContainsDuplicate;
     app.set_input_str(Problem::ContainsDuplicate, "nums", "3, 1, 3");
 
-    app.selected_approach_id = 0;
     recompute_steps(&mut app);
     assert!(app.steps[0].description.contains("HashSet"));
 
-    app.selected_approach_id = 1;
-    recompute_steps(&mut app);
+    app.current_step_idx = 2;
+    app.last_focused_step_idx = Some(2);
+    app.is_playing = true;
+
+    assert!(select_approach(&mut app, 1));
+    assert_eq!(app.selected_approach_id, 1);
+    assert_eq!(app.current_step_idx, 0);
+    assert_eq!(app.last_focused_step_idx, None);
+    assert!(!app.is_playing);
+    assert_eq!(
+        app.get_input_str(Problem::ContainsDuplicate, "nums", ""),
+        "3, 1, 3"
+    );
     assert!(app.steps[0].description.contains("Sorted array"));
+}
+
+#[test]
+fn approach_selection_rejects_active_and_unknown_ids() {
+    let mut app = VisualizerApp::default();
+    app.current_problem = Problem::TwoSum;
+    recompute_steps(&mut app);
+    app.current_step_idx = 1;
+    app.is_playing = true;
+
+    assert!(!select_approach(&mut app, 0));
+    assert!(!select_approach(&mut app, usize::MAX));
+    assert_eq!(app.selected_approach_id, 0);
+    assert_eq!(app.current_step_idx, 1);
+    assert!(app.is_playing);
+}
+
+#[test]
+fn recompute_steps_restores_the_default_for_an_unknown_approach() {
+    let mut app = VisualizerApp::default();
+    app.current_problem = Problem::ValidAnagram;
+    app.selected_approach_id = usize::MAX;
+
+    recompute_steps(&mut app);
+
+    assert_eq!(app.selected_approach_id, 0);
+    assert!(!app.steps.is_empty());
+}
+
+#[test]
+fn selecting_a_new_problem_uses_its_declared_default_approach() {
+    let mut app = VisualizerApp::default();
+    app.current_problem = Problem::TwoSum;
+    assert!(select_approach(&mut app, 1));
+
+    select_problem(&mut app, Problem::ValidAnagram);
+
+    assert_eq!(
+        app.selected_approach_id,
+        Problem::ValidAnagram.details().default_approach_id()
+    );
+    assert_eq!(app.current_step_idx, 0);
+    assert!(!app.steps.is_empty());
 }
 
 #[test]

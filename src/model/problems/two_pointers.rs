@@ -7,8 +7,11 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
                 id: 125, title: "Valid Palindrome", difficulty: Difficulty::Easy, category: Category::TwoPointers,
                 statement: "Given a string s, return true if it is a palindrome after converting uppercase letters to lowercase and removing non-alphanumeric characters.",
                 examples: &[Example { input: "s = \"Was it a car or a cat I saw?\"", output: "true", explanation: "Alphanumeric filter palindrome." }],
-                constraints: &["1 <= s.length <= 1000"], leetcode_url: "https://leetcode.com/problems/valid-palindrome/",
-                approaches: &[ApproachMeta { id: 0, name: "Two Pointers In-Place", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Two pointers converging from both ends check symmetry in O(N) time without allocating extra string storage (O(1) space).", description: "Left and right pointers." }],
+                constraints: &["1 <= s.length <= 1000", "s consists only of printable ASCII characters"], leetcode_url: "https://leetcode.com/problems/valid-palindrome/",
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Two Pointers In-Place", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Two pointers converging from both ends check symmetry in O(N) time without allocating extra string storage (O(1) space).", description: "Left and right pointers." },
+                    ApproachMeta { id: 1, name: "Filter + Reverse Copy", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "Building a normalized string and comparing it with a reversed copy is direct, but both copies require linear extra space.", description: "Normalize the string, reverse it, and compare the two copies." },
+                ],
             }),
         Problem::TwoSumII => Some(ProblemDetails {
                 id: 167, title: "Two Sum II - Input Array Is Sorted", difficulty: Difficulty::Medium, category: Category::TwoPointers,
@@ -57,6 +60,15 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
             (10, "                return False"),
             (11, "            l, r = l + 1, r - 1"),
             (12, "        return True"),
+        ]),
+        (Problem::ValidPalindrome, 1) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def isPalindrome(self, s: str) -> bool:"),
+            (3, "        newStr = \"\""),
+            (4, "        for c in s:"),
+            (5, "            if c.isalnum():"),
+            (6, "                newStr += c.lower()"),
+            (7, "        return newStr == newStr[::-1]"),
         ]),
         (Problem::TwoSumII, _) => Some(vec![
             (1, "class Solution:"),

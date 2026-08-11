@@ -112,34 +112,58 @@ impl VisualizerApp {
         let label_sz = (10.0 * z).max(8.0);
         let margin = (10.0 * z).max(6.0);
 
-        ui.heading(
-            RichText::new("Contains Duplicate Detection (HashSet O(N))")
-                .color(p.cyan)
-                .size(16.0 * z),
+        let approach = self
+            .current_problem
+            .details()
+            .approach_by_id(self.selected_approach_id);
+        let title = approach.map_or_else(
+            || "Contains Duplicate Detection".to_owned(),
+            |approach| {
+                format!(
+                    "Contains Duplicate - {} ({})",
+                    approach.name, approach.time_complexity
+                )
+            },
         );
+        ui.heading(RichText::new(title).color(p.cyan).size(16.0 * z));
         ui.add_space(8.0 * z);
 
         ui.group(|ui| {
             ui.label(
-                RichText::new("INPUT NUMS ARRAY")
-                    .font(egui::FontId::monospace(11.0 * z))
-                    .color(p.text_muted),
+                RichText::new(if self.selected_approach_id == 1 {
+                    "SORTED NUMS ARRAY"
+                } else {
+                    "INPUT NUMS ARRAY"
+                })
+                .font(egui::FontId::monospace(11.0 * z))
+                .color(p.text_muted),
             );
             ui.horizontal(|ui| {
                 for (i, &val) in nums.iter().enumerate() {
                     let is_active = active_idx == Some(i);
-                    let is_dup = dup_val == Some(val) && is_active;
+                    let is_previous = self.selected_approach_id == 1
+                        && active_idx.is_some_and(|active| active > 0 && i + 1 == active);
+                    let is_dup = dup_val == Some(val) && (is_active || is_previous);
                     let fill = if is_dup {
                         p.red
                     } else if is_active {
                         p.amber
+                    } else if is_previous {
+                        p.pink
                     } else {
                         p.cell_bg
                     };
-                    let (label_color, val_color) = if is_dup || is_active {
+                    let (label_color, val_color) = if is_dup || is_active || is_previous {
                         (Color32::from_rgb(30, 35, 45), Color32::from_rgb(30, 35, 45))
                     } else {
                         (p.text_muted, Color32::WHITE)
+                    };
+                    let pointer = if is_active {
+                        " (i)"
+                    } else if is_previous {
+                        " (i - 1)"
+                    } else {
+                        ""
                     };
 
                     egui::Frame::none()
@@ -150,7 +174,7 @@ impl VisualizerApp {
                         .show(ui, |ui| {
                             ui.vertical(|ui| {
                                 ui.label(
-                                    RichText::new(format!("i={}", i))
+                                    RichText::new(format!("index={}{}", i, pointer))
                                         .font(egui::FontId::proportional(label_sz))
                                         .color(label_color),
                                 );
@@ -166,38 +190,40 @@ impl VisualizerApp {
             });
         });
 
-        ui.add_space(20.0 * z);
+        if self.selected_approach_id == 0 {
+            ui.add_space(20.0 * z);
 
-        ui.group(|ui| {
-            ui.label(
-                RichText::new("HASHSET `SEEN`")
-                    .font(egui::FontId::monospace(11.0 * z))
-                    .color(p.text_muted),
-            );
-            ui.horizontal_wrapped(|ui| {
-                if seen_set.is_empty() {
-                    ui.label(RichText::new("Set is empty {}").italics().color(p.text_dim));
-                } else {
-                    for &val in seen_set {
-                        let is_dup = dup_val == Some(val);
-                        let fill = if is_dup { p.red } else { p.cell_bg };
-                        egui::Frame::none()
-                            .fill(fill)
-                            .rounding(Rounding::same(6.0 * z))
-                            .stroke(Stroke::new(1.0_f32, p.purple))
-                            .inner_margin(margin)
-                            .show(ui, |ui| {
-                                ui.label(
-                                    RichText::new(val.to_string())
-                                        .font(egui::FontId::monospace(font_sz))
-                                        .strong()
-                                        .color(Color32::WHITE),
-                                );
-                            });
+            ui.group(|ui| {
+                ui.label(
+                    RichText::new("HASHSET `SEEN`")
+                        .font(egui::FontId::monospace(11.0 * z))
+                        .color(p.text_muted),
+                );
+                ui.horizontal_wrapped(|ui| {
+                    if seen_set.is_empty() {
+                        ui.label(RichText::new("Set is empty {}").italics().color(p.text_dim));
+                    } else {
+                        for &val in seen_set {
+                            let is_dup = dup_val == Some(val);
+                            let fill = if is_dup { p.red } else { p.cell_bg };
+                            egui::Frame::none()
+                                .fill(fill)
+                                .rounding(Rounding::same(6.0 * z))
+                                .stroke(Stroke::new(1.0_f32, p.purple))
+                                .inner_margin(margin)
+                                .show(ui, |ui| {
+                                    ui.label(
+                                        RichText::new(val.to_string())
+                                            .font(egui::FontId::monospace(font_sz))
+                                            .strong()
+                                            .color(Color32::WHITE),
+                                    );
+                                });
+                        }
                     }
-                }
+                });
             });
-        });
+        }
 
         if let Some(dup) = has_dup {
             ui.add_space(20.0);

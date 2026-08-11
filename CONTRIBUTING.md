@@ -86,6 +86,20 @@ To contribute a unit test or visualizer improvement:
 5. Run `cargo fmt --all -- --check`, `cargo clippy --all-targets -- -D warnings`, and `cargo test --all` locally.
 6. Submit a Pull Request targeting the `dev` branch.
 
+### Adding a Solution Variant
+
+A problem can expose more than one solution through its `approaches` metadata. To add a variant:
+
+1. Add an `ApproachMeta` entry with a unique ID in the problem's category file under `src/model/problems/`.
+2. Route that ID to the matching step generator. Unknown IDs must not fall through to a different solution.
+3. Add the exact source listing for that ID and keep every `Step::code_line` synchronized with it.
+4. Make the canvas, invariant, and scope variables reflect the selected solution rather than assuming the primary approach.
+5. Validate the displayed solution's input assumptions before building its trace. For unsupported custom input, return `TraceUnavailable` and explain the requirement beside the input controls.
+6. If a trace clones large state or grows faster than linearly, add a visible visualization limit and return `TraceUnavailable` beyond it instead of silently truncating or reporting a false result.
+7. Add focused tests showing that each solution returns a valid result, then run the catalog test to validate every advertised trace.
+
+The header builds its solution controls from metadata. Selecting one preserves the current input while restarting playback at step 1 with the new trace.
+
 ---
 
 ## Maintainer Workflow

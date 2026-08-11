@@ -8,14 +8,20 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
                 statement: "Determine if a number n is happy (sum of square of digits reaches 1).",
                 examples: &[Example { input: "n = 19", output: "true", explanation: "1^2+9^2=82 -> 68 -> 100 -> 1." }],
                 constraints: &["1 <= n <= 2^31 - 1"], leetcode_url: "https://leetcode.com/problems/happy-number/",
-                approaches: &[ApproachMeta { id: 0, name: "HashSet Cycle Detection", time_complexity: "O(log N)", space_complexity: "O(log N)", rationale: "A HashSet tracks previously seen digit sum results to detect infinite cycles in logarithmic time.", description: "Track seen square sums." }],
+                approaches: &[
+                    ApproachMeta { id: 0, name: "HashSet Cycle Detection", time_complexity: "O(log N)", space_complexity: "O(log N)", rationale: "A HashSet tracks previously seen digit sum results to detect infinite cycles in logarithmic time.", description: "Track seen square sums." },
+                    ApproachMeta { id: 1, name: "Sequence + Linear Repeat Search", time_complexity: "O(K^2)", space_complexity: "O(K)", rationale: "Keeping generated values in a list and linearly searching it for every repeat is a direct cycle-detection baseline that makes the repeated work visible.", description: "Append each squared-digit sum and scan the prior sequence for a repeat." },
+                ],
             }),
         Problem::PlusOne => Some(ProblemDetails {
                 id: 66, title: "Plus One", difficulty: Difficulty::Easy, category: Category::MathAndGeometry,
                 statement: "Increment the large integer represented as a digit array by one.",
                 examples: &[Example { input: "digits = [1, 2, 3]", output: "[1, 2, 4]", explanation: "123 + 1 = 124." }],
                 constraints: &["1 <= digits.length <= 100"], leetcode_url: "https://leetcode.com/problems/plus-one/",
-                approaches: &[ApproachMeta { id: 0, name: "Right-to-Left Carry Pass", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Iterating backwards handles digit carry in O(N) time, adding a new leading 1 only if all digits were 9.", description: "Add 1 from right, carry overflow." }],
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Right-to-Left Carry Pass", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Iterating backwards handles digit carry in O(N) time, adding a new leading 1 only if all digits were 9.", description: "Add 1 from right, carry overflow." },
+                    ApproachMeta { id: 1, name: "Integer Conversion", time_complexity: "O(N)", space_complexity: "O(N)", rationale: "Joining the digits into an integer, adding one, and splitting the result back into digits is the most literal baseline, though it relies on arbitrary-precision conversion.", description: "Convert digits to an integer, add one, then convert back to digits." },
+                ],
             }),
         Problem::RotateImage => Some(ProblemDetails {
                 id: 48, title: "Rotate Image", difficulty: Difficulty::Medium, category: Category::MathAndGeometry,
@@ -65,7 +71,7 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
 
 pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize, &'static str)>> {
     match (problem, approach_id) {
-        (Problem::HappyNumber, _) => Some(vec![
+        (Problem::HappyNumber, 0) => Some(vec![
             (1, "class Solution:"),
             (2, "    def isHappy(self, n: int) -> bool:"),
             (3, "        visit = set()"),
@@ -74,7 +80,20 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
             (6, "            if n == 1: return True"),
             (7, "        return False"),
         ]),
-        (Problem::PlusOne, _) => Some(vec![
+        (Problem::HappyNumber, 1) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def isHappy(self, n: int) -> bool:"),
+            (3, "        values = []"),
+            (4, "        while n != 1:"),
+            (5, "            if n in values: return False"),
+            (6, "            values.append(n)"),
+            (
+                7,
+                "            n = sum(int(digit) ** 2 for digit in str(n))",
+            ),
+            (8, "        return True"),
+        ]),
+        (Problem::PlusOne, 0) => Some(vec![
             (1, "class Solution:"),
             (2, "    def plusOne(self, digits: List[int]) -> List[int]:"),
             (3, "        for i in range(len(digits) - 1, -1, -1):"),
@@ -84,6 +103,13 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
             ),
             (5, "            digits[i] = 0"),
             (6, "        return [1] + digits"),
+        ]),
+        (Problem::PlusOne, 1) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def plusOne(self, digits: List[int]) -> List[int]:"),
+            (3, "        number = int(\"\".join(map(str, digits)))"),
+            (4, "        incremented = str(number + 1)"),
+            (5, "        return [int(digit) for digit in incremented]"),
         ]),
         (Problem::RotateImage, _) => Some(rotate_image_code_lines()),
         (Problem::SpiralMatrix, _) => Some(spiral_matrix_code_lines()),
