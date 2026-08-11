@@ -7,6 +7,8 @@ Thank you for your interest in contributing to AlgoBuddy! We welcome contributio
 - [Overview](#overview)
 - [Quick Start](#quick-start)
 - [Architecture & Engine](#architecture--engine)
+- [Unit Testing & Contributing Visualizers](#unit-testing--contributing-visualizers)
+- [Maintainer Workflow](#maintainer-workflow)
 - [Quality Standards & Testing](#quality-standards--testing)
 - [Code of Conduct](#code-of-conduct)
 - [Security Policy](#security-policy)
@@ -83,6 +85,18 @@ To contribute a unit test or visualizer improvement:
 4. Add focused coverage next to the generator in `src/algorithms/`, in `src/app/tests.rs` for application behavior, in `src/engine/tests.rs` for dispatch and input behavior, or in `src/engine/catalog_tests.rs` for catalog-wide invariants.
 5. Run `cargo fmt --all -- --check`, `cargo clippy --all-targets -- -D warnings`, and `cargo test --all` locally.
 6. Submit a Pull Request targeting the `dev` branch.
+
+---
+
+## Maintainer Workflow
+
+Maintainers follow the same review path as other contributors for normal development. Maintainer access is not a reason to bypass a branch, review, or required checks.
+
+- Treat `dev` as the integration branch. Start features, fixes, refactors, and documentation work on a short-lived branch based on the latest `dev`, then open a Pull Request back into `dev`.
+- Reserve direct commits to `dev` for coordinated release-candidate assembly or narrowly scoped fixes required to complete the release checks. Run the complete release check before pushing that candidate.
+- Treat `main` as the production branch. Do not commit or push directly to `main`; promote releases only through a reviewed Pull Request from `dev`.
+- Do not rewrite the shared history of `dev` or `main`.
+- Wait for CI and CodeQL to pass before merging. Release Pull Requests must also satisfy the version, changelog, native-build, and WebAssembly-build requirements in [RELEASING.md](RELEASING.md).
 
 ---
 
