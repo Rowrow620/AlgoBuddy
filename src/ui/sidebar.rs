@@ -3,6 +3,14 @@ use crate::model::{Category, Difficulty, Problem, ThemePalette};
 use crate::ui::theme_helpers::difficulty_color;
 use eframe::egui::{self, Frame, RichText};
 
+fn sort_problems_by_difficulty(problems: &mut [Problem]) {
+    problems.sort_by_key(|problem| match problem.difficulty() {
+        Difficulty::Easy => 0,
+        Difficulty::Medium => 1,
+        Difficulty::Hard => 2,
+    });
+}
+
 pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &ThemePalette) {
     if !app.show_roadmap_sidebar {
         return;
@@ -110,7 +118,7 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
 
             egui::ScrollArea::vertical().show(ui, |ui| {
                 // Favorites are rendered separately from roadmap categories.
-                let fav_problems: Vec<Problem> = app
+                let mut fav_problems: Vec<Problem> = app
                     .visible_problems()
                     .into_iter()
                     .filter(|p| app.favorite_problems.contains(&p.id()))
@@ -130,6 +138,7 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
                         }
                     })
                     .collect();
+                sort_problems_by_difficulty(&mut fav_problems);
 
                 let has_active_filter =
                     !app.search_query.trim().is_empty() || app.selected_difficulty.is_some();
@@ -216,7 +225,7 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
                 }
 
                 for &category in Category::all() {
-                    let problems_in_cat: Vec<Problem> = app
+                    let mut problems_in_cat: Vec<Problem> = app
                         .visible_problems()
                         .into_iter()
                         .filter(|p| p.category() == category)
@@ -237,6 +246,7 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
                             }
                         })
                         .collect();
+                    sort_problems_by_difficulty(&mut problems_in_cat);
 
                     let total_in_cat = app
                         .visible_problems()
@@ -345,4 +355,37 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
                 }
             });
         });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn difficulty_sort_is_stable_and_easy_to_hard() {
+        let mut problems = vec![
+            Problem::KClosestPoints,
+            Problem::TaskScheduler,
+            Problem::FindMedianDataStream,
+            Problem::KthLargestArray,
+            Problem::DesignTwitter,
+            Problem::KthLargestStream,
+            Problem::LastStone,
+        ];
+
+        sort_problems_by_difficulty(&mut problems);
+
+        assert_eq!(
+            problems,
+            vec![
+                Problem::KthLargestStream,
+                Problem::LastStone,
+                Problem::KClosestPoints,
+                Problem::TaskScheduler,
+                Problem::KthLargestArray,
+                Problem::DesignTwitter,
+                Problem::FindMedianDataStream,
+            ]
+        );
+    }
 }
