@@ -22,7 +22,7 @@ pub fn generate_reverse_bits_steps(n: u32) -> Vec<Step> {
     }
 
     steps.push(Step {
-        code_line: 7,
+        code_line: 6,
         description: format!("Reversed 32-bit integer = {} ({:032b}).", res, res),
         visual: VisualState::ContainsDuplicate {
             nums: vec![res as i32],

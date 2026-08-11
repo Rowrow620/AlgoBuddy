@@ -108,11 +108,110 @@ pub fn generate_number_islands_steps(grid: &[Vec<char>]) -> Vec<Step> {
 }
 
 pub fn generate_max_area_island_steps() -> Vec<Step> {
-    let grid = vec![
-        vec!['0', '0', '1', '0', '0'],
-        vec!['0', '0', '0', '0', '0'],
-        vec!['0', '1', '1', '1', '0'],
-        vec!['0', '0', '0', '0', '0'],
+    let grid = [
+        ['0', '0', '1', '0', '0'],
+        ['0', '0', '0', '0', '0'],
+        ['0', '1', '1', '1', '0'],
+        ['0', '0', '0', '0', '0'],
     ];
-    generate_number_islands_steps(&grid)
+    let rows = grid.len();
+    let cols = grid[0].len();
+    let string_grid: Vec<Vec<String>> = grid
+        .iter()
+        .map(|row| row.iter().map(char::to_string).collect())
+        .collect();
+    let mut visited = BTreeSet::new();
+    let mut max_area = 0;
+    let mut steps = vec![Step {
+        description: format!("Initialize Max Area of Island scan for a {rows}x{cols} grid."),
+        code_line: 3,
+        visual: VisualState::GridGraph {
+            rows,
+            cols,
+            grid: string_grid.clone(),
+            active_cell: None,
+            visited_cells: visited.clone(),
+            frontier_cells: BTreeSet::new(),
+            message: "Maximum island area: 0".to_string(),
+        },
+    }];
+
+    for row in 0..rows {
+        for col in 0..cols {
+            if grid[row][col] != '1' || visited.contains(&(row, col)) {
+                continue;
+            }
+
+            let mut area = 0;
+            let mut stack = vec![(row, col)];
+            visited.insert((row, col));
+
+            while let Some((current_row, current_col)) = stack.pop() {
+                area += 1;
+                steps.push(Step {
+                    description: format!(
+                        "Visit land cell ({current_row}, {current_col}); current island area = {area}."
+                    ),
+                    code_line: 6,
+                    visual: VisualState::GridGraph {
+                        rows,
+                        cols,
+                        grid: string_grid.clone(),
+                        active_cell: Some((current_row, current_col)),
+                        visited_cells: visited.clone(),
+                        frontier_cells: stack.iter().copied().collect(),
+                        message: format!("Current island area: {area}; maximum: {max_area}"),
+                    },
+                });
+
+                for (row_delta, col_delta) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
+                    let next_row = current_row as i32 + row_delta;
+                    let next_col = current_col as i32 + col_delta;
+                    if next_row >= 0
+                        && next_row < rows as i32
+                        && next_col >= 0
+                        && next_col < cols as i32
+                    {
+                        let next = (next_row as usize, next_col as usize);
+                        if grid[next.0][next.1] == '1' && visited.insert(next) {
+                            stack.push(next);
+                        }
+                    }
+                }
+            }
+
+            max_area = max_area.max(area);
+            steps.push(Step {
+                description: format!(
+                    "Island complete with area {area}; maximum area is now {max_area}."
+                ),
+                code_line: 10,
+                visual: VisualState::GridGraph {
+                    rows,
+                    cols,
+                    grid: string_grid.clone(),
+                    active_cell: None,
+                    visited_cells: visited.clone(),
+                    frontier_cells: BTreeSet::new(),
+                    message: format!("Maximum island area: {max_area}"),
+                },
+            });
+        }
+    }
+
+    steps.push(Step {
+        description: format!("Grid scan complete; maximum island area = {max_area}."),
+        code_line: 11,
+        visual: VisualState::GridGraph {
+            rows,
+            cols,
+            grid: string_grid,
+            active_cell: None,
+            visited_cells: visited,
+            frontier_cells: BTreeSet::new(),
+            message: format!("Final maximum island area: {max_area}"),
+        },
+    });
+
+    steps
 }

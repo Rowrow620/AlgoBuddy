@@ -28,7 +28,7 @@ pub fn generate_eval_rpn_steps(tokens: &[String]) -> Vec<Step> {
                 .map(|n| n.to_string().chars().next().unwrap_or(' '))
                 .collect();
             steps.push(Step {
-                code_line: 6,
+                code_line: 9,
                 description: format!(
                     "Token '{}' is integer. Push {} onto stack: {:?}.",
                     token, num, stack
@@ -57,7 +57,13 @@ pub fn generate_eval_rpn_steps(tokens: &[String]) -> Vec<Step> {
                 .map(|n| n.to_string().chars().next().unwrap_or(' '))
                 .collect();
             steps.push(Step {
-                code_line: 9,
+                code_line: match token.as_str() {
+                    "+" => 5,
+                    "-" => 6,
+                    "*" => 7,
+                    "/" => 8,
+                    _ => unreachable!("operator branch only accepts arithmetic operators"),
+                },
                 description: format!(
                     "Operator '{}': pop {} and {}. Calculate {} {} {} = {}. Push result: {:?}.",
                     token, b, a, a, token, b, res, stack
@@ -78,7 +84,7 @@ pub fn generate_eval_rpn_steps(tokens: &[String]) -> Vec<Step> {
         .map(|n| n.to_string().chars().next().unwrap_or(' '))
         .collect();
     steps.push(Step {
-        code_line: 11,
+        code_line: 10,
         description: format!("Evaluation complete! Final RPN result = {}.", final_res),
         visual: VisualState::Stack {
             chars: all_chars,

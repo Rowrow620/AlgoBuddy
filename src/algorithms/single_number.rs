@@ -22,7 +22,7 @@ pub fn generate_single_number_steps(nums: &[i32]) -> Vec<Step> {
         let prev_res = res;
         res ^= n;
         steps.push(Step {
-            code_line: 6,
+            code_line: 4,
             description: format!(
                 "XOR with nums[{}] = {}: {} ^ {} = {}.",
                 i, n, prev_res, n, res
@@ -38,7 +38,7 @@ pub fn generate_single_number_steps(nums: &[i32]) -> Vec<Step> {
     }
 
     steps.push(Step {
-        code_line: 8,
+        code_line: 5,
         description: format!("Single non-duplicate element = {}.", res),
         visual: VisualState::ContainsDuplicate {
             nums: num_vec,

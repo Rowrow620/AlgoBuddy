@@ -20,7 +20,7 @@ impl VisualizerApp {
         );
         ui.add_space(12.0 * z);
 
-        // 1. Array Representation with 2*i+1 and 2*i+2 formulas
+        // Heap children of index i are stored at 2i+1 and 2i+2.
         ui.group(|ui| {
             ui.label(
                 RichText::new("UNDERLYING HEAP ARRAY [Index: 2*i + 1, 2*i + 2]")
@@ -69,7 +69,7 @@ impl VisualizerApp {
 
         ui.add_space(16.0 * z);
 
-        // 2. Binary Tree Node Layout
+        // Lay out the same array positions as a binary tree.
         ui.group(|ui| {
             ui.label(
                 RichText::new("BINARY TREE STRUCTURAL VIEW")
@@ -179,7 +179,9 @@ impl VisualizerApp {
                     .font(egui::FontId::monospace(font_label))
                     .color(p.emerald_text),
             );
-            ui.horizontal_wrapped(|ui| {
+            // Bucket cards contain a full-width separator, so stacking them keeps
+            // later groups from being laid out beyond the horizontal clip rect.
+            ui.vertical(|ui| {
                 if groups.is_empty() {
                     ui.label(
                         RichText::new("No groups formed yet...")
@@ -219,6 +221,7 @@ impl VisualizerApp {
                                     });
                                 });
                             });
+                        ui.add_space(8.0 * z);
                     }
                 }
             });
@@ -238,20 +241,29 @@ impl VisualizerApp {
         let font_title = (16.0 * z).max(10.0);
         let font_char = (16.0 * z).max(9.0);
         let margin = (8.0 * z).max(4.0);
+        let is_generation = self.current_problem == Problem::GenerateParentheses;
 
         ui.heading(
-            RichText::new("Vertical Stack Push / Pop Trace")
-                .color(p.cyan)
-                .size(font_title),
+            RichText::new(if is_generation {
+                "Generate Parentheses Backtracking"
+            } else {
+                "Vertical Stack Push / Pop Trace"
+            })
+            .color(p.cyan)
+            .size(font_title),
         );
         ui.add_space(8.0 * z);
 
         ui.horizontal(|ui| {
             ui.group(|ui| {
                 ui.label(
-                    RichText::new("EXPRESSION")
-                        .font(egui::FontId::monospace((11.0 * z).max(8.0)))
-                        .color(p.text_muted),
+                    RichText::new(if is_generation {
+                        "CURRENT PREFIX"
+                    } else {
+                        "EXPRESSION"
+                    })
+                    .font(egui::FontId::monospace((11.0 * z).max(8.0)))
+                    .color(p.text_muted),
                 );
                 ui.horizontal(|ui| {
                     for (i, &c) in chars.iter().enumerate() {
@@ -280,16 +292,24 @@ impl VisualizerApp {
 
             ui.group(|ui| {
                 ui.label(
-                    RichText::new("STACK (Top on right/bottom)")
-                        .font(egui::FontId::monospace((11.0 * z).max(8.0)))
-                        .color(p.text_muted),
+                    RichText::new(if is_generation {
+                        "BACKTRACK STACK (Top on right/bottom)"
+                    } else {
+                        "STACK (Top on right/bottom)"
+                    })
+                    .font(egui::FontId::monospace((11.0 * z).max(8.0)))
+                    .color(p.text_muted),
                 );
                 ui.vertical(|ui| {
                     if stack.is_empty() {
                         ui.label(
-                            RichText::new("Stack is Empty []")
-                                .italics()
-                                .color(p.text_dim),
+                            RichText::new(if is_generation {
+                                "Current prefix is empty"
+                            } else {
+                                "Stack is Empty []"
+                            })
+                            .italics()
+                            .color(p.text_dim),
                         );
                     } else {
                         for (idx, &c) in stack.iter().rev().enumerate() {
@@ -327,7 +347,13 @@ impl VisualizerApp {
 
         if let Some(valid) = is_valid {
             ui.add_space(20.0 * z);
-            if valid {
+            if is_generation && valid {
+                ui.heading(
+                    RichText::new("Parentheses Generation Complete!")
+                        .color(p.emerald_text)
+                        .size((18.0 * z).max(11.0)),
+                );
+            } else if valid {
                 ui.heading(
                     RichText::new("Valid Parentheses Expression!")
                         .color(p.emerald_text)

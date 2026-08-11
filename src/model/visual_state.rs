@@ -17,7 +17,7 @@ pub enum ProductPhase {
     Complete,
 }
 
-// ── Generic Execution Step ──
+// Timeline step shared by every visualizer.
 
 #[derive(Debug, Clone)]
 pub struct Step {
@@ -26,16 +26,8 @@ pub struct Step {
     pub visual: VisualState,
 }
 
-/// ── Canonical Visual State Representations ──
-///
-/// Encapsulates all visual layout state data rendered across the 150 AlgoBuddy problems.
-/// Structured into canonical visual layout categories:
-/// - 1D Array & Sequence Layouts (`Array1D`, `ContainsDuplicate`, `LongestConsecutive`, `Product`)
-/// - Pointer & Window Traces (`TwoPointers`, `BinarySearch`, `BestTimeStock`)
-/// - Memory & LIFO Inspectors (`Stack`, `TwoSum`, `ValidAnagram`, `GroupAnagrams`, `TopK`, `EncodeDecode`)
-/// - Sequential Linkages (`LinkedList`, `MergeLinkedLists`, `LinkedListCycle`)
-/// - Hierarchical Views (`TreeVisual`, `HeapVisual`, `Trie`, `DecisionTreeVisual`)
-/// - Graph & Grid Networks (`GridGraph`, `NodeGraph`, `ValidSudoku`)
+/// Renderer state captured at one point in an algorithm trace.
+/// Each variant is handled by the matching branch in `ui::canvas`.
 #[derive(Debug, Clone)]
 pub enum VisualState {
     ContainsDuplicate {
@@ -168,6 +160,16 @@ pub enum VisualState {
         secondary_node_idx: Option<usize>,
         depth_val: Option<i32>,
         max_diameter: Option<i32>,
+    },
+    TreeMaxPathVisual {
+        tree_nodes: Vec<Option<i32>>,
+        active_node_idx: Option<usize>,
+        secondary_node_idx: Option<usize>,
+        left_gain: Option<i32>,
+        right_gain: Option<i32>,
+        through_node_sum: Option<i32>,
+        returned_gain: Option<i32>,
+        max_path_sum: Option<i32>,
     },
     HeapVisual {
         heap_elements: Vec<i32>,
@@ -573,6 +575,39 @@ impl VisualState {
                 }
                 if let Some(diam) = max_diameter {
                     vars.push(("max_diameter", diam.to_string()));
+                }
+                vars
+            }
+            VisualState::TreeMaxPathVisual {
+                active_node_idx,
+                left_gain,
+                right_gain,
+                through_node_sum,
+                returned_gain,
+                max_path_sum,
+                tree_nodes,
+                ..
+            } => {
+                let mut vars = Vec::new();
+                if let Some(idx) = active_node_idx {
+                    if let Some(Some(value)) = tree_nodes.get(*idx) {
+                        vars.push(("curr_node", format!("val={} (idx={})", value, idx)));
+                    }
+                }
+                if let Some(gain) = left_gain {
+                    vars.push(("left_gain", gain.to_string()));
+                }
+                if let Some(gain) = right_gain {
+                    vars.push(("right_gain", gain.to_string()));
+                }
+                if let Some(sum) = through_node_sum {
+                    vars.push(("through_node", sum.to_string()));
+                }
+                if let Some(gain) = returned_gain {
+                    vars.push(("returned_gain", gain.to_string()));
+                }
+                if let Some(best) = max_path_sum {
+                    vars.push(("max_path_sum", best.to_string()));
                 }
                 vars
             }

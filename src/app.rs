@@ -16,17 +16,16 @@ pub enum ViewMode {
 }
 
 pub struct VisualizerApp {
-    // Theme & Settings
+    // Theme and persistent settings.
     pub(crate) theme: Theme,
     pub(crate) colorblind_mode: ColorblindMode,
     pub(crate) show_settings_modal: bool,
     pub(crate) show_reset_confirm_modal: bool,
-    pub(crate) show_unaudited: bool,
     pub(crate) view_mode: ViewMode,
     pub(crate) completed_problems: std::collections::HashSet<u32>,
     pub(crate) favorite_problems: std::collections::HashSet<u32>,
 
-    // Navigation state & Sidebar Visibility
+    // Navigation and sidebar state.
     pub(crate) show_roadmap_sidebar: bool,
     pub(crate) show_right_sidebar: bool,
     pub(crate) current_problem: Problem,
@@ -35,13 +34,13 @@ pub struct VisualizerApp {
     pub(crate) search_query: String,
     pub(crate) right_tab: RightTab,
 
-    // Dynamic input state maps
+    // Per-problem input state.
     pub(crate) input_strings: std::collections::HashMap<(Problem, &'static str), String>,
     pub(crate) input_integers: std::collections::HashMap<(Problem, &'static str), i32>,
 
     pub(crate) sudoku_preset_valid: bool,
 
-    // Playback state
+    // Timeline playback state.
     pub(crate) steps: Vec<Step>,
     pub(crate) current_step_idx: usize,
     pub(crate) is_playing: bool,
@@ -61,7 +60,6 @@ impl Default for VisualizerApp {
             colorblind_mode: ColorblindMode::Off,
             show_settings_modal: false,
             show_reset_confirm_modal: false,
-            show_unaudited: false, // Default: Only show 100% Audited problems in Public Release!
             view_mode: ViewMode::Visualizer,
             completed_problems: std::collections::HashSet::new(),
             favorite_problems: std::collections::HashSet::new(),
@@ -97,7 +95,7 @@ impl Default for VisualizerApp {
 }
 
 impl VisualizerApp {
-    // ── Input State Map Helpers ──
+    // Input state helpers.
 
     pub fn get_input_str<'a>(
         &'a self,
@@ -148,16 +146,8 @@ impl VisualizerApp {
         self.input_integers.insert((problem, key), val);
     }
 
-    pub fn set_show_unaudited(&mut self, show: bool) {
-        self.show_unaudited = show;
-    }
-
     pub fn visible_problems(&self) -> Vec<Problem> {
-        Problem::all()
-            .iter()
-            .copied()
-            .filter(|p| p.is_audited() || self.show_unaudited)
-            .collect()
+        Problem::all().to_vec()
     }
 
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
@@ -203,9 +193,6 @@ impl VisualizerApp {
                 eframe::get_value::<bool>(storage, "algobuddy_show_right_sidebar")
             {
                 app.show_right_sidebar = show_right;
-            }
-            if let Some(show_un) = eframe::get_value::<bool>(storage, "algobuddy_show_unaudited") {
-                app.show_unaudited = show_un;
             }
         }
         app
@@ -298,11 +285,10 @@ impl eframe::App for VisualizerApp {
             "algobuddy_show_right_sidebar",
             &self.show_right_sidebar,
         );
-        eframe::set_value(storage, "algobuddy_show_unaudited", &self.show_unaudited);
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        // ── Keyboard Shortcuts (Only active when not typing in text fields) ──
+        // Ignore shortcuts while a text field has keyboard focus.
         #[cfg(not(target_arch = "wasm32"))]
         let mut toggle_fs = false;
         if !ctx.wants_keyboard_input() {
@@ -377,12 +363,9 @@ impl eframe::App for VisualizerApp {
             crate::ui::sidebar::render_roadmap_sidebar(self, ctx, &p);
         }
 
-        // ── Top Header Panel ──
         crate::ui::header::render_header_panel(self, ctx, &p);
 
-        // ── Right Sidebar: Tabbed Code Trace & Problem Details ──
         crate::ui::inspector::render_right_sidebar_inspector(self, ctx, &p);
-        // ── Central Canvas ──
         self.render_central_canvas(ctx, &p);
     }
 }

@@ -10,7 +10,7 @@ pub fn render_settings_modal(app: &mut VisualizerApp, ctx: &egui::Context) {
     let p = app.current_palette();
     let mut is_open = true;
 
-    egui::Window::new("⚙ AlgoBuddy UI Settings & Accessibility")
+    egui::Window::new("AlgoBuddy UI Settings & Accessibility")
         .open(&mut is_open)
         .resizable(false)
         .collapsible(false)
@@ -126,33 +126,12 @@ pub fn render_settings_modal(app: &mut VisualizerApp, ctx: &egui::Context) {
             ui.add_space(8.0);
 
             ui.heading(
-                RichText::new("Developer & Release Mode")
+                RichText::new("Current Settings")
                     .color(p.amber)
                     .strong()
                     .size(15.0),
             );
             ui.add_space(6.0);
-            ui.checkbox(
-                &mut app.show_unaudited,
-                "Show Unaudited / Experimental Problems (Dev Mode)",
-            );
-            ui.add_space(4.0);
-            if !app.show_unaudited {
-                ui.label(
-                    RichText::new("Public Release Mode: Only showing 100% audited problems.")
-                        .italics()
-                        .font(egui::FontId::proportional(11.0))
-                        .color(p.emerald_text),
-                );
-            } else {
-                ui.label(
-                    RichText::new("Dev Testing Mode: Showing all 134 problem visualizers.")
-                        .italics()
-                        .font(egui::FontId::proportional(11.0))
-                        .color(p.amber),
-                );
-            }
-
             ui.horizontal(|ui| {
                 ui.label(RichText::new("Active Theme:").color(p.text_muted));
                 ui.label(

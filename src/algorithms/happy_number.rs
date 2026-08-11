@@ -30,7 +30,7 @@ pub fn generate_happy_number_steps(n: i32) -> Vec<Step> {
         }
 
         steps.push(Step {
-            code_line: 6,
+            code_line: 5,
             description: format!(
                 "Sum of squared digits of {} -> {}. Added to seen set.",
                 curr, sum
@@ -49,7 +49,7 @@ pub fn generate_happy_number_steps(n: i32) -> Vec<Step> {
 
     let is_happy = curr == 1;
     steps.push(Step {
-        code_line: 8,
+        code_line: if is_happy { 6 } else { 7 },
         description: if is_happy {
             format!("Reached 1! Number {} is a Happy Number! Return True.", n)
         } else {

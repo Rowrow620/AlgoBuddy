@@ -83,7 +83,7 @@ pub fn generate_counting_bits_array_steps(n: usize) -> Vec<Step> {
     }
 
     steps.push(Step {
-        code_line: 8,
+        code_line: 7,
         description: format!("Counting bits array for 0..={}: {:?}.", n, dp),
         visual: VisualState::ContainsDuplicate {
             nums: dp,

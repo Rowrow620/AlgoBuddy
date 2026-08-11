@@ -36,7 +36,7 @@ pub fn generate_house_robber_ii_steps(nums: &[i32]) -> Vec<Step> {
 
     steps.push(Step {
         description: format!("Circular House Robber II complete! Maximum loot = 3"),
-        code_line: 12,
+        code_line: 3,
         visual: VisualState::ContainsDuplicate {
             nums: nums.to_vec(),
             active_idx: Some(1),
@@ -118,7 +118,7 @@ pub fn generate_decode_ways_steps(s: &str) -> Vec<Step> {
     });
     steps.push(Step {
         description: format!("Total decoding ways computed"),
-        code_line: 12,
+        code_line: 9,
         visual: VisualState::ContainsDuplicate {
             nums: vec![1, 1, 2, 3],
             active_idx: Some(3),
@@ -193,7 +193,7 @@ pub fn generate_max_product_subarray_steps(nums: &[i32]) -> Vec<Step> {
     });
     steps.push(Step {
         description: format!("Maximum product subarray evaluated"),
-        code_line: 12,
+        code_line: 10,
         visual: VisualState::ContainsDuplicate {
             nums: nums.to_vec(),
             active_idx: Some(1),

@@ -7,7 +7,6 @@ Thank you for your interest in contributing to AlgoBuddy! We welcome contributio
 - [Overview](#overview)
 - [Quick Start](#quick-start)
 - [Architecture & Engine](#architecture--engine)
-- [Auditing & Promoting Problems](#auditing--promoting-problems)
 - [Quality Standards & Testing](#quality-standards--testing)
 - [Code of Conduct](#code-of-conduct)
 - [Security Policy](#security-policy)
@@ -20,7 +19,7 @@ AlgoBuddy is an open-source, interactive algorithm learning suite built in Rust 
 
 Contributions generally fall into three categories:
 
-1. **Algorithm Visualizers**: Auditing existing problem step generators or building visual state renderers.
+1. **Algorithm Visualizers**: Improving existing problem step generators or building visual state renderers.
 2. **UI & Accessibility**: Improving theme contrast, layout math, keyboard navigation, or canvas rendering.
 3. **Core Engine & Tools**: Optimizing step snapshot generation, WASM compilation, or test utilities.
 
@@ -30,29 +29,30 @@ Contributions generally fall into three categories:
 
 ### Prerequisites
 
-- [Rust 2021 Edition](https://www.rust-lang.org/) (installed via `rustup`)
+- A [stable Rust toolchain](https://www.rust-lang.org/tools/install), including `rustfmt` and Clippy. The crate uses the Rust 2021 edition.
 - Git
+- For optional WebAssembly work: Trunk and the `wasm32-unknown-unknown` Rust target
 
 ### Development Setup
 
 1. Fork and clone the repository:
-   ```powershell
+   ```text
    git clone https://github.com/Rowrow620/AlgoBuddy.git
    cd AlgoBuddy
    ```
 
-2. Run the application in **Developer Mode** (unlocks all 150 problem visualizers):
-   ```powershell
-   cargo run -- --dev
+2. Run the application:
+   ```text
+   cargo run
    ```
 
 3. Run the automated test suite:
-   ```powershell
-   cargo test
+   ```text
+   cargo test --all
    ```
 
 4. Verify linter compliance:
-   ```powershell
+   ```text
    cargo clippy --all-targets -- -D warnings
    ```
 
@@ -60,34 +60,28 @@ Contributions generally fall into three categories:
 
 ## Architecture & Engine
 
-The AlgoBuddy codebase is structured into five primary component areas:
+The AlgoBuddy codebase is structured into six primary component areas:
 
 - `src/main.rs`: Application entry points for native execution (`eframe::run_native`) and WASM execution (`eframe::WebRunner`).
 - `src/model/`: Problem definitions (`Problem`), category taxonomy (`Category`), difficulty levels (`Difficulty`), metadata specs (`ProblemDetails`), and canonical visual state snapshots (`VisualState`). Problem details and code lines are modularized by category under `src/model/problems/`.
 - `src/app.rs`: Main GUI application state (`VisualizerApp`). Manages dynamic playground input state via `input_strings` and `input_integers` `HashMap` state stores (`get_input_str`, `set_input_str`, `get_input_int`, `set_input_int`).
-- `src/ui/`: UI submodules containing navigation panels, playback controls, canvas renderers, and theme palettes.
-- `src/engine.rs`: Core deterministic algorithm execution engine handling snapshot timeline generation and problem selection.
-- `src/algorithms/`: Step snapshot generator functions (`generate_*_steps`) for each algorithm.
+- `src/ui/`: UI submodules containing navigation panels, playback controls, canvas renderers, and theme palettes. Larger renderer families are grouped below `src/ui/canvas/`, such as the sequence, search, hashing, pointer, and product modules under `src/ui/canvas/arrays/`.
+- `src/engine.rs` and `src/engine/`: Core deterministic execution routing, category dispatch modules, input parsing, focused engine tests, and catalog-wide validation.
+- `src/algorithms/`: Step snapshot generator functions (`generate_*_steps`) for each algorithm. Larger families use focused submodules; for example, `src/algorithms/trees/` separates basic operations, BST problems, traversals, construction, path calculations, codecs, and tests.
 
 ### Deterministic State Engine & Visual Normalization
 
-Algorithms in AlgoBuddy do not execute asynchronously during playback. Generator functions in `src/algorithms/` execute synchronously upfront and return a `Vec<Step>` snapshot vector. Visual states are normalized into 10 canonical layout categories (`Array1D`, `TwoPointers`, `BinarySearch`, `StackVisual`, `LinkedListVisual`, `TreeVisual`, `HeapVisual`, `GridGraph`, `NodeGraph`, `DecisionTreeVisual`), allowing renderers to stay clean, responsive, and decoupled.
-
-### Audit Status
-
-All 150 NeetCode problems in AlgoBuddy are live in **Public Release Mode**. The `audit_status()` method on `Problem` (`src/model/problem.rs`) marks implementations as `AuditStatus::Audited`. Developer Mode (`cargo run -- --dev`) unlocks developer tools and diagnostic overlays.
-
----
+Algorithms in AlgoBuddy do not execute asynchronously during playback. Generator functions in `src/algorithms/` execute synchronously upfront and return a `Vec<Step>` snapshot vector. Typed `VisualState` variants are routed to specialized renderers so algorithm state, layout, and playback remain decoupled.
 
 ## Unit Testing & Contributing Visualizers
 
 To contribute a unit test or visualizer improvement:
 
-1. Create a feature branch off `dev`: `git checkout -b test-[problem-slug] dev`
+1. Create a descriptive feature branch off `dev`, such as `issue-[id]-[problem-slug]`.
 2. Verify that the algorithm step generator produces accurate state snapshots for standard and edge-case inputs.
 3. Ensure active line highlighting (`code_line`) matches the associated source code snippet.
-4. Add a unit test in `src/app.rs` under `#[cfg(test)] mod tests` asserting expected output values.
-5. Run `cargo test` and `cargo clippy --all-targets -- -D warnings` locally.
+4. Add focused coverage next to the generator in `src/algorithms/`, in `src/app/tests.rs` for application behavior, in `src/engine/tests.rs` for dispatch and input behavior, or in `src/engine/catalog_tests.rs` for catalog-wide invariants.
+5. Run `cargo fmt --all -- --check`, `cargo clippy --all-targets -- -D warnings`, and `cargo test --all` locally.
 6. Submit a Pull Request targeting the `dev` branch.
 
 ---
@@ -96,9 +90,11 @@ To contribute a unit test or visualizer improvement:
 
 Before submitting a Pull Request, ensure your changes adhere to these requirements:
 
-- **Formatting**: Run `cargo fmt --all` to ensure standard Rust code formatting.
+- **Formatting**: Run `cargo fmt --all -- --check` to verify standard Rust formatting.
 - **Clippy Clean**: Run `cargo clippy --all-targets -- -D warnings` to verify zero warnings.
 - **Unit Tests**: Add unit tests for any new algorithm step generators or parser functions.
+- **Synchronized State**: Keep timeline descriptions, inspector values, canvas state, final results, and highlighted source lines consistent at every step.
+- **Plain Text Interface**: Do not add emoji to UI labels, documentation, code comments, contributor templates, or release notes. Use concise plain text instead.
 - **Commit Messages**: Write concise, descriptive commit messages (e.g., `feat: add visualizer for problem #X`, `fix: resolve bounds checking on timeline scrubber`).
 
 ---
@@ -121,7 +117,7 @@ We as members, contributors, and leaders pledge to make participation in our com
 
 ### Supported Versions
 
-Current release series `0.5.x` is actively supported with security updates.
+The latest published release series is actively supported with security updates.
 
 ### Vulnerability Reporting
 

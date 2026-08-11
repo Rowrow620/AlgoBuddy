@@ -1,8 +1,20 @@
 use super::*;
-use std::collections::HashSet;
+use std::collections::{HashSet, VecDeque};
+
+#[derive(Debug, PartialEq, Eq)]
+struct SourceLineMismatch {
+    problem: Problem,
+    problem_id: u32,
+    problem_title: &'static str,
+    approach_id: usize,
+    approach_name: &'static str,
+    step_number: usize,
+    referenced_line: usize,
+    available_lines: Vec<usize>,
+}
 
 #[test]
-fn audited_problem_catalog_has_complete_metadata_and_valid_traces() {
+fn problem_catalog_has_complete_metadata_and_valid_traces() {
     let expected_category_counts = [
         (Category::ArraysAndHashing, 9),
         (Category::TwoPointers, 5),
@@ -26,88 +38,14 @@ fn audited_problem_catalog_has_complete_metadata_and_valid_traces() {
     let mut failures = Vec::new();
     let mut problem_ids = HashSet::new();
 
-    // These sets are a ratchet for pre-existing audit debt. New entries fail CI;
+    // These sets are a ratchet for pre-existing validation debt. New entries fail CI;
     // resolved entries also fail until they are deliberately removed here.
-    let known_placeholder_traces: HashSet<_> = [
-        Problem::ReorderList,
-        Problem::RemoveNthNodeFromEnd,
-        Problem::CopyListWithRandomPointer,
-        Problem::AddTwoNumbers,
-        Problem::FindDuplicateNumber,
-        Problem::LruCache,
-        Problem::MergeKSortedLists,
-        Problem::ReverseNodesInKGroup,
-        Problem::BinaryTreeLevelOrderTraversal,
-        Problem::BinaryTreeRightSideView,
-        Problem::CountGoodNodes,
-        Problem::ConstructBinaryTreePreorderInorder,
-        Problem::BinaryTreeMaxPathSum,
-        Problem::SerializeDeserializeBinaryTree,
-    ]
-    .into_iter()
-    .collect();
-    let known_line_mismatches: HashSet<_> = [
-        Problem::ValidAnagram,
-        Problem::GroupAnagrams,
-        Problem::ValidSudoku,
-        Problem::LongestConsecutive,
-        Problem::ValidPalindrome,
-        Problem::BestTimeStock,
-        Problem::ValidParentheses,
-        Problem::BinarySearch,
-        Problem::ReverseLinkedList,
-        Problem::MergeTwoLists,
-        Problem::LinkedListCycle,
-        Problem::InvertTree,
-        Problem::MaxDepthTree,
-        Problem::DiameterTree,
-        Problem::BalancedTree,
-        Problem::SameTree,
-        Problem::Subtree,
-        Problem::ClimbingStairs,
-        Problem::MinCostStairs,
-        Problem::HouseRobberII,
-        Problem::DecodeWays,
-        Problem::MaxProductSubarray,
-        Problem::LastStone,
-        Problem::MeetingRooms,
-        Problem::HappyNumber,
-        Problem::SingleNumber,
-        Problem::CountingBits,
-        Problem::ReverseBits,
-        Problem::MissingNumber,
-        Problem::RotateImage,
-        Problem::SpiralMatrix,
-        Problem::MaxAreaIsland,
-        Problem::EvalRPN,
-        Problem::GenerateParentheses,
-        Problem::DailyTemperatures,
-        Problem::CarFleet,
-        Problem::LargestRectangle,
-        Problem::FindMinRotated,
-        Problem::ReorderList,
-        Problem::RemoveNthNodeFromEnd,
-        Problem::CopyListWithRandomPointer,
-        Problem::AddTwoNumbers,
-        Problem::FindDuplicateNumber,
-        Problem::LruCache,
-        Problem::ReverseNodesInKGroup,
-        Problem::BinaryTreeLevelOrderTraversal,
-        Problem::BinaryTreeRightSideView,
-        Problem::CountGoodNodes,
-        Problem::SerializeDeserializeBinaryTree,
-    ]
-    .into_iter()
-    .collect();
-    let known_visual_state_debt: HashSet<_> = [
-        Problem::MinStack,
-        Problem::GenerateParentheses,
-        Problem::BinaryTreeMaxPathSum,
-    ]
-    .into_iter()
-    .collect();
+    let known_placeholder_traces = HashSet::<Problem>::new();
+    let known_line_mismatches = HashSet::new();
+    let known_visual_state_debt = HashSet::<Problem>::new();
     let mut placeholder_traces = HashSet::new();
     let mut line_mismatches = HashSet::new();
+    let mut line_mismatch_details = Vec::new();
     let mut visual_state_debt = HashSet::new();
 
     for (category, expected) in expected_category_counts {
@@ -242,6 +180,16 @@ fn audited_problem_catalog_has_complete_metadata_and_valid_traces() {
                 }
                 if !displayed_lines.contains(&step.code_line) {
                     line_mismatches.insert(problem);
+                    line_mismatch_details.push(SourceLineMismatch {
+                        problem,
+                        problem_id: details.id,
+                        problem_title: details.title,
+                        approach_id: approach.id,
+                        approach_name: approach.name,
+                        step_number: step_idx + 1,
+                        referenced_line: step.code_line,
+                        available_lines: code_lines.iter().map(|(line, _)| *line).collect(),
+                    });
                 }
                 let mut step_visual_failures = Vec::new();
                 validate_visual_state(&step.visual, &step_context, &mut step_visual_failures);
@@ -258,12 +206,16 @@ fn audited_problem_catalog_has_complete_metadata_and_valid_traces() {
         &placeholder_traces,
         &mut failures,
     );
+    let line_mismatch_debt_changed = line_mismatches != known_line_mismatches;
     check_debt_set(
         "source-line mismatches",
         &known_line_mismatches,
         &line_mismatches,
         &mut failures,
     );
+    if line_mismatch_debt_changed {
+        failures.push(format_source_line_mismatch_report(&line_mismatch_details));
+    }
     check_debt_set(
         "visual-state violations",
         &known_visual_state_debt,
@@ -271,7 +223,115 @@ fn audited_problem_catalog_has_complete_metadata_and_valid_traces() {
         &mut failures,
     );
 
-    assert_audit_clean(failures);
+    assert_catalog_clean(failures);
+}
+
+#[test]
+#[ignore = "diagnostic report; run with --ignored --nocapture"]
+fn source_line_mismatch_report() {
+    let mut mismatches = Vec::new();
+
+    for &problem in Problem::all() {
+        let details = problem.details();
+        for approach in details.approaches {
+            let code_lines = approach_code_lines(problem, approach.id);
+            let available_lines: Vec<_> = code_lines.iter().map(|(line, _)| *line).collect();
+
+            let mut app = VisualizerApp::default();
+            app.current_problem = problem;
+            app.selected_approach_id = approach.id;
+            recompute_steps(&mut app);
+
+            for (step_idx, step) in app.steps.iter().enumerate() {
+                if !available_lines.contains(&step.code_line) {
+                    mismatches.push(SourceLineMismatch {
+                        problem,
+                        problem_id: details.id,
+                        problem_title: details.title,
+                        approach_id: approach.id,
+                        approach_name: approach.name,
+                        step_number: step_idx + 1,
+                        referenced_line: step.code_line,
+                        available_lines: available_lines.clone(),
+                    });
+                }
+            }
+        }
+    }
+
+    println!("{}", format_source_line_mismatch_report(&mismatches));
+}
+
+fn format_source_line_mismatch_report(mismatches: &[SourceLineMismatch]) -> String {
+    if mismatches.is_empty() {
+        return "Source-line mismatch report: no mismatches found.".to_owned();
+    }
+
+    let affected_problems: HashSet<_> =
+        mismatches.iter().map(|mismatch| mismatch.problem).collect();
+    let details = mismatches
+        .iter()
+        .map(|mismatch| {
+            format!(
+                "- {:?} (#{} {}) | approach {} ({}) | step {} | referenced line {} | available lines {:?}",
+                mismatch.problem,
+                mismatch.problem_id,
+                mismatch.problem_title,
+                mismatch.approach_id,
+                mismatch.approach_name,
+                mismatch.step_number,
+                mismatch.referenced_line,
+                mismatch.available_lines,
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    format!(
+        "Source-line mismatch report: {} mismatched step(s) across {} problem(s):\n{details}",
+        mismatches.len(),
+        affected_problems.len(),
+    )
+}
+
+#[test]
+fn source_line_mismatch_report_includes_repair_context() {
+    let report = format_source_line_mismatch_report(&[SourceLineMismatch {
+        problem: Problem::BinarySearch,
+        problem_id: 704,
+        problem_title: "Binary Search",
+        approach_id: 2,
+        approach_name: "Iterative Binary Search",
+        step_number: 3,
+        referenced_line: 8,
+        available_lines: vec![1, 2, 3, 5],
+    }]);
+
+    assert_eq!(
+        report,
+        "Source-line mismatch report: 1 mismatched step(s) across 1 problem(s):\n\
+- BinarySearch (#704 Binary Search) | approach 2 (Iterative Binary Search) | step 3 | referenced line 8 | available lines [1, 2, 3, 5]"
+    );
+}
+
+fn compact_level_order_max_depth(tree_nodes: &[Option<i32>]) -> i32 {
+    if tree_nodes.first().copied().flatten().is_none() {
+        return 0;
+    }
+
+    let mut pending_depths = VecDeque::from([1]);
+    let mut maximum_depth = 0;
+    for node in tree_nodes {
+        let Some(depth) = pending_depths.pop_front() else {
+            break;
+        };
+        if node.is_some() {
+            maximum_depth = maximum_depth.max(depth);
+            pending_depths.push_back(depth + 1);
+            pending_depths.push_back(depth + 1);
+        }
+    }
+    maximum_depth
 }
 
 fn validate_visual_state(visual: &VisualState, context: &str, failures: &mut Vec<String>) {
@@ -499,17 +559,34 @@ fn validate_visual_state(visual: &VisualState, context: &str, failures: &mut Vec
                 failures,
             );
             if let Some(depth) = depth_val {
-                let maximum_depth = if tree_nodes.is_empty() {
-                    0
-                } else {
-                    (usize::BITS - tree_nodes.len().leading_zeros()) as i32
-                };
+                let maximum_depth = compact_level_order_max_depth(tree_nodes);
                 if *depth < 0 || *depth > maximum_depth {
                     failures.push(format!(
                         "{context}: displayed depth {depth} is outside 0..={maximum_depth}"
                     ));
                 }
             }
+        }
+        VisualState::TreeMaxPathVisual {
+            tree_nodes,
+            active_node_idx,
+            secondary_node_idx,
+            ..
+        } => {
+            check_index(
+                "active node index",
+                *active_node_idx,
+                tree_nodes.len(),
+                context,
+                failures,
+            );
+            check_index(
+                "secondary node index",
+                *secondary_node_idx,
+                tree_nodes.len(),
+                context,
+                failures,
+            );
         }
         VisualState::HeapVisual {
             heap_elements,
@@ -657,10 +734,10 @@ fn check_boundary(
     }
 }
 
-fn assert_audit_clean(failures: Vec<String>) {
+fn assert_catalog_clean(failures: Vec<String>) {
     if !failures.is_empty() {
         panic!(
-            "global problem audit found {} violation(s):\n{}",
+            "global problem catalog validation found {} violation(s):\n{}",
             failures.len(),
             failures.join("\n")
         );

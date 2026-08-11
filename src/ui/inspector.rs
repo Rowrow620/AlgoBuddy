@@ -31,7 +31,7 @@ pub fn render_right_sidebar_inspector(
                 if ui
                     .selectable_label(
                         app.right_tab == RightTab::CodeTrace,
-                        RichText::new("💻 Code Trace").strong(),
+                        RichText::new("Code Trace").strong(),
                     )
                     .clicked()
                 {
@@ -40,7 +40,7 @@ pub fn render_right_sidebar_inspector(
                 if ui
                     .selectable_label(
                         app.right_tab == RightTab::ProblemDetails,
-                        RichText::new("📄 Problem Statement & Examples").strong(),
+                        RichText::new("Problem Statement & Examples").strong(),
                     )
                     .clicked()
                 {
@@ -49,7 +49,7 @@ pub fn render_right_sidebar_inspector(
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     if ui
                         .button(
-                            RichText::new("Hide ▶")
+                            RichText::new("Hide")
                                 .font(egui::FontId::proportional(11.0))
                                 .color(p.text_muted),
                         )
@@ -66,12 +66,11 @@ pub fn render_right_sidebar_inspector(
             match app.right_tab {
                 RightTab::CodeTrace => {
                     if let Some(step) = app.steps.get(app.current_step_idx) {
-                        // ── 1. FIXED STICKY TOP BANNER (Step Description + Variable Chips) ──
+                        // Keep the active step visible while the details below it scroll.
                         egui::Frame::none()
                             .fill(p.sidebar_bg)
                             .inner_margin(0.0)
                             .show(ui, |ui| {
-                                // Step Box
                                 egui::Frame::group(ui.style())
                                     .fill(p.step_box_bg)
                                     .rounding(Rounding::same(8.0))
@@ -103,7 +102,7 @@ pub fn render_right_sidebar_inspector(
                                                 .show(ui, |ui| {
                                                     ui.horizontal(|ui| {
                                                         ui.label(
-                                                            RichText::new("⚡ Invariant:")
+                                                            RichText::new("Invariant:")
                                                                 .font(egui::FontId::monospace(10.0))
                                                                 .color(p.amber)
                                                                 .strong(),
@@ -120,7 +119,6 @@ pub fn render_right_sidebar_inspector(
                                     });
 
                                 ui.add_space(6.0);
-                                // Horizontal Variable Scope Chips
                                 render_variable_scope_chips(ui, step, p);
                             });
 
@@ -128,13 +126,12 @@ pub fn render_right_sidebar_inspector(
                         ui.separator();
                         ui.add_space(6.0);
 
-                        // ── 2. SCROLLABLE LOWER CONTENT (Complexity Card + Python Code) ──
+                        // Complexity and source code share the lower scroll area.
                         egui::ScrollArea::vertical()
                             .id_source("right_code_trace_lower_scroll")
                             .show(ui, |ui| {
                                 ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Wrap);
 
-                                // Algorithm Complexity Card
                                 if let Some(app_meta) = app
                                     .current_problem
                                     .details()
@@ -358,11 +355,7 @@ pub fn render_right_sidebar_inspector(
 
                         ui.add_space(14.0);
                         if ui
-                            .button(
-                                RichText::new("🌐 Open on LeetCode.com ↗")
-                                    .strong()
-                                    .color(p.cyan),
-                            )
+                            .button(RichText::new("Open on LeetCode.com").strong().color(p.cyan))
                             .clicked()
                         {
                             #[cfg(not(target_arch = "wasm32"))]
@@ -386,7 +379,7 @@ fn render_complexity_card(ui: &mut egui::Ui, app_meta: &ApproachMeta, p: &ThemeP
         .inner_margin(10.0)
         .show(ui, |ui| {
             ui.label(
-                RichText::new("📊 Algorithm Complexity Card")
+                RichText::new("Algorithm Complexity Card")
                     .strong()
                     .color(p.cyan)
                     .size(12.0),
@@ -413,7 +406,7 @@ fn render_complexity_card(ui: &mut egui::Ui, app_meta: &ApproachMeta, p: &ThemeP
                     .inner_margin(egui::Margin::symmetric(8.0, 4.0))
                     .show(ui, |ui| {
                         ui.label(
-                            RichText::new(format!("⚡ Time: {}", app_meta.time_complexity))
+                            RichText::new(format!("Time: {}", app_meta.time_complexity))
                                 .font(egui::FontId::monospace(12.0))
                                 .color(tc_color)
                                 .strong(),
@@ -438,7 +431,7 @@ fn render_complexity_card(ui: &mut egui::Ui, app_meta: &ApproachMeta, p: &ThemeP
                     .inner_margin(egui::Margin::symmetric(8.0, 4.0))
                     .show(ui, |ui| {
                         ui.label(
-                            RichText::new(format!("💾 Space: {}", app_meta.space_complexity))
+                            RichText::new(format!("Space: {}", app_meta.space_complexity))
                                 .font(egui::FontId::monospace(12.0))
                                 .color(sc_color)
                                 .strong(),
@@ -475,12 +468,7 @@ fn render_variable_scope_chips(ui: &mut egui::Ui, step: &Step, p: &ThemePalette)
                 .id_source("scope_chips_horizontal_scroll")
                 .show(ui, |ui| {
                     ui.horizontal(|ui| {
-                        ui.label(
-                            RichText::new("🔍 Scope:")
-                                .strong()
-                                .color(p.amber)
-                                .size(12.0),
-                        );
+                        ui.label(RichText::new("Scope:").strong().color(p.amber).size(12.0));
                         ui.add_space(4.0);
 
                         for (name, val) in vars {

@@ -139,6 +139,67 @@ impl VisualizerApp {
         });
     }
 
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn render_tree_max_path(
+        &self,
+        ui: &mut egui::Ui,
+        p: &ThemePalette,
+        tree_nodes: &[Option<i32>],
+        active_idx: Option<usize>,
+        secondary_idx: Option<usize>,
+        left_gain: Option<i32>,
+        right_gain: Option<i32>,
+        through_node_sum: Option<i32>,
+        returned_gain: Option<i32>,
+        max_path_sum: Option<i32>,
+    ) {
+        self.render_tree(ui, p, tree_nodes, active_idx, secondary_idx, None, None);
+
+        let z = self.canvas_zoom;
+        let label_size = (11.0 * z).max(8.0);
+        let value_size = (16.0 * z).max(10.0);
+        ui.add_space(12.0 * z);
+        ui.group(|ui| {
+            ui.label(
+                RichText::new("POST-ORDER PATH GAIN STATE")
+                    .font(egui::FontId::monospace(label_size))
+                    .color(p.text_muted),
+            );
+            ui.add_space(6.0 * z);
+            ui.horizontal_wrapped(|ui| {
+                if let (Some(left), Some(right)) = (left_gain, right_gain) {
+                    ui.label(
+                        RichText::new(format!("Left gain: {left}   Right gain: {right}"))
+                            .font(egui::FontId::monospace(value_size))
+                            .color(p.cyan),
+                    );
+                }
+                if let Some(sum) = through_node_sum {
+                    ui.label(
+                        RichText::new(format!("Path through node: {sum}"))
+                            .font(egui::FontId::monospace(value_size))
+                            .color(p.amber),
+                    );
+                }
+                if let Some(gain) = returned_gain {
+                    ui.label(
+                        RichText::new(format!("Returned gain: {gain}"))
+                            .font(egui::FontId::monospace(value_size))
+                            .color(p.cyan),
+                    );
+                }
+                if let Some(best) = max_path_sum {
+                    ui.label(
+                        RichText::new(format!("Maximum path sum: {best}"))
+                            .font(egui::FontId::monospace(value_size))
+                            .strong()
+                            .color(p.emerald_text),
+                    );
+                }
+            });
+        });
+    }
+
     pub(super) fn render_trie(&self, ui: &mut egui::Ui, p: &ThemePalette) {
         let z = self.canvas_zoom;
         let font_title = (16.0 * z).max(10.0);
@@ -149,7 +210,7 @@ impl VisualizerApp {
         let margin = (10.0 * z).max(4.0);
 
         ui.heading(
-            RichText::new("🌲 Trie (Prefix Tree) Character Node Hierarchy")
+            RichText::new("Trie (Prefix Tree) Character Node Hierarchy")
                 .color(p.cyan)
                 .size(font_title),
         );
@@ -164,7 +225,6 @@ impl VisualizerApp {
             ui.add_space(8.0 * z);
 
             ui.horizontal_wrapped(|ui| {
-                // Render Root Node
                 egui::Frame::none()
                     .fill(p.cyan)
                     .rounding(Rounding::same(20.0 * z))
@@ -184,7 +244,6 @@ impl VisualizerApp {
                         .color(p.cyan),
                 );
 
-                // Render Sample Word Nodes dynamically
                 let words: Vec<&str> = match self.current_problem {
                     Problem::ImplementTrie => self
                         .get_input_str(Problem::ImplementTrie, "words", "apple, app, ape")
@@ -240,7 +299,7 @@ impl VisualizerApp {
                                             .show(ui, |ui| {
                                                 if is_last {
                                                     ui.label(
-                                                        RichText::new(format!("'{}' ★", ch))
+                                                        RichText::new(format!("'{}' [end]", ch))
                                                             .font(egui::FontId::monospace(
                                                                 font_char,
                                                             ))

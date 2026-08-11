@@ -12,7 +12,7 @@ impl VisualizerApp {
             .show(ui, |ui| {
                 ui.horizontal(|ui| {
                     ui.label(
-                        RichText::new("🎮 Custom Input Playground:")
+                        RichText::new("Custom Input Playground:")
                             .font(egui::FontId::proportional(12.0))
                             .color(p.amber)
                             .strong(),

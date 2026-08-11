@@ -7,7 +7,7 @@ pub fn generate_last_stone_weight_steps(stones: &[i32]) -> Vec<Step> {
 
     steps.push(Step {
         description: format!("Initialize Max-Heap with stones: {:?}", heap),
-        code_line: 1,
+        code_line: 3,
         visual: VisualState::HeapVisual {
             heap_elements: heap.clone(),
             active_idx: None,
@@ -22,7 +22,7 @@ pub fn generate_last_stone_weight_steps(stones: &[i32]) -> Vec<Step> {
 
         steps.push(Step {
             description: format!("Smash heaviest stones y = {} and x = {}", y, x),
-            code_line: 5,
+            code_line: 6,
             visual: VisualState::HeapVisual {
                 heap_elements: heap.clone(),
                 active_idx: None,
@@ -37,7 +37,7 @@ pub fn generate_last_stone_weight_steps(stones: &[i32]) -> Vec<Step> {
             heap.sort_by(|a, b| b.cmp(a));
             steps.push(Step {
                 description: format!("Stone remaining: {} -> push into Max-Heap {:?}", rem, heap),
-                code_line: 8,
+                code_line: 7,
                 visual: VisualState::HeapVisual {
                     heap_elements: heap.clone(),
                     active_idx: Some(0),
@@ -51,7 +51,7 @@ pub fn generate_last_stone_weight_steps(stones: &[i32]) -> Vec<Step> {
     let final_res = heap.first().copied().unwrap_or(0);
     steps.push(Step {
         description: format!("Smashing complete! Last stone weight: {}", final_res),
-        code_line: 12,
+        code_line: 9,
         visual: VisualState::HeapVisual {
             heap_elements: heap.clone(),
             active_idx: None,

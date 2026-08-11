@@ -111,11 +111,16 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
             return steps;
         }
 
+        let matched_left = l;
+        let matched_right = r;
+        l += 1;
+        r = r.saturating_sub(1);
+
         steps.push(Step {
-            code_line: 9,
+            code_line: 11,
             description: format!(
-                "Match: s[{}]='{}' == s[{}]='{}'. Moving pointers inward.",
-                l, chars[l], r, chars[r]
+                "Match: s[{}]='{}' == s[{}]='{}'. Moved pointers inward to l={}, r={}.",
+                matched_left, chars[matched_left], matched_right, chars[matched_right], l, r
             ),
             visual: VisualState::TwoPointers {
                 chars: chars.clone(),
@@ -125,9 +130,6 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
                 skipped: false,
             },
         });
-
-        l += 1;
-        r = r.saturating_sub(1);
     }
 
     steps.push(Step {
@@ -205,4 +207,66 @@ fn generate_palindrome_reverse(s: &str) -> Vec<Step> {
     });
 
     steps
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn movement_positions(steps: &[Step]) -> Vec<(usize, usize)> {
+        steps
+            .iter()
+            .filter(|step| step.code_line == 11)
+            .filter_map(|step| match &step.visual {
+                VisualState::TwoPointers { left, right, .. } => Some((*left, *right)),
+                _ => None,
+            })
+            .collect()
+    }
+
+    fn final_result(steps: &[Step]) -> Option<bool> {
+        match &steps
+            .last()
+            .expect("palindrome trace must not be empty")
+            .visual
+        {
+            VisualState::TwoPointers { is_valid, .. } => *is_valid,
+            _ => None,
+        }
+    }
+
+    #[test]
+    fn two_pointer_trace_snapshots_pointer_updates_and_results() {
+        let racecar = generate_palindrome_two_pointers("racecar");
+        assert_eq!(movement_positions(&racecar), vec![(1, 5), (2, 4), (3, 3)]);
+        assert_eq!(final_result(&racecar), Some(true));
+
+        let spaced_palindrome = generate_palindrome_two_pointers("race car");
+        assert_eq!(
+            movement_positions(&spaced_palindrome),
+            vec![(1, 6), (2, 5), (3, 4)]
+        );
+        assert!(spaced_palindrome.iter().any(|step| {
+            step.code_line == 8
+                && matches!(
+                    &step.visual,
+                    VisualState::TwoPointers {
+                        left: 3,
+                        right: 3,
+                        ..
+                    }
+                )
+        }));
+        assert_eq!(final_result(&spaced_palindrome), Some(true));
+
+        let mismatch = generate_palindrome_two_pointers("race a car");
+        assert_eq!(movement_positions(&mismatch), vec![(1, 8), (2, 7), (3, 6)]);
+        assert!(mismatch.last().is_some_and(|step| step.code_line == 10));
+        assert_eq!(final_result(&mismatch), Some(false));
+
+        assert_eq!(
+            crate::model::Problem::ValidPalindrome.formula(),
+            Some("all previously compared alphanumeric pairs matched")
+        );
+    }
 }

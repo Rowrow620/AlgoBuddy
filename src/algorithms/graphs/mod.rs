@@ -54,11 +54,11 @@ mod tests {
         );
         assert_characterization(
             &generate_max_area_island_steps(),
-            6,
-            4,
-            16,
-            "Initialize Number of Islands grid scan (4x5)",
-            "Finished Grid Traversal! Total Islands = 2",
+            8,
+            3,
+            11,
+            "Initialize Max Area of Island scan for a 4x5 grid.",
+            "Grid scan complete; maximum island area = 3.",
         );
         assert_characterization(
             &generate_clone_graph_steps(),

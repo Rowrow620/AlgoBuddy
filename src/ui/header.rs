@@ -14,7 +14,7 @@ pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &The
             ui.horizontal(|ui| {
                 if !app.show_roadmap_sidebar {
                     if ui
-                        .button(RichText::new("▶ Show Roadmap").strong().color(p.cyan))
+                        .button(RichText::new("Show Roadmap").strong().color(p.cyan))
                         .clicked()
                     {
                         app.show_roadmap_sidebar = true;
@@ -50,11 +50,7 @@ pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &The
                 );
 
                 let is_fav = app.favorite_problems.contains(&details.id);
-                let fav_label = if is_fav {
-                    "★ Favorited"
-                } else {
-                    "☆ Favorite"
-                };
+                let fav_label = if is_fav { "Favorited" } else { "Favorite" };
                 let fav_color = if is_fav { p.amber } else { p.text_muted };
                 if ui
                     .button(
@@ -75,7 +71,7 @@ pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &The
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     if !app.show_right_sidebar {
                         if ui
-                            .button(RichText::new("Code & Problem ◀").strong().color(p.cyan))
+                            .button(RichText::new("Code & Problem").strong().color(p.cyan))
                             .clicked()
                         {
                             app.show_right_sidebar = true;
@@ -84,7 +80,7 @@ pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &The
                     }
 
                     if ui
-                        .button(RichText::new("⚙ Settings").strong().color(p.cyan))
+                        .button(RichText::new("Settings").strong().color(p.cyan))
                         .clicked()
                     {
                         app.show_settings_modal = true;
@@ -94,9 +90,9 @@ pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &The
                     {
                         ui.add_space(8.0);
                         let fs_label = if app.is_fullscreen {
-                            "🗗 Windowed"
+                            "Windowed"
                         } else {
-                            "⛶ Fullscreen"
+                            "Fullscreen"
                         };
                         if ui
                             .button(RichText::new(fs_label).strong().color(p.cyan))
@@ -114,12 +110,9 @@ pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &The
                     let pct = (solved_count as f32 / 150.0) * 100.0;
                     if ui
                         .button(
-                            RichText::new(format!(
-                                "🏆 {} / 150 Solved ({:.1}%)",
-                                solved_count, pct
-                            ))
-                            .strong()
-                            .color(p.amber),
+                            RichText::new(format!("{} / 150 Solved ({:.1}%)", solved_count, pct))
+                                .strong()
+                                .color(p.amber),
                         )
                         .clicked()
                     {
@@ -129,7 +122,7 @@ pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &The
                     ui.add_space(8.0);
                     if ui
                         .button(
-                            RichText::new(format!("🌐 LeetCode #{} ↗", details.id))
+                            RichText::new(format!("LeetCode #{}", details.id))
                                 .strong()
                                 .color(p.cyan),
                         )
@@ -147,7 +140,7 @@ pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &The
 
             ui.add_space(6.0);
 
-            // Multi-Approach Selector Row
+            // Show approach selection only when alternatives are available.
             ui.horizontal(|ui| {
                 ui.label(RichText::new("Approach:").strong().color(p.text_primary));
                 for approach in details.approaches {
@@ -185,28 +178,45 @@ pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &The
 
             ui.add_space(6.0);
 
-            // Playback Control Bar
+            // Timeline navigation and playback controls.
             ui.horizontal(|ui| {
                 let play_text = if app.is_playing { "Pause" } else { "Play" };
-                if ui.button(RichText::new(play_text).strong()).clicked() {
+                let play_tooltip = if app.is_playing {
+                    "Pause timeline playback (Shortcut: Space)"
+                } else {
+                    "Play timeline from the current step (Shortcut: Space)"
+                };
+                if ui
+                    .button(RichText::new(play_text).strong())
+                    .on_hover_text(play_tooltip)
+                    .clicked()
+                {
                     if app.current_step_idx >= app.steps.len().saturating_sub(1) {
                         app.current_step_idx = 0;
                     }
                     app.is_playing = !app.is_playing;
                     app.last_step_time = Instant::now();
                 }
-                if ui.button("Prev").clicked() {
+                if ui
+                    .button("Prev")
+                    .on_hover_text("Go to the previous step (Shortcut: Left Arrow)")
+                    .clicked()
+                {
                     app.is_playing = false;
                     app.current_step_idx = app.current_step_idx.saturating_sub(1);
                 }
-                if ui.button("Next").clicked() {
+                if ui
+                    .button("Next")
+                    .on_hover_text("Go to the next step (Shortcut: Right Arrow)")
+                    .clicked()
+                {
                     app.is_playing = false;
                     if app.current_step_idx < app.steps.len().saturating_sub(1) {
                         app.current_step_idx += 1;
                     }
                 }
                 if ui
-                    .button("Reset [R]")
+                    .button("Reset")
                     .on_hover_text("Reset timeline to step 1 (Shortcut: R)")
                     .clicked()
                 {

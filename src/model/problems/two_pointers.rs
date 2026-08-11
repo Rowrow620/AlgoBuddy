@@ -5,7 +5,7 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
     match problem {
         Problem::ValidPalindrome => Some(ProblemDetails {
                 id: 125, title: "Valid Palindrome", difficulty: Difficulty::Easy, category: Category::TwoPointers,
-                statement: "Given a string s, return true if it is a palindrome.",
+                statement: "Given a string s, return true if it is a palindrome after converting uppercase letters to lowercase and removing non-alphanumeric characters.",
                 examples: &[Example { input: "s = \"Was it a car or a cat I saw?\"", output: "true", explanation: "Alphanumeric filter palindrome." }],
                 constraints: &["1 <= s.length <= 1000"], leetcode_url: "https://leetcode.com/problems/valid-palindrome/",
                 approaches: &[ApproachMeta { id: 0, name: "Two Pointers In-Place", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Two pointers converging from both ends check symmetry in O(N) time without allocating extra string storage (O(1) space).", description: "Left and right pointers." }],
@@ -49,11 +49,14 @@ pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize
             (2, "    def isPalindrome(self, s: str) -> bool:"),
             (3, "        l, r = 0, len(s) - 1"),
             (4, "        while l < r:"),
-            (5, "            while l < r and not s[l].isalnum(): l += 1"),
-            (6, "            while r > l and not s[r].isalnum(): r -= 1"),
-            (7, "            if s[l].lower() != s[r].lower(): return False"),
-            (8, "            l, r = l + 1, r - 1"),
-            (9, "        return True"),
+            (5, "            while l < r and not s[l].isalnum():"),
+            (6, "                l += 1"),
+            (7, "            while r > l and not s[r].isalnum():"),
+            (8, "                r -= 1"),
+            (9, "            if s[l].lower() != s[r].lower():"),
+            (10, "                return False"),
+            (11, "            l, r = l + 1, r - 1"),
+            (12, "        return True"),
         ]),
         (Problem::TwoSumII, _) => Some(vec![
             (1, "class Solution:"),

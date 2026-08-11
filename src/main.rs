@@ -7,15 +7,9 @@ mod utils;
 
 use app::VisualizerApp;
 
-// ── Native Desktop Entry Point ──
+// Native entry point.
 #[cfg(not(target_arch = "wasm32"))]
 fn main() -> eframe::Result<()> {
-    let args: Vec<String> = std::env::args().collect();
-    let force_all = args
-        .iter()
-        .any(|a| a == "--all" || a == "--dev" || a == "-a")
-        || cfg!(feature = "all-problems");
-
     let native_options = eframe::NativeOptions {
         viewport: eframe::egui::ViewportBuilder::default()
             .with_title("AlgoBuddy — NeetCode Roadmap Visualizer")
@@ -27,17 +21,11 @@ fn main() -> eframe::Result<()> {
     eframe::run_native(
         "AlgoBuddy — NeetCode Roadmap Visualizer",
         native_options,
-        Box::new(move |cc| {
-            let mut app = VisualizerApp::new(cc);
-            if force_all {
-                app.set_show_unaudited(true);
-            }
-            Ok(Box::new(app))
-        }),
+        Box::new(|cc| Ok(Box::new(VisualizerApp::new(cc)))),
     )
 }
 
-// ── WebAssembly (WASM) Entry Point ──
+// WebAssembly entry point.
 #[cfg(target_arch = "wasm32")]
 fn main() {
     console_error_panic_hook::set_once();
@@ -50,17 +38,7 @@ fn main() {
             .start(
                 "the_canvas_id",
                 web_options,
-                Box::new(|cc| {
-                    let mut app = VisualizerApp::new(cc);
-                    if let Some(window) = web_sys::window() {
-                        if let Ok(search) = window.location().search() {
-                            if search.contains("dev=true") || search.contains("all=true") {
-                                app.set_show_unaudited(true);
-                            }
-                        }
-                    }
-                    Ok(Box::new(app))
-                }),
+                Box::new(|cc| Ok(Box::new(VisualizerApp::new(cc)))),
             )
             .await;
     });

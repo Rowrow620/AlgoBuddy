@@ -38,7 +38,7 @@ pub fn generate_meeting_rooms_steps(intervals: &[(i32, i32)]) -> Vec<Step> {
 
         if curr.0 < prev.1 {
             steps.push(Step {
-                code_line: 7,
+                code_line: 5,
                 description: format!("Overlap detected! curr.start ({}) < prev.end ({}). Cannot attend all meetings! Return False.", curr.0, prev.1),
                 visual: VisualState::ContainsDuplicate {
                     nums: vec![prev.0, prev.1, curr.0, curr.1],
@@ -53,7 +53,7 @@ pub fn generate_meeting_rooms_steps(intervals: &[(i32, i32)]) -> Vec<Step> {
     }
 
     steps.push(Step {
-        code_line: 9,
+        code_line: 6,
         description: "No meeting overlaps! Can attend all meetings. Return True.".to_string(),
         visual: VisualState::ContainsDuplicate {
             nums: sorted.iter().map(|i| i.0).collect(),

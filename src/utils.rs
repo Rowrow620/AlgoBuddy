@@ -1,6 +1,4 @@
-#![allow(dead_code)]
-
-// ── Shared Input Parsing & Validation Utilities ──
+// Shared input parsing and formatting helpers.
 
 /// Parses a comma-separated string into a Vec<i32>. If empty or invalid, returns fallback.
 pub fn parse_i32_vec(input: &str, default: &[i32]) -> Vec<i32> {

@@ -21,7 +21,7 @@ mod tests;
 
 #[cfg(test)]
 #[allow(clippy::field_reassign_with_default)]
-mod audit_tests;
+mod catalog_tests;
 
 pub(crate) fn select_problem(app: &mut VisualizerApp, problem: Problem) {
     if app.current_problem != problem {

@@ -32,7 +32,7 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     if ui
                         .button(
-                            RichText::new("◀ Hide")
+                            RichText::new("Hide")
                                 .font(egui::FontId::proportional(11.0))
                                 .color(p.text_muted),
                         )
@@ -45,9 +45,9 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
 
             ui.add_space(8.0);
 
-            // Filter controls: Direct keyword search & Difficulty toggles
+            // Search and difficulty filters.
             ui.horizontal(|ui| {
-                ui.label(RichText::new("🔍").font(egui::FontId::proportional(12.0)));
+                ui.label(RichText::new("Search:").font(egui::FontId::proportional(12.0)));
                 ui.add(
                     egui::TextEdit::singleline(&mut app.search_query)
                         .hint_text("Search problem...")
@@ -109,7 +109,7 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
             ui.add_space(6.0);
 
             egui::ScrollArea::vertical().show(ui, |ui| {
-                // ── ⭐ Favorites Category Section ──
+                // Favorites are rendered separately from roadmap categories.
                 let fav_problems: Vec<Problem> = app
                     .visible_problems()
                     .into_iter()
@@ -137,7 +137,7 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
                 if !fav_problems.is_empty()
                     || (has_active_filter && !app.favorite_problems.is_empty())
                 {
-                    let header_text = format!("⭐ Favorites ({})", fav_problems.len());
+                    let header_text = format!("Favorites ({})", fav_problems.len());
                     let is_active_cat = fav_problems.contains(&app.current_problem);
                     let header_color = if is_active_cat {
                         p.cyan
@@ -163,21 +163,19 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
                                 let diff_color = difficulty_color(prob.difficulty(), p);
 
                                 ui.horizontal(|ui| {
-                                    let star_rt = RichText::new("★")
+                                    let favorite_rt = RichText::new("[x]")
                                         .font(egui::FontId::proportional(12.0))
                                         .color(p.amber)
                                         .strong();
                                     if ui
-                                        .button(star_rt)
+                                        .button(favorite_rt)
                                         .on_hover_text("Remove from Favorites")
                                         .clicked()
                                     {
                                         app.favorite_problems.remove(&prob.id());
                                     }
 
-                                    let exp_tag = if prob.is_audited() { "" } else { " [EXP]" };
-                                    let title_text =
-                                        format!("#{} {}{}", prob.id(), prob.title(), exp_tag);
+                                    let title_text = format!("#{} {}", prob.id(), prob.title());
                                     let btn_rt = RichText::new(&title_text)
                                         .font(egui::FontId::proportional(12.0));
                                     let btn_text = if is_selected {
@@ -282,17 +280,17 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
                                 let is_fav = app.favorite_problems.contains(&prob.id());
 
                                 ui.horizontal(|ui| {
-                                    let (star_char, star_color) = if is_fav {
-                                        ("★", p.amber)
+                                    let (favorite_text, favorite_color) = if is_fav {
+                                        ("[x]", p.amber)
                                     } else {
-                                        ("☆", p.text_muted)
+                                        ("[ ]", p.text_muted)
                                     };
-                                    let star_rt = RichText::new(star_char)
+                                    let favorite_rt = RichText::new(favorite_text)
                                         .font(egui::FontId::proportional(12.0))
-                                        .color(star_color)
+                                        .color(favorite_color)
                                         .strong();
                                     if ui
-                                        .button(star_rt)
+                                        .button(favorite_rt)
                                         .on_hover_text(if is_fav {
                                             "Remove from Favorites"
                                         } else {
@@ -307,9 +305,7 @@ pub fn render_roadmap_sidebar(app: &mut VisualizerApp, ctx: &egui::Context, p: &
                                         }
                                     }
 
-                                    let exp_tag = if prob.is_audited() { "" } else { " [EXP]" };
-                                    let title_text =
-                                        format!("#{} {}{}", prob.id(), prob.title(), exp_tag);
+                                    let title_text = format!("#{} {}", prob.id(), prob.title());
                                     let btn_rt = RichText::new(&title_text)
                                         .font(egui::FontId::proportional(12.0));
                                     let btn_text = if is_selected {

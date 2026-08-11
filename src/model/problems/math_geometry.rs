@@ -101,44 +101,52 @@ pub fn rotate_image_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
         (2, "    def rotate(self, matrix: List[List[int]]) -> None:"),
-        (3, "        l, r = 0, len(matrix) - 1"),
-        (4, "        while l < r:"),
-        (5, "            for i in range(r - l):"),
-        (6, "                top, bottom = l, r"),
-        (7, "                topLeft = matrix[top][l + i]"),
-        (
-            8,
-            "                matrix[top][l + i] = matrix[bottom - i][l]",
-        ),
-        (
-            9,
-            "                matrix[bottom - i][l] = matrix[bottom][r - i]",
-        ),
-        (
-            10,
-            "                matrix[bottom][r - i] = matrix[top + i][r]",
-        ),
-        (11, "                matrix[top + i][r] = topLeft"),
-        (12, "            r -= 1; l += 1"),
+        (3, "        n = len(matrix)"),
+        (4, "        for row in range(n):"),
+        (5, "            for col in range(row + 1, n):"),
+        (6, "                # Transpose across the main diagonal"),
+        (7, "                matrix[row][col], matrix[col][row] = matrix[col][row], matrix[row][col]"),
+        (8, ""),
+        (9, "        for row in matrix:"),
+        (10, "            left, right = 0, n - 1"),
+        (11, "            while left < right:"),
+        (12, "                row[left], row[right] = row[right], row[left]"),
+        (13, "                left, right = left + 1, right - 1"),
+        (14, "        return None"),
     ]
 }
 
 pub fn spiral_matrix_code_lines() -> Vec<(usize, &'static str)> {
     vec![
         (1, "class Solution:"),
-        (2, "    def spiralOrder(self, matrix: List[List[int]]) -> List[int]:"),
-        (3, "        res = []; left, right = 0, len(matrix[0]); top, bottom = 0, len(matrix)"),
+        (
+            2,
+            "    def spiralOrder(self, matrix: List[List[int]]) -> List[int]:",
+        ),
+        (
+            3,
+            "        res = []; left, right = 0, len(matrix[0]); top, bottom = 0, len(matrix)",
+        ),
         (4, "        while left < right and top < bottom:"),
-        (5, "            for i in range(left, right): res.append(matrix[top][i])"),
+        (
+            5,
+            "            for i in range(left, right): res.append(matrix[top][i])",
+        ),
         (6, "            top += 1"),
-        (7, "            for i in range(top, bottom): res.append(matrix[i][right - 1])"),
-        (8, "            right -= 1"),
-        (9, "            if not (left < right and top < bottom): break"),
-        (10, "            for i in range(right - 1, left - 1, -1): res.append(matrix[bottom - 1][i])"),
-        (11, "            bottom -= 1"),
-        (12, "            for i in range(bottom - 1, top - 1, -1): res.append(matrix[i][left])"),
-        (13, "            left += 1"),
-        (14, "        return res"),
+        (7, "            for i in range(top, bottom):"),
+        (8, "                res.append(matrix[i][right - 1])"),
+        (9, "            right -= 1"),
+        (
+            10,
+            "            if not (left < right and top < bottom): break",
+        ),
+        (11, "            for i in range(right - 1, left - 1, -1):"),
+        (12, "                res.append(matrix[bottom - 1][i])"),
+        (13, "            bottom -= 1"),
+        (14, "            for i in range(bottom - 1, top - 1, -1):"),
+        (15, "                res.append(matrix[i][left])"),
+        (16, "            left += 1"),
+        (17, "        return res"),
     ]
 }
 

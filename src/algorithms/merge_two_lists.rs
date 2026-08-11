@@ -11,7 +11,7 @@ pub fn generate_merge_two_lists_steps(list1: &[i32], list2: &[i32]) -> Vec<Step>
 
     // 1. Init dummy & tail (code_line 3-4)
     steps.push(Step {
-        code_line: 4,
+        code_line: 3,
         description: "Initialized dummy head node and tail pointer.".to_string(),
         visual: VisualState::MergeLinkedLists {
             list1: l1_vec.clone(),
@@ -30,7 +30,7 @@ pub fn generate_merge_two_lists_steps(list1: &[i32], list2: &[i32]) -> Vec<Step>
         if val1 < val2 {
             merged.push(val1);
             steps.push(Step {
-                code_line: 7,
+                code_line: 5,
                 description: format!("list1.val ({}) < list2.val ({}). Attached node val={} to tail. Advanced list1 pointer.", val1, val2, val1),
                 visual: VisualState::MergeLinkedLists {
                     list1: l1_vec.clone(),
@@ -44,7 +44,7 @@ pub fn generate_merge_two_lists_steps(list1: &[i32], list2: &[i32]) -> Vec<Step>
         } else {
             merged.push(val2);
             steps.push(Step {
-                code_line: 9,
+                code_line: 6,
                 description: format!("list2.val ({}) <= list1.val ({}). Attached node val={} to tail. Advanced list2 pointer.", val2, val1, val2),
                 visual: VisualState::MergeLinkedLists {
                     list1: l1_vec.clone(),
@@ -62,7 +62,7 @@ pub fn generate_merge_two_lists_steps(list1: &[i32], list2: &[i32]) -> Vec<Step>
     while i < list1.len() {
         merged.push(list1[i]);
         steps.push(Step {
-            code_line: 11,
+            code_line: 8,
             description: format!(
                 "Attached remaining node val={} from list1 to tail.",
                 list1[i]
@@ -81,7 +81,7 @@ pub fn generate_merge_two_lists_steps(list1: &[i32], list2: &[i32]) -> Vec<Step>
     while j < list2.len() {
         merged.push(list2[j]);
         steps.push(Step {
-            code_line: 11,
+            code_line: 8,
             description: format!(
                 "Attached remaining node val={} from list2 to tail.",
                 list2[j]
@@ -98,7 +98,7 @@ pub fn generate_merge_two_lists_steps(list1: &[i32], list2: &[i32]) -> Vec<Step>
     }
 
     steps.push(Step {
-        code_line: 12,
+        code_line: 9,
         description: format!(
             "Merged lists complete. Returned merged sorted head. Output: {:?}.",
             merged

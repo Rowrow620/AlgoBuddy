@@ -19,7 +19,7 @@ impl VisualizerApp {
                     .fill(p.bg_dark),
             )
             .show(ctx, |ui| {
-                // Ctrl + Mouse Wheel Zoom Listener
+                // Ctrl+wheel changes canvas zoom without scrolling the surrounding UI.
                 if ui.rect_contains_pointer(ui.max_rect()) {
                     let scroll_delta = ctx.input(|i| i.raw_scroll_delta.y);
                     let ctrl_down = ctx.input(|i| i.modifiers.ctrl);
@@ -29,12 +29,12 @@ impl VisualizerApp {
                     }
                 }
 
-                // Custom Test Case Sandbox Input Bar
+                // Problem-specific input controls update the current trace.
                 self.render_custom_playground_bar(ui, p);
                 ui.add_space(8.0);
 
                 if let Some(step) = self.steps.get(self.current_step_idx) {
-                    // Live State Inspector Banner with Zoom Controls
+                    // Current step summary and canvas zoom controls.
                     egui::Frame::none()
                         .fill(p.sidebar_bg)
                         .rounding(Rounding::same(8.0))
@@ -56,7 +56,7 @@ impl VisualizerApp {
                                             self.canvas_zoom = (self.canvas_zoom - 0.1).max(0.7);
                                         }
                                         ui.label(
-                                            RichText::new(format!("🔍 {}%", zoom_pct))
+                                            RichText::new(format!("Zoom: {}%", zoom_pct))
                                                 .font(egui::FontId::monospace(11.0))
                                                 .color(p.cyan),
                                         );
@@ -67,7 +67,7 @@ impl VisualizerApp {
                                                 ui.style_mut().wrap_mode =
                                                     Some(egui::TextWrapMode::Truncate);
                                                 ui.label(
-                                                    RichText::new("📊 Live State Inspector")
+                                                    RichText::new("Live State Inspector")
                                                         .font(egui::FontId::proportional(12.0))
                                                         .color(p.cyan)
                                                         .strong(),
@@ -274,6 +274,29 @@ impl VisualizerApp {
                                 *secondary_node_idx,
                                 *depth_val,
                                 *max_diameter,
+                            );
+                        }
+                        VisualState::TreeMaxPathVisual {
+                            tree_nodes,
+                            active_node_idx,
+                            secondary_node_idx,
+                            left_gain,
+                            right_gain,
+                            through_node_sum,
+                            returned_gain,
+                            max_path_sum,
+                        } => {
+                            self.render_tree_max_path(
+                                ui,
+                                p,
+                                tree_nodes,
+                                *active_node_idx,
+                                *secondary_node_idx,
+                                *left_gain,
+                                *right_gain,
+                                *through_node_sum,
+                                *returned_gain,
+                                *max_path_sum,
                             );
                         }
                         VisualState::ValidSudoku {

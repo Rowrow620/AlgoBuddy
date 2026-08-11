@@ -44,7 +44,7 @@ pub fn generate_find_min_rotated_steps(nums: &[i32]) -> Vec<Step> {
 
         if mid_val > r_val {
             steps.push(Step {
-                code_line: 6,
+                code_line: 7,
                 description: format!(
                     "nums[mid] ({}) > nums[r] ({}) -> Minimum is in right half. Move l to {}.",
                     mid_val,
@@ -63,7 +63,7 @@ pub fn generate_find_min_rotated_steps(nums: &[i32]) -> Vec<Step> {
             l = mid + 1;
         } else {
             steps.push(Step {
-                code_line: 8,
+                code_line: 9,
                 description: format!(
                     "nums[mid] ({}) <= nums[r] ({}) -> Minimum is mid or to left. Move r to {}.",
                     mid_val, r_val, mid

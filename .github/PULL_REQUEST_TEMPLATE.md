@@ -6,14 +6,15 @@ Closes #[issue_number]
 
 ## Type of Change
 - [ ] Bug fix (non-breaking change fixing an issue)
-- [ ] New problem visualizer audit / promotion (`AuditStatus::Audited`)
+- [ ] Algorithm visualizer audit / correction
 - [ ] New feature (non-breaking change adding functionality)
 - [ ] Documentation update
 - [ ] Refactoring / performance optimization
 
 ## Verification Checklist
 - [ ] Code compiles cleanly without errors
-- [ ] `cargo test` passes 100% of unit tests
+- [ ] `cargo test --all` passes the complete test suite
 - [ ] `cargo fmt --all -- --check` complies with standard Rust formatting
 - [ ] `cargo clippy --all-targets -- -D warnings` produces zero warnings
 - [ ] Step visualizer tested locally in desktop mode (`cargo run`) and/or WebAssembly mode (`trunk serve`)
+- [ ] Timeline description, inspector state, canvas state, and highlighted code line remain synchronized

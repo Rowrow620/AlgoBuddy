@@ -185,26 +185,7 @@ pub enum Problem {
     SerializeDeserializeBinaryTree,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub enum AuditStatus {
-    Audited,
-    Unaudited,
-}
-
 impl Problem {
-    pub fn audit_status(&self) -> AuditStatus {
-        #[allow(clippy::match_single_binding)]
-        match self {
-            // Add future unaudited problems here:
-            // Problem::NewProblem => AuditStatus::Unaudited,
-            _ => AuditStatus::Audited,
-        }
-    }
-
-    pub fn is_audited(&self) -> bool {
-        self.audit_status() == AuditStatus::Audited
-    }
-
     pub fn all() -> &'static [Problem] {
         &[
             Problem::ContainsDuplicate,
@@ -387,7 +368,7 @@ impl Problem {
             Problem::EncodeDecode => Some("encoded = str.len() + '#' + str"),
             Problem::ValidSudoku => Some("val ∉ row[r] ∩ col[c] ∩ box[r//3, c//3]"),
             Problem::LongestConsecutive => Some("if (num - 1) ∉ set ➔ streak start"),
-            Problem::ValidPalindrome => Some("s[left].lower() == s[right].lower()"),
+            Problem::ValidPalindrome => Some("all previously compared alphanumeric pairs matched"),
             Problem::BestTimeStock => Some("profit = max(0, prices[r] - prices[l])"),
             Problem::ValidParentheses => Some("open ➔ push(c), close ➔ pop() == match(c)"),
             Problem::BinarySearch => Some("mid = left + (right - left) // 2"),
@@ -418,7 +399,9 @@ impl Problem {
             Problem::ThreeSum => Some("a + nums[l] + nums[r] == 0"),
             Problem::ContainerWater => Some("area = (r - l) × min(h[l], h[r])"),
             Problem::TrappingRain => Some("water[i] = min(max_L, max_R) - height[i]"),
-            Problem::MinStack => Some("min_stack.push(min(val, min_stack[-1]))"),
+            Problem::MinStack => {
+                Some("min_stack.push(min(val, min_stack[-1] if min_stack else val))")
+            }
             Problem::EvalRPN => Some("b = pop(), a = pop() ➔ push(a op b)"),
             Problem::LongestSubstring => Some("while s[r] ∈ set ➔ set.remove(s[l]); l++"),
             Problem::Search2DMatrix => Some("val = matrix[m // COLS][m % COLS]"),
