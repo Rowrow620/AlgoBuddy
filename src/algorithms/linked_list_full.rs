@@ -1,4 +1,6 @@
 use crate::model::visual_state::{Step, VisualState};
+use std::cmp::Reverse;
+use std::collections::BinaryHeap;
 
 /// #143 Reorder List
 pub fn generate_reorder_list_steps(nodes: &[i32]) -> Vec<Step> {
@@ -466,7 +468,7 @@ pub fn generate_lru_cache_steps(capacity: usize, ops: &[(&str, i32, i32)]) -> Ve
                     let vals: Vec<i32> = cache.iter().map(|&(_, v)| v).collect();
                     steps.push(Step {
                         description: format!("Get key={} -> MISS (-1).", key),
-                        code_line: 14,
+                        code_line: 9,
                         visual: VisualState::Array1D {
                             title: "LRU Cache State".to_string(),
                             active_idx: None,
@@ -488,26 +490,101 @@ pub fn generate_lru_cache_steps(capacity: usize, ops: &[(&str, i32, i32)]) -> Ve
 
 /// #23 Merge K Sorted Lists
 pub fn generate_merge_k_lists_steps(lists: &[Vec<i32>]) -> Vec<Step> {
-    let mut steps = Vec::new();
-    let mut merged = Vec::new();
-    for l in lists {
-        merged.extend(l.clone());
+    type HeapKey = (i32, usize, usize);
+    type HeapEntry = Reverse<HeapKey>;
+
+    fn heap_visual(
+        heap: &BinaryHeap<HeapEntry>,
+        merged: &[i32],
+        active_entry: Option<HeapKey>,
+    ) -> VisualState {
+        let entries = heap.as_slice();
+        let active_idx = active_entry
+            .and_then(|needle| entries.iter().position(|Reverse(entry)| *entry == needle));
+        let heap_elements = entries
+            .iter()
+            .map(|Reverse((value, _, _))| *value)
+            .collect();
+        VisualState::HeapVisual {
+            active_idx,
+            swapped_pair: None,
+            heap_elements,
+            heap_type_label: format!("Min-Heap | merged = {:?}", merged),
+        }
     }
-    merged.sort_unstable();
+
+    let mut steps = Vec::new();
+    let mut heap = BinaryHeap::<HeapEntry>::new();
+    let mut merged = Vec::new();
 
     steps.push(Step {
         description: format!(
-            "Merge {} sorted lists using Min-Heap / Divide & Conquer.",
+            "Initialize an empty min-heap for {} sorted lists.",
             lists.len()
         ),
-        code_line: 1,
+        code_line: 3,
+        visual: heap_visual(&heap, &merged, None),
+    });
+
+    for (list_idx, list) in lists.iter().enumerate() {
+        if let Some(&value) = list.first() {
+            heap.push(Reverse((value, list_idx, 0)));
+            steps.push(Step {
+                description: format!(
+                    "Push list {} head value {} into the min-heap.",
+                    list_idx, value
+                ),
+                code_line: 5,
+                visual: heap_visual(&heap, &merged, Some((value, list_idx, 0))),
+            });
+        }
+    }
+
+    while let Some(Reverse((value, list_idx, element_idx))) = heap.pop() {
+        steps.push(Step {
+            description: format!(
+                "Pop minimum value {} from list {} at element {}.",
+                value, list_idx, element_idx
+            ),
+            code_line: 8,
+            visual: heap_visual(&heap, &merged, None),
+        });
+
+        merged.push(value);
+        steps.push(Step {
+            description: format!("Append {} to the merged list: {:?}.", value, merged),
+            code_line: 9,
+            visual: heap_visual(&heap, &merged, None),
+        });
+
+        let next_idx = element_idx + 1;
+        if let Some(&next_value) = lists[list_idx].get(next_idx) {
+            heap.push(Reverse((next_value, list_idx, next_idx)));
+            steps.push(Step {
+                description: format!(
+                    "Push successor value {} from list {} into the min-heap.",
+                    next_value, list_idx
+                ),
+                code_line: 10,
+                visual: heap_visual(&heap, &merged, Some((next_value, list_idx, next_idx))),
+            });
+        }
+    }
+
+    let pointers = (!merged.is_empty())
+        .then_some(("head", 0))
+        .into_iter()
+        .collect();
+    steps.push(Step {
+        description: format!("Heap exhausted. Return merged sorted list {:?}.", merged),
+        code_line: 11,
         visual: VisualState::Array1D {
-            title: "Merge K Sorted Lists".to_string(),
+            title: "Merged K Sorted Lists".to_string(),
             active_idx: None,
             secondary_idx: None,
             elements: merged.clone(),
-            pointers: vec![("merged", 0)],
-            status_message: format!("Merged list of {} elements.", merged.len()),
+            pointers,
+            status_message: format!("Merged {} nodes using a min-heap.", merged.len()),
             is_success: Some(true),
         },
     });
@@ -561,4 +638,99 @@ pub fn generate_reverse_k_group_steps(nodes: &[i32], k: usize) -> Vec<Step> {
     });
 
     steps
+}
+
+#[cfg(test)]
+mod merge_k_lists_tests {
+    use super::*;
+
+    #[test]
+    fn traces_a_real_bounded_min_heap_and_returns_sorted_output() {
+        let lists = [vec![1, 4, 5], vec![1, 3, 4], vec![2, 6]];
+        let steps = generate_merge_k_lists_steps(&lists);
+
+        assert_eq!(steps.first().map(|step| step.code_line), Some(3));
+        assert!(steps.iter().any(|step| step.code_line == 5));
+        assert!(steps.iter().any(|step| step.code_line == 8));
+        assert!(steps.iter().any(|step| step.code_line == 10));
+
+        for step in &steps {
+            if let VisualState::HeapVisual {
+                heap_elements,
+                active_idx,
+                ..
+            } = &step.visual
+            {
+                assert!(heap_elements.len() <= lists.len());
+                for child in 1..heap_elements.len() {
+                    let parent = (child - 1) / 2;
+                    assert!(heap_elements[parent] <= heap_elements[child]);
+                }
+
+                if matches!(step.code_line, 5 | 10) {
+                    let active_idx = active_idx.expect("a push must highlight the pushed entry");
+                    let pushed_value = step
+                        .description
+                        .split("value ")
+                        .nth(1)
+                        .and_then(|suffix| suffix.split_whitespace().next())
+                        .and_then(|token| token.parse::<i32>().ok())
+                        .expect("push description must include the pushed value");
+                    assert_eq!(heap_elements[active_idx], pushed_value);
+                } else {
+                    assert_eq!(*active_idx, None, "only a push may highlight a heap entry");
+                }
+            }
+        }
+
+        let VisualState::Array1D { elements, .. } = &steps.last().unwrap().visual else {
+            panic!("final state must render the merged output");
+        };
+        assert_eq!(elements, &[1, 1, 2, 3, 4, 4, 5, 6]);
+        assert_eq!(steps.last().unwrap().code_line, 11);
+    }
+
+    #[test]
+    fn handles_empty_input_without_an_invalid_pointer() {
+        let steps = generate_merge_k_lists_steps(&[]);
+        let VisualState::Array1D {
+            elements, pointers, ..
+        } = &steps.last().unwrap().visual
+        else {
+            panic!("final state must render the merged output");
+        };
+        assert!(elements.is_empty());
+        assert!(pointers.is_empty());
+    }
+
+    #[test]
+    fn push_highlight_tracks_the_inserted_value_and_pop_clears_it() {
+        let steps = generate_merge_k_lists_steps(&[vec![10, 11], vec![1, 2], vec![5, 6]]);
+
+        for step in &steps {
+            let VisualState::HeapVisual {
+                heap_elements,
+                active_idx,
+                ..
+            } = &step.visual
+            else {
+                continue;
+            };
+
+            match step.code_line {
+                5 | 10 => {
+                    let pushed_value = step
+                        .description
+                        .split("value ")
+                        .nth(1)
+                        .and_then(|suffix| suffix.split_whitespace().next())
+                        .and_then(|token| token.parse::<i32>().ok())
+                        .unwrap();
+                    assert_eq!(active_idx.map(|idx| heap_elements[idx]), Some(pushed_value));
+                }
+                8 => assert_eq!(*active_idx, None),
+                _ => {}
+            }
+        }
+    }
 }

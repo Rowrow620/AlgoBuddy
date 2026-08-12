@@ -1,6 +1,30 @@
 use crate::model::{Step, VisualState};
 
+pub(crate) const PALINDROME_VISUALIZATION_LIMIT: usize = 1_000;
+
 pub fn generate_valid_palindrome_steps(s: &str, approach_id: usize) -> Vec<Step> {
+    if s.chars().any(|character| !(' '..='~').contains(&character)) {
+        let message = "Valid Palindrome traces require printable ASCII input, matching the problem's input contract."
+            .to_string();
+        return vec![Step {
+            code_line: 3,
+            description: message.clone(),
+            visual: VisualState::TraceUnavailable { message },
+        }];
+    }
+
+    if s.chars().count() > PALINDROME_VISUALIZATION_LIMIT {
+        let message = format!(
+            "Palindrome traces accept at most {} characters because each step stores the current character state.",
+            PALINDROME_VISUALIZATION_LIMIT
+        );
+        return vec![Step {
+            code_line: 3,
+            description: message.clone(),
+            visual: VisualState::TraceUnavailable { message },
+        }];
+    }
+
     if approach_id == 1 {
         generate_palindrome_reverse(s)
     } else {
@@ -90,10 +114,7 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
             break;
         }
 
-        let char_l = chars[l].to_ascii_lowercase();
-        let char_r = chars[r].to_ascii_lowercase();
-
-        if char_l != char_r {
+        if !chars[l].eq_ignore_ascii_case(&chars[r]) {
             steps.push(Step {
                 code_line: 10,
                 description: format!(
@@ -111,11 +132,16 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
             return steps;
         }
 
+        let matched_left = l;
+        let matched_right = r;
+        l += 1;
+        r = r.saturating_sub(1);
+
         steps.push(Step {
-            code_line: 9,
+            code_line: 11,
             description: format!(
-                "Match: s[{}]='{}' == s[{}]='{}'. Moving pointers inward.",
-                l, chars[l], r, chars[r]
+                "Match: s[{}]='{}' == s[{}]='{}'. Moved pointers inward to l={}, r={}.",
+                matched_left, chars[matched_left], matched_right, chars[matched_right], l, r
             ),
             visual: VisualState::TwoPointers {
                 chars: chars.clone(),
@@ -125,9 +151,6 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
                 skipped: false,
             },
         });
-
-        l += 1;
-        r = r.saturating_sub(1);
     }
 
     steps.push(Step {
@@ -148,14 +171,13 @@ fn generate_palindrome_two_pointers(s: &str) -> Vec<Step> {
 
 fn generate_palindrome_reverse(s: &str) -> Vec<Step> {
     let mut steps = Vec::new();
-    let original_chars: Vec<char> = s.chars().collect();
 
     steps.push(Step {
         code_line: 3,
         description: "Initialized newStr = \"\" for collecting lowercase alphanumeric characters."
             .to_string(),
         visual: VisualState::TwoPointers {
-            chars: original_chars.clone(),
+            chars: Vec::new(),
             left: 0,
             right: 0,
             is_valid: None,
@@ -205,4 +227,109 @@ fn generate_palindrome_reverse(s: &str) -> Vec<Step> {
     });
 
     steps
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn movement_positions(steps: &[Step]) -> Vec<(usize, usize)> {
+        steps
+            .iter()
+            .filter(|step| step.code_line == 11)
+            .filter_map(|step| match &step.visual {
+                VisualState::TwoPointers { left, right, .. } => Some((*left, *right)),
+                _ => None,
+            })
+            .collect()
+    }
+
+    fn final_result(steps: &[Step]) -> Option<bool> {
+        match &steps
+            .last()
+            .expect("palindrome trace must not be empty")
+            .visual
+        {
+            VisualState::TwoPointers { is_valid, .. } => *is_valid,
+            _ => None,
+        }
+    }
+
+    #[test]
+    fn two_pointer_trace_snapshots_pointer_updates_and_results() {
+        let racecar = generate_palindrome_two_pointers("racecar");
+        assert_eq!(movement_positions(&racecar), vec![(1, 5), (2, 4), (3, 3)]);
+        assert_eq!(final_result(&racecar), Some(true));
+
+        let spaced_palindrome = generate_palindrome_two_pointers("race car");
+        assert_eq!(
+            movement_positions(&spaced_palindrome),
+            vec![(1, 6), (2, 5), (3, 4)]
+        );
+        assert!(spaced_palindrome.iter().any(|step| {
+            step.code_line == 8
+                && matches!(
+                    &step.visual,
+                    VisualState::TwoPointers {
+                        left: 3,
+                        right: 3,
+                        ..
+                    }
+                )
+        }));
+        assert_eq!(final_result(&spaced_palindrome), Some(true));
+
+        let mismatch = generate_palindrome_two_pointers("race a car");
+        assert_eq!(movement_positions(&mismatch), vec![(1, 8), (2, 7), (3, 6)]);
+        assert!(mismatch.last().is_some_and(|step| step.code_line == 10));
+        assert_eq!(final_result(&mismatch), Some(false));
+
+        assert_eq!(
+            crate::model::Problem::ValidPalindrome.formula(),
+            Some("all previously compared alphanumeric pairs matched")
+        );
+    }
+
+    #[test]
+    fn filter_and_reverse_trace_normalizes_before_comparing() {
+        let palindrome = generate_valid_palindrome_steps("A man, a plan, a canal: Panama", 1);
+        assert_eq!(final_result(&palindrome), Some(true));
+        assert_eq!(
+            palindrome
+                .iter()
+                .map(|step| step.code_line)
+                .collect::<Vec<_>>(),
+            vec![3, 6, 7]
+        );
+
+        let mismatch = generate_valid_palindrome_steps("race a car", 1);
+        assert_eq!(final_result(&mismatch), Some(false));
+    }
+
+    #[test]
+    fn both_approaches_reject_non_ascii_input() {
+        for approach_id in [0, 1] {
+            assert!(matches!(
+                generate_valid_palindrome_steps("İ", approach_id).as_slice(),
+                [Step {
+                    visual: VisualState::TraceUnavailable { .. },
+                    ..
+                }]
+            ));
+        }
+    }
+
+    #[test]
+    fn both_approaches_reject_oversized_visualizations() {
+        let input = "a".repeat(PALINDROME_VISUALIZATION_LIMIT + 1);
+        for approach_id in [0, 1] {
+            assert!(matches!(
+                generate_valid_palindrome_steps(&input, approach_id).as_slice(),
+                [Step {
+                    visual: VisualState::TraceUnavailable { .. },
+                    ..
+                }]
+            ));
+        }
+    }
 }

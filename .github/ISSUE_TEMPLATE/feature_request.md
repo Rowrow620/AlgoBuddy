@@ -13,7 +13,7 @@ A clear and concise description of the proposed feature or visualizer enhancemen
 What problem does this feature solve, or how does it improve the visual learning experience?
 
 ## Proposed Implementation Details
-If applicable, describe how the proposed feature would interact with the UI, step generator engine, or canvas state renderers.
+If applicable, describe how the proposed feature would interact with algorithm step generators, engine dispatch and input handling, visual-state contracts, or canvas renderers.
 
 ## Alternative Solutions
 Describe any alternative solutions or features considered.

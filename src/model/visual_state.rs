@@ -17,7 +17,16 @@ pub enum ProductPhase {
     Complete,
 }
 
-// ── Generic Execution Step ──
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MergeListPhase {
+    PointerMerge,
+    Collecting,
+    SortedValues,
+    Rebuilding,
+    Complete,
+}
+
+// Timeline step shared by every visualizer.
 
 #[derive(Debug, Clone)]
 pub struct Step {
@@ -26,16 +35,8 @@ pub struct Step {
     pub visual: VisualState,
 }
 
-/// ── Canonical Visual State Representations ──
-///
-/// Encapsulates all visual layout state data rendered across the 150 AlgoBuddy problems.
-/// Structured into canonical visual layout categories:
-/// - 1D Array & Sequence Layouts (`Array1D`, `ContainsDuplicate`, `LongestConsecutive`, `Product`)
-/// - Pointer & Window Traces (`TwoPointers`, `BinarySearch`, `BestTimeStock`)
-/// - Memory & LIFO Inspectors (`Stack`, `TwoSum`, `ValidAnagram`, `GroupAnagrams`, `TopK`, `EncodeDecode`)
-/// - Sequential Linkages (`LinkedList`, `MergeLinkedLists`, `LinkedListCycle`)
-/// - Hierarchical Views (`TreeVisual`, `HeapVisual`, `Trie`, `DecisionTreeVisual`)
-/// - Graph & Grid Networks (`GridGraph`, `NodeGraph`, `ValidSudoku`)
+/// Renderer state captured at one point in an algorithm trace.
+/// Each variant is handled by the matching branch in `ui::canvas`.
 #[derive(Debug, Clone)]
 pub enum VisualState {
     ContainsDuplicate {
@@ -109,6 +110,7 @@ pub enum VisualState {
         t: String,
         s_counts: [usize; 26],
         t_counts: [usize; 26],
+        strings_are_sorted: bool,
         active_s_idx: Option<usize>,
         active_t_idx: Option<usize>,
         is_anagram: Option<bool>,
@@ -130,8 +132,8 @@ pub enum VisualState {
         prices: Vec<i32>,
         left_buy: usize,
         right_sell: usize,
-        current_profit: i32,
-        max_profit: i32,
+        current_profit: i64,
+        max_profit: i64,
     },
     BinarySearch {
         nums: Vec<i32>,
@@ -154,12 +156,14 @@ pub enum VisualState {
         p1_idx: Option<usize>,
         p2_idx: Option<usize>,
         merged_so_far: Vec<i32>,
+        phase: MergeListPhase,
     },
     LinkedListCycle {
         nodes: Vec<i32>,
         cycle_target_idx: Option<usize>,
         slow_idx: Option<usize>,
         fast_idx: Option<usize>,
+        visited_indices: BTreeSet<usize>,
         has_cycle: Option<bool>,
     },
     TreeVisual {
@@ -168,6 +172,16 @@ pub enum VisualState {
         secondary_node_idx: Option<usize>,
         depth_val: Option<i32>,
         max_diameter: Option<i32>,
+    },
+    TreeMaxPathVisual {
+        tree_nodes: Vec<Option<i32>>,
+        active_node_idx: Option<usize>,
+        secondary_node_idx: Option<usize>,
+        left_gain: Option<i32>,
+        right_gain: Option<i32>,
+        through_node_sum: Option<i32>,
+        returned_gain: Option<i32>,
+        max_path_sum: Option<i32>,
     },
     HeapVisual {
         heap_elements: Vec<i32>,
@@ -209,10 +223,13 @@ pub enum VisualState {
         status_message: String,
         is_success: Option<bool>,
     },
+    TraceUnavailable {
+        message: String,
+    },
 }
 
 impl VisualState {
-    pub fn variables(&self) -> Vec<(&'static str, String)> {
+    pub fn variables(&self, approach_id: usize) -> Vec<(&'static str, String)> {
         match self {
             VisualState::ContainsDuplicate {
                 active_idx,
@@ -227,8 +244,16 @@ impl VisualState {
                     if let Some(val) = nums.get(*i) {
                         vars.push(("nums[i]", val.to_string()));
                     }
+                    if approach_id == 1 && *i > 0 {
+                        vars.push(("i - 1", (i - 1).to_string()));
+                        if let Some(val) = nums.get(i - 1) {
+                            vars.push(("nums[i - 1]", val.to_string()));
+                        }
+                    }
                 }
-                vars.push(("seen", crate::utils::format_python_set(seen_set)));
+                if approach_id == 0 {
+                    vars.push(("seen", crate::utils::format_python_set(seen_set)));
+                }
                 if let Some(dup) = duplicate_val {
                     vars.push(("duplicate", dup.to_string()));
                 }
@@ -251,13 +276,31 @@ impl VisualState {
                     vars.push(("i", i.to_string()));
                     if let Some(val) = nums.get(*i) {
                         vars.push(("nums[i]", val.to_string()));
-                        vars.push(("diff", (target - val).to_string()));
+                        if approach_id == 0 {
+                            let diff = i64::from(*target) - i64::from(*val);
+                            vars.push(("diff", diff.to_string()));
+                        }
                     }
                 }
                 if let Some(j) = secondary_idx {
-                    vars.push(("prevMap[diff]", j.to_string()));
+                    if approach_id == 0 {
+                        vars.push(("prevMap[diff]", j.to_string()));
+                    } else {
+                        vars.push(("j", j.to_string()));
+                        if let Some(val) = nums.get(*j) {
+                            vars.push(("nums[j]", val.to_string()));
+                        }
+                        if let Some(i) = active_idx {
+                            if let (Some(left), Some(right)) = (nums.get(*i), nums.get(*j)) {
+                                let pair_sum = i64::from(*left) + i64::from(*right);
+                                vars.push(("pair_sum", pair_sum.to_string()));
+                            }
+                        }
+                    }
                 }
-                vars.push(("prevMap", format!("{:?}", map)));
+                if approach_id == 0 {
+                    vars.push(("prevMap", format!("{:?}", map)));
+                }
                 if let Some((a, b)) = found_indices {
                     vars.push(("result", format!("[{}, {}]", a, b)));
                 }
@@ -266,13 +309,19 @@ impl VisualState {
             VisualState::ValidAnagram {
                 s,
                 t,
+                strings_are_sorted,
                 active_s_idx,
                 is_anagram,
                 ..
             } => {
                 let mut vars = Vec::new();
-                vars.push(("s", s.clone()));
-                vars.push(("t", t.clone()));
+                let (s_name, t_name) = if approach_id == 1 && *strings_are_sorted {
+                    ("sorted_s", "sorted_t")
+                } else {
+                    ("s", "t")
+                };
+                vars.push((s_name, s.clone()));
+                vars.push((t_name, t.clone()));
                 if let Some(i) = active_s_idx {
                     vars.push(("i", i.to_string()));
                     let s_chars: Vec<char> = s.chars().collect();
@@ -409,14 +458,19 @@ impl VisualState {
                 vars
             }
             VisualState::TwoPointers {
+                chars,
                 left,
                 right,
                 is_valid,
                 ..
             } => {
                 let mut vars = Vec::new();
-                vars.push(("left", left.to_string()));
-                vars.push(("right", right.to_string()));
+                if approach_id == 1 {
+                    vars.push(("normalized", chars.iter().collect::<String>()));
+                } else {
+                    vars.push(("left", left.to_string()));
+                    vars.push(("right", right.to_string()));
+                }
                 if let Some(v) = is_valid {
                     vars.push(("is_valid", v.to_string()));
                 }
@@ -429,13 +483,17 @@ impl VisualState {
                 chars,
             } => {
                 let mut vars = Vec::new();
-                if let Some(i) = active_idx {
+                if approach_id == 1 {
+                    vars.push(("remaining", chars.iter().collect::<String>()));
+                } else if let Some(i) = active_idx {
                     vars.push(("i", i.to_string()));
                     if let Some(ch) = chars.get(*i) {
                         vars.push(("char", ch.to_string()));
                     }
                 }
-                vars.push(("stack", format!("{:?}", stack)));
+                if approach_id == 0 {
+                    vars.push(("stack", format!("{:?}", stack)));
+                }
                 if let Some(v) = is_valid {
                     vars.push(("is_valid", v.to_string()));
                 }
@@ -449,8 +507,13 @@ impl VisualState {
                 prices,
             } => {
                 let mut vars = Vec::new();
-                vars.push(("buy_day (l)", left_buy.to_string()));
-                vars.push(("sell_day (r)", right_sell.to_string()));
+                let (buy_name, sell_name) = if approach_id == 1 {
+                    ("buy_day (i)", "sell_day (j)")
+                } else {
+                    ("buy_day (l)", "sell_day (r)")
+                };
+                vars.push((buy_name, left_buy.to_string()));
+                vars.push((sell_name, right_sell.to_string()));
                 if let Some(p) = prices.get(*left_buy) {
                     vars.push(("buy_price", format!("${}", p)));
                 }
@@ -471,12 +534,21 @@ impl VisualState {
             } => {
                 let mut vars = Vec::new();
                 vars.push(("target", target.to_string()));
-                vars.push(("left", left.to_string()));
-                vars.push(("right", right.to_string()));
+                if approach_id == 0 {
+                    vars.push(("left", left.to_string()));
+                    vars.push(("right", right.to_string()));
+                }
                 if let Some(m) = mid {
-                    vars.push(("mid", m.to_string()));
+                    vars.push((if approach_id == 1 { "i" } else { "mid" }, m.to_string()));
                     if let Some(val) = nums.get(*m) {
-                        vars.push(("nums[mid]", val.to_string()));
+                        vars.push((
+                            if approach_id == 1 {
+                                "nums[i]"
+                            } else {
+                                "nums[mid]"
+                            },
+                            val.to_string(),
+                        ));
                     }
                 }
                 if let Some(f) = found_idx {
@@ -494,29 +566,45 @@ impl VisualState {
                 let mut vars = Vec::new();
                 if let Some(i) = curr_idx {
                     vars.push((
-                        "curr",
+                        if approach_id == 1 { "frame" } else { "curr" },
                         format!("node[{}]={}", i, nodes.get(*i).unwrap_or(&0)),
                     ));
                 }
                 if let Some(p) = prev_idx {
                     vars.push((
-                        "prev",
+                        if approach_id == 1 {
+                            "linked_child"
+                        } else {
+                            "prev"
+                        },
                         format!("node[{}]={}", p, nodes.get(*p).unwrap_or(&0)),
                     ));
                 }
                 if let Some(n) = next_idx {
                     vars.push((
-                        "next",
+                        if approach_id == 1 {
+                            "recursive_child"
+                        } else {
+                            "next"
+                        },
                         format!("node[{}]={}", n, nodes.get(*n).unwrap_or(&0)),
                     ));
                 }
-                vars.push(("reversed_list", format!("{:?}", reversed_so_far)));
+                vars.push((
+                    if approach_id == 1 {
+                        "reversed_suffix"
+                    } else {
+                        "reversed_list"
+                    },
+                    format!("{:?}", reversed_so_far),
+                ));
                 vars
             }
             VisualState::MergeLinkedLists {
                 p1_idx,
                 p2_idx,
                 merged_so_far,
+                phase,
                 list1,
                 list2,
             } => {
@@ -527,12 +615,20 @@ impl VisualState {
                 if let Some(j) = p2_idx {
                     vars.push(("list2_curr", format!("val={}", list2.get(*j).unwrap_or(&0))));
                 }
-                vars.push(("merged_list", format!("{:?}", merged_so_far)));
+                let values_name = match phase {
+                    MergeListPhase::Collecting => "collected_values",
+                    MergeListPhase::SortedValues => "sorted_values",
+                    MergeListPhase::Rebuilding => "rebuilt_prefix",
+                    _ if approach_id == 1 => "rebuilt_list",
+                    _ => "merged_list",
+                };
+                vars.push((values_name, format!("{:?}", merged_so_far)));
                 vars
             }
             VisualState::LinkedListCycle {
                 slow_idx,
                 fast_idx,
+                visited_indices,
                 has_cycle,
                 nodes,
                 ..
@@ -540,7 +636,11 @@ impl VisualState {
                 let mut vars = Vec::new();
                 if let Some(s) = slow_idx {
                     vars.push((
-                        "slow_ptr",
+                        if approach_id == 1 {
+                            "current_node"
+                        } else {
+                            "slow_ptr"
+                        },
                         format!("idx={} (val={})", s, nodes.get(*s).unwrap_or(&0)),
                     ));
                 }
@@ -549,6 +649,9 @@ impl VisualState {
                         "fast_ptr",
                         format!("idx={} (val={})", f, nodes.get(*f).unwrap_or(&0)),
                     ));
+                }
+                if approach_id == 1 {
+                    vars.push(("seen", format!("{:?}", visited_indices)));
                 }
                 if let Some(c) = has_cycle {
                     vars.push(("has_cycle", c.to_string()));
@@ -576,6 +679,39 @@ impl VisualState {
                 }
                 vars
             }
+            VisualState::TreeMaxPathVisual {
+                active_node_idx,
+                left_gain,
+                right_gain,
+                through_node_sum,
+                returned_gain,
+                max_path_sum,
+                tree_nodes,
+                ..
+            } => {
+                let mut vars = Vec::new();
+                if let Some(idx) = active_node_idx {
+                    if let Some(Some(value)) = tree_nodes.get(*idx) {
+                        vars.push(("curr_node", format!("val={} (idx={})", value, idx)));
+                    }
+                }
+                if let Some(gain) = left_gain {
+                    vars.push(("left_gain", gain.to_string()));
+                }
+                if let Some(gain) = right_gain {
+                    vars.push(("right_gain", gain.to_string()));
+                }
+                if let Some(sum) = through_node_sum {
+                    vars.push(("through_node", sum.to_string()));
+                }
+                if let Some(gain) = returned_gain {
+                    vars.push(("returned_gain", gain.to_string()));
+                }
+                if let Some(best) = max_path_sum {
+                    vars.push(("max_path_sum", best.to_string()));
+                }
+                vars
+            }
             VisualState::HeapVisual {
                 heap_elements,
                 active_idx,
@@ -583,8 +719,22 @@ impl VisualState {
                 heap_type_label,
             } => {
                 let mut vars = Vec::new();
-                vars.push(("heap_type", heap_type_label.clone()));
-                vars.push(("heap_size", heap_elements.len().to_string()));
+                vars.push((
+                    if approach_id == 1 {
+                        "collection_state"
+                    } else {
+                        "heap_type"
+                    },
+                    heap_type_label.clone(),
+                ));
+                vars.push((
+                    if approach_id == 1 {
+                        "collection_size"
+                    } else {
+                        "heap_size"
+                    },
+                    heap_elements.len().to_string(),
+                ));
                 if let Some(i) = active_idx {
                     if let Some(val) = heap_elements.get(*i) {
                         vars.push(("active_elem", format!("val={} (idx={})", val, i)));
@@ -593,7 +743,14 @@ impl VisualState {
                 if let Some((a, b)) = swapped_pair {
                     vars.push(("swapped_pair", format!("indices ({}, {})", a, b)));
                 }
-                vars.push(("array_rep", format!("{:?}", heap_elements)));
+                vars.push((
+                    if approach_id == 1 {
+                        "values"
+                    } else {
+                        "array_rep"
+                    },
+                    format!("{:?}", heap_elements),
+                ));
                 vars
             }
             VisualState::DecisionTreeVisual {
@@ -692,6 +849,7 @@ impl VisualState {
                 }
                 vars
             }
+            VisualState::TraceUnavailable { .. } => Vec::new(),
         }
     }
 }

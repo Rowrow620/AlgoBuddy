@@ -1,47 +1,57 @@
 ---
-name: Problem Audit & Promotion
-about: Audit an existing problem visualizer and promote it to Public Release status
-title: 'audit: "[Problem Name]" (#[LeetCode Number]) to Public Release'
+name: Problem Visualizer Audit
+about: Verify and improve an existing problem visualizer's correctness and synchronization
+title: 'audit: "[Problem Name]" (#[LeetCode Number])'
 labels: 'audit, good first issue, help wanted'
 assignees: ''
 ---
 
-## First Timers Only
-This issue is reserved for developers who are new to AlgoBuddy or open-source contributing. We know that submitting a first pull request can feel intimidating. The goal of this issue is to guide you step-by-step through making your first contribution to the AlgoBuddy repository.
+## First Timers Welcome
 
-## Description of the Issue
-The visualizer for **[Problem Name] (LeetCode #[LeetCode Number])** is currently in Developer Mode (`[EXP]`). We need to audit its step generator, verify active line highlighting, add an automated unit test, and promote it to Public Release status (`AuditStatus::Audited`).
+This issue is designed to be approachable for developers making an early
+open-source contribution. Comment on the issue before starting so it can be
+assigned to you.
 
-## Implementation Steps
-1. Launch AlgoBuddy in Developer Mode: `cargo run -- --dev`
-2. Select **[Problem Name] (#[LeetCode Number])** and scrub through the timeline steps to verify:
-   - Variable snapshots and visual state representations are accurate.
-   - Source code line highlighting (`code_line`) matches the active execution step.
-3. Open `src/app.rs` under `#[cfg(test)] mod tests` and add a unit test asserting step output for a sample test case.
-4. Open `src/model/problem.rs` and update `audit_status(&self)` to include `Problem::[ProblemVariant]`:
-   ```rust
-   match self {
-       Problem::ContainsDuplicate | Problem::TwoSum | Problem::ValidAnagram | Problem::[ProblemVariant] => {
-           AuditStatus::Audited
-       }
-       _ => AuditStatus::Unaudited,
-   }
+## Goal
+
+Audit **[Problem Name] (LeetCode #[LeetCode Number])** and make sure its
+algorithm result, timeline, inspector, code highlighting, and canvas all tell
+the same story.
+
+## Suggested Workflow
+
+1. Launch AlgoBuddy with `cargo run`.
+2. Select the problem and inspect every timeline step for the default input.
+3. Repeat with at least one representative edge case.
+4. Verify that each step has:
+   - the correct algorithm result and intermediate state;
+   - a description matching the highlighted source line;
+   - complete, in-bounds visual data; and
+   - no disappearing, clipped, or misleading rendered state.
+5. Add focused regression coverage in the closest appropriate test module:
+   - next to the generator in `src/algorithms/` for trace behavior;
+   - `src/app/tests.rs` for application-level behavior;
+   - `src/engine/tests.rs` for dispatch and input behavior; or
+   - `src/engine/catalog_tests.rs` for catalog-wide invariants.
+6. Run the contributor quality gates:
+   ```text
+   cargo fmt --all -- --check
+   cargo clippy --all-targets -- -D warnings
+   cargo test --all
    ```
-5. Run `cargo test` to verify all tests pass.
 
 ## Acceptance Criteria
-To merge a pull request for this issue:
-- Code Formatting: `cargo fmt --all -- --check` completes without warnings.
-- All Tests Pass: `cargo test` passes 100% of unit tests.
-- Issue Solved: `[Problem Name]` visualizer appears in Public Release Mode without requiring `--dev`.
-- Clean Git Branch: Changes are committed to a feature branch targeting `dev`.
 
-## Step-by-Step Contribution Guide
-1. Claim this issue: Comment below that you are working on this issue to receive assignment.
-2. Fork and Branch: Create a new branch off `dev` named `audit-[problem-slug]`.
-3. Make and Test Changes: Run `cargo fmt --all` and `cargo test` locally to verify build health.
-4. Submit PR: Push your branch to GitHub and create a Pull Request targeting the `dev` branch.
+- [ ] The default result and one edge-case result are correct.
+- [ ] Timeline descriptions, source lines, inspector values, and canvas state
+      remain synchronized.
+- [ ] The visualizer remains usable with Play, Pause, Prev, Next, scrub, and
+      Reset.
+- [ ] Focused regression coverage is included where practical.
+- [ ] Formatting, Clippy, and all tests pass.
+- [ ] The pull request targets the `dev` branch and links this issue.
 
-## Additional Information
+## Helpful Links
+
 - [Contributing Guide](https://github.com/Rowrow620/AlgoBuddy/blob/dev/CONTRIBUTING.md)
 - [README](https://github.com/Rowrow620/AlgoBuddy/blob/dev/README.md)

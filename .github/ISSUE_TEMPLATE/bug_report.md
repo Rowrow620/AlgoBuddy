@@ -20,9 +20,9 @@ A clear and concise description of the bug.
 A clear description of what you expected to happen.
 
 ## Platform Environment
-- OS: [e.g. Windows 11, macOS Sonoma, Ubuntu 22.04, WASM / Browser]
-- Browser (if WASM): [e.g. Chrome 125, Firefox 126, Safari 17]
-- Application Version: [e.g. v0.5.0]
+- OS: [exact operating system and version, or WASM / Browser]
+- Browser (if WASM): [browser name and exact version]
+- Application Version: [release tag or commit SHA]
 
 ## Screenshots / Console Output
 If applicable, attach screenshots or terminal logs to help explain the issue.

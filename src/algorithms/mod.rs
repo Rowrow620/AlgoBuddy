@@ -34,7 +34,6 @@ pub mod house_robber;
 pub mod koko_bananas;
 pub mod kth_largest_stream;
 pub mod largest_rectangle;
-pub mod last_stone;
 pub mod length_of_longest_substring;
 pub mod linked_list_cycle;
 pub mod linked_list_full;

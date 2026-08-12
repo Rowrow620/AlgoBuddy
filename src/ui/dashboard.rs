@@ -15,11 +15,11 @@ pub fn render_fullscreen_roadmap_dashboard(
     egui::CentralPanel::default()
         .frame(Frame::none().fill(p.sidebar_bg).inner_margin(24.0))
         .show(ctx, |ui| {
-            // Top Navigation & Action Bar
+            // Dashboard navigation.
             ui.horizontal(|ui| {
                 if ui
                     .button(
-                        RichText::new("◀ Back to Visualizer")
+                        RichText::new("Back to Visualizer")
                             .strong()
                             .color(p.cyan)
                             .size(14.0),
@@ -30,7 +30,7 @@ pub fn render_fullscreen_roadmap_dashboard(
                 }
                 ui.add_space(16.0);
                 ui.heading(
-                    RichText::new("🏆 NeetCode 150 Mastery Dashboard")
+                    RichText::new("NeetCode 150 Mastery Dashboard")
                         .color(p.amber)
                         .strong()
                         .size(20.0),
@@ -69,9 +69,8 @@ pub fn render_fullscreen_roadmap_dashboard(
             ui.separator();
             ui.add_space(16.0);
 
-            // 2-Column Dashboard Layout
+            // Keep category progress and the problem launcher in separate columns.
             ui.columns(2, |cols| {
-                // Left Column: Category Progress List
                 cols[0].heading(
                     RichText::new("Category Completion Breakdown")
                         .color(p.cyan)
@@ -133,18 +132,24 @@ pub fn render_fullscreen_roadmap_dashboard(
                                         );
                                     });
                                     ui.add_space(4.0);
+                                    let ratio = solved_in_cat as f32 / total_in_cat as f32;
+
+                                    let progress_fill = if ratio > 0.75 {
+                                        p.emerald_text
+                                    } else if ratio >= 0.25 {
+                                        p.cyan
+                                    } else {
+                                        p.amber
+                                    };
+
                                     ui.add(
-                                        egui::ProgressBar::new(
-                                            solved_in_cat as f32 / total_in_cat as f32,
-                                        )
-                                        .text(""),
+                                        egui::ProgressBar::new(ratio).fill(progress_fill).text(""),
                                     );
                                 });
                             ui.add_space(6.0);
                         }
                     });
 
-                // Right Column: Problem Completion & Launcher Grid
                 cols[1].heading(
                     RichText::new("Implemented Problems & Checkmarks")
                         .color(p.amber)

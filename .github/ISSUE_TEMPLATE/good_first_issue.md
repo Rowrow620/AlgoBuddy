@@ -1,6 +1,6 @@
 ---
 name: Good First Issue
-about: Create a beginner-friendly issue template for new open-source contributors
+about: Complete a guided, beginner-friendly AlgoBuddy contribution
 title: '[good first issue] '
 labels: 'good first issue, help wanted'
 assignees: ''
@@ -18,19 +18,20 @@ This issue is reserved for developers who are new to AlgoBuddy or open-source co
 ## Implementation Steps
 1. Open `[file path]` and locate `[function name]`.
 2. [Step-by-step implementation guide with code snippets if applicable]
-3. Test locally using `cargo run` or `cargo test`.
+3. Test locally using `cargo run` and the complete quality gates below.
 
 ## Acceptance Criteria
 To merge a pull request for this issue:
 - Code Formatting: `cargo fmt --all -- --check` completes without warnings.
-- All Tests Pass: `cargo test` passes 100% of unit tests.
+- Strict Clippy: `cargo clippy --all-targets -- -D warnings` produces no warnings.
+- All Tests Pass: `cargo test --all` passes the complete test suite.
 - Issue Solved: The implementation fully addresses the requirements described above.
 - Clean Git Branch: Changes are committed to a feature branch targeting `dev`.
 
 ## Step-by-Step Contribution Guide
 1. Claim this issue: Comment below that you are working on this issue to receive assignment.
 2. Fork and Branch: Create a new branch off `dev` named `issue-[id]-[feature-name]`.
-3. Make and Test Changes: Run `cargo fmt --all` and `cargo test` locally to verify build health.
+3. Make and Test Changes: Run `cargo fmt --all -- --check`, `cargo clippy --all-targets -- -D warnings`, and `cargo test --all` locally to verify build health.
 4. Submit PR: Push your branch to GitHub and create a Pull Request targeting the `dev` branch.
 
 ## Additional Information

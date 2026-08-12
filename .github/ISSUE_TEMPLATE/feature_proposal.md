@@ -2,7 +2,7 @@
 name: Feature Proposal / RFC
 about: Pitch a new feature, visualizer improvement, or architecture enhancement and propose its technical implementation plan
 title: 'proposal: '
-labels: 'enhancement, proposal, rfc'
+labels: 'enhancement'
 assignees: ''
 ---
 
@@ -16,10 +16,10 @@ assignees: ''
 Describe how this feature will interact with the AlgoBuddy codebase:
 
 1. **Affected Modules**:
-   - [ ] `src/ui/` (UI layout, panels, canvas renderers, theme palette)
-   - [ ] `src/engine.rs` (Deterministic timeline generation)
-   - [ ] `src/model/` (Problem definitions, taxonomy, visual state enum)
-   - [ ] `src/algorithms/` (Step snapshot generators)
+   - [ ] `src/ui/` and `src/ui/canvas/` (UI layout, panels, renderers, theme palette)
+   - [ ] `src/engine.rs` and `src/engine/` (dispatch, recomputation, input handling, and catalog tests)
+   - [ ] `src/model/` and `src/model/visual_state.rs` (problem metadata, taxonomy, and visual-state contracts)
+   - [ ] `src/algorithms/` (step snapshot generators)
 
 2. **Data Structures & State**:
    [Describe any new fields in `VisualizerApp` or variants added to `VisualState`]

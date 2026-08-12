@@ -8,7 +8,10 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
                 statement: "Choose a single day to buy and a future day to sell to maximize profit.",
                 examples: &[Example { input: "prices = [10, 1, 5, 6, 7, 1]", output: "6", explanation: "Buy at 1, sell at 7." }],
                 constraints: &["1 <= prices.length <= 100"], leetcode_url: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
-                approaches: &[ApproachMeta { id: 0, name: "Two Pointers / Sliding Window", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Tracking the minimum buy price while scanning linear prices computes max profit in one O(N) pass with O(1) space.", description: "Min buy pointer, running max profit." }],
+                approaches: &[
+                    ApproachMeta { id: 0, name: "Two Pointers / Sliding Window", time_complexity: "O(N)", space_complexity: "O(1)", rationale: "Tracking the minimum buy price while scanning linear prices computes max profit in one O(N) pass with O(1) space.", description: "Min buy pointer, running max profit." },
+                    ApproachMeta { id: 1, name: "Brute Force Pair Scan", time_complexity: "O(N^2)", space_complexity: "O(1)", rationale: "Trying every valid buy day and later sell day is the simplest baseline, but the number of transactions grows quadratically.", description: "Compare the profit from every buy and sell day pair." },
+                ],
             }),
         Problem::LongestSubstring => Some(ProblemDetails {
                 id: 3, title: "Longest Substring Without Repeating Characters", difficulty: Difficulty::Medium, category: Category::SlidingWindow,
@@ -51,16 +54,29 @@ pub fn get_details(problem: Problem) -> Option<ProblemDetails> {
 
 pub fn get_code_lines(problem: Problem, approach_id: usize) -> Option<Vec<(usize, &'static str)>> {
     match (problem, approach_id) {
-        (Problem::BestTimeStock, _) => Some(vec![
+        (Problem::BestTimeStock, 0) => Some(vec![
             (1, "class Solution:"),
             (2, "    def maxProfit(self, prices: List[int]) -> int:"),
             (3, "        l, r = 0, 1; maxP = 0"),
             (4, "        while r < len(prices):"),
             (5, "            if prices[l] < prices[r]:"),
-            (6, "                maxP = max(maxP, prices[r] - prices[l])"),
-            (7, "            else: l = r"),
-            (8, "            r += 1"),
-            (9, "        return maxP"),
+            (6, "                profit = prices[r] - prices[l]"),
+            (7, "                maxP = max(maxP, profit)"),
+            (8, "            else:"),
+            (9, "                # A lower price is a better buying opportunity"),
+            (10, "                l = r"),
+            (11, "            r += 1"),
+            (12, "        return maxP"),
+        ]),
+        (Problem::BestTimeStock, 1) => Some(vec![
+            (1, "class Solution:"),
+            (2, "    def maxProfit(self, prices: List[int]) -> int:"),
+            (3, "        max_profit = 0"),
+            (4, "        for buy in range(len(prices)):"),
+            (5, "            for sell in range(buy + 1, len(prices)):"),
+            (6, "                profit = prices[sell] - prices[buy]"),
+            (7, "                max_profit = max(max_profit, profit)"),
+            (8, "        return max_profit"),
         ]),
         (Problem::LongestSubstring, _) => Some(vec![
             (1, "class Solution:"),

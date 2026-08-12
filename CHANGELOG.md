@@ -5,6 +5,38 @@ All notable changes to the AlgoBuddy project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.9.0] - 2026-08-10
+
+### Added
+- Added catalog-wide regression coverage for all 150 problems, checking metadata, approach traces, source-line references, placeholder implementations, and visual-state bounds.
+- Added focused regression tests for engine dispatch and repaired algorithm traces.
+- Added `RELEASING.md` and `scripts/release-check.ps1` to standardize version checks, formatting, Clippy, tests, native builds, and WebAssembly release builds.
+- Added hover guidance for playback controls and speed, including their keyboard shortcuts.
+
+### Changed
+- Split engine dispatch, graph algorithms and metadata, canvas renderers, and test code into smaller contributor-friendly modules.
+- Expanded the visual-state model to 24 typed variants, including a dedicated Binary Tree Maximum Path Sum state.
+- Updated contribution documentation and issue/PR templates to emphasize edge cases and synchronization between timeline descriptions, inspector state, rendered state, and highlighted code.
+- Replaced emoji in maintained UI labels, HTML fallback text, workflow comments, and contributor-facing text with plain language.
+- Updated dashboard progress bars to use the active theme palette.
+- Simplified the Reset button label while retaining its `R` shortcut in the tooltip.
+
+### Fixed
+- Fixed Group Anagrams rendering so every HashMap bucket remains visible when a new signature is added.
+- Fixed Valid Palindrome match steps so pointer state, descriptions, source highlighting, and invariants remain synchronized.
+- Fixed Min Stack traces to preserve integer values and accurately represent stack state and source lines.
+- Fixed Generate Parentheses prefix indices and completion-state semantics.
+- Replaced the placeholder Merge K Sorted Lists flatten-and-sort trace with a bounded min-heap implementation and matching visualization.
+- Fixed Max Area of Island to compute and trace island area instead of reusing the Number of Islands result.
+- Fixed Construct Binary Tree to reconstruct from both preorder and inorder traversals and emit progressive tree states.
+- Fixed Binary Tree Maximum Path Sum to compute post-order gains and display the running maximum path sum.
+- Corrected stale source-line mappings across several array, stack, heap, linked-list, dynamic-programming, interval, bit, and math traces.
+
+### Removed
+- Removed the redundant public/developer mode split and problem audit-status gating. All 150 problems are now always available.
+
 ## [0.8.1] - 2026-07-31
 
 ### Fixed
@@ -21,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Derive `Hash` for `Problem`**: Derived `Hash` on `Problem` enum for type-safe key indexing in state stores.
-- **Comprehensive Documentation**: Updated `README.md`, `CONTRIBUTING.md`, and `walkthrough.md` to reflect the Phase 2 architecture and 100% Public Release status.
+- **Comprehensive Documentation**: Updated `README.md` and `CONTRIBUTING.md` to reflect the Phase 2 architecture and public release status.
 
 ## [0.7.1] - 2026-07-31
 
@@ -57,7 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CodeQL static security analysis workflow integration.
 - Dependabot configuration for Cargo crates and GitHub Actions updates.
 - Automated WebAssembly deployment workflow for GitHub Pages.
-- Open Source community guidelines, Security Policy, Code of Conduct, and Issue / Pull Request templates.
+- Added issue and pull request templates for open-source contributions.
 
 ### Fixed
 - Fixed Roadmap Sidebar collapsible header expand state and text truncation behavior.

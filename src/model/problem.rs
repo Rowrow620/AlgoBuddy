@@ -29,7 +29,19 @@ pub struct ProblemDetails {
     pub approaches: &'static [ApproachMeta],
 }
 
-// ── Problem Enum (34 Problems) ──
+impl ProblemDetails {
+    pub fn approach_by_id(&self, approach_id: usize) -> Option<&'static ApproachMeta> {
+        self.approaches
+            .iter()
+            .find(|approach| approach.id == approach_id)
+    }
+
+    pub fn default_approach_id(&self) -> usize {
+        self.approaches.first().map_or(0, |approach| approach.id)
+    }
+}
+
+// ── Problem Enum (150 Problems) ──
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Problem {
@@ -55,6 +67,7 @@ pub enum Problem {
     BalancedTree,
     SameTree,
     Subtree,
+    LowestCommonAncestorBst,
     ClimbingStairs,
     MinCostStairs,
     KthLargestStream,
@@ -63,7 +76,6 @@ pub enum Problem {
     HappyNumber,
     PlusOne,
     SingleNumber,
-    CountBits,
     CountingBits,
     ReverseBits,
     MissingNumber,
@@ -178,32 +190,14 @@ pub enum Problem {
     BinaryTreeLevelOrderTraversal,
     BinaryTreeRightSideView,
     CountGoodNodes,
+    ValidateBinarySearchTree,
     KthSmallestElementBst,
     ConstructBinaryTreePreorderInorder,
     BinaryTreeMaxPathSum,
     SerializeDeserializeBinaryTree,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub enum AuditStatus {
-    Audited,
-    Unaudited,
-}
-
 impl Problem {
-    pub fn audit_status(&self) -> AuditStatus {
-        #[allow(clippy::match_single_binding)]
-        match self {
-            // Add future unaudited problems here:
-            // Problem::NewProblem => AuditStatus::Unaudited,
-            _ => AuditStatus::Audited,
-        }
-    }
-
-    pub fn is_audited(&self) -> bool {
-        self.audit_status() == AuditStatus::Audited
-    }
-
     pub fn all() -> &'static [Problem] {
         &[
             Problem::ContainsDuplicate,
@@ -228,6 +222,7 @@ impl Problem {
             Problem::BalancedTree,
             Problem::SameTree,
             Problem::Subtree,
+            Problem::LowestCommonAncestorBst,
             Problem::ImplementTrie,
             Problem::WordDictionary,
             Problem::WordSearchII,
@@ -263,7 +258,6 @@ impl Problem {
             Problem::HappyNumber,
             Problem::PlusOne,
             Problem::SingleNumber,
-            Problem::CountBits,
             Problem::CountingBits,
             Problem::ReverseBits,
             Problem::MissingNumber,
@@ -327,7 +321,6 @@ impl Problem {
             Problem::EvalRPN,
             Problem::LongestSubstring,
             Problem::Search2DMatrix,
-            Problem::HouseRobber,
             Problem::GenerateParentheses,
             Problem::DailyTemperatures,
             Problem::CarFleet,
@@ -352,6 +345,7 @@ impl Problem {
             Problem::BinaryTreeLevelOrderTraversal,
             Problem::BinaryTreeRightSideView,
             Problem::CountGoodNodes,
+            Problem::ValidateBinarySearchTree,
             Problem::KthSmallestElementBst,
             Problem::ConstructBinaryTreePreorderInorder,
             Problem::BinaryTreeMaxPathSum,
@@ -386,7 +380,7 @@ impl Problem {
             Problem::EncodeDecode => Some("encoded = str.len() + '#' + str"),
             Problem::ValidSudoku => Some("val ∉ row[r] ∩ col[c] ∩ box[r//3, c//3]"),
             Problem::LongestConsecutive => Some("if (num - 1) ∉ set ➔ streak start"),
-            Problem::ValidPalindrome => Some("s[left].lower() == s[right].lower()"),
+            Problem::ValidPalindrome => Some("all previously compared alphanumeric pairs matched"),
             Problem::BestTimeStock => Some("profit = max(0, prices[r] - prices[l])"),
             Problem::ValidParentheses => Some("open ➔ push(c), close ➔ pop() == match(c)"),
             Problem::BinarySearch => Some("mid = left + (right - left) // 2"),
@@ -409,9 +403,7 @@ impl Problem {
             Problem::HappyNumber => Some("n = ∑(digit²)  ➔  detect cycle in HashSet"),
             Problem::PlusOne => Some("digits[i] = (digits[i] + 1) % 10"),
             Problem::SingleNumber => Some("a ⊕ a = 0  ➔  res ^= n"),
-            Problem::CountBits | Problem::Number1Bits => {
-                Some("n = n & (n - 1)  ➔  clears lowest set bit")
-            }
+            Problem::Number1Bits => Some("n = n & (n - 1)  ➔  clears lowest set bit"),
             Problem::CountingBits => Some("dp[i] = 1 + dp[i - offset]"),
             Problem::ReverseBits => Some("bit = (n >> i) & 1  ➔  res |= bit << (31 - i)"),
             Problem::MissingNumber => Some("∑(0..n) - ∑(nums)  ➔  res ^= i ⊕ nums[i]"),
@@ -419,11 +411,17 @@ impl Problem {
             Problem::ThreeSum => Some("a + nums[l] + nums[r] == 0"),
             Problem::ContainerWater => Some("area = (r - l) × min(h[l], h[r])"),
             Problem::TrappingRain => Some("water[i] = min(max_L, max_R) - height[i]"),
-            Problem::MinStack => Some("min_stack.push(min(val, min_stack[-1]))"),
+            Problem::MinStack => {
+                Some("min_stack.push(min(val, min_stack[-1] if min_stack else val))")
+            }
             Problem::EvalRPN => Some("b = pop(), a = pop() ➔ push(a op b)"),
             Problem::LongestSubstring => Some("while s[r] ∈ set ➔ set.remove(s[l]); l++"),
             Problem::Search2DMatrix => Some("val = matrix[m // COLS][m % COLS]"),
             Problem::HouseRobber => Some("rob[i] = max(rob[i-1], rob[i-2] + nums[i])"),
+            Problem::LowestCommonAncestorBst => {
+                Some("p, q < root: search left; p, q > root: search right")
+            }
+            Problem::ValidateBinarySearchTree => Some("lower < node.val < upper"),
             Problem::GenerateParentheses => Some("open < n ➔ '(', closed < open ➔ ')'"),
             Problem::DailyTemperatures => Some("while t > stack[-1].val ➔ pop() & dist = i - idx"),
             Problem::CarFleet => Some("time = (target - p) / s; if t ≤ prev ➔ fleet merge"),
@@ -454,6 +452,47 @@ impl Problem {
             Problem::LongestIncreasingSubsequence => {
                 Some("if nums[j] < nums[i] ➔ dp[i] = max(1 + dp[j])")
             }
+            _ => None,
+        }
+    }
+
+    pub fn formula_for_approach(&self, approach_id: usize) -> Option<&'static str> {
+        match (self, approach_id) {
+            (Problem::ContainsDuplicate, 1) => Some("nums[i - 1] == nums[i]"),
+            (Problem::TwoSum, 1) => Some("nums[i] + nums[j] == target"),
+            (Problem::ValidAnagram, 1) => Some("sorted(s) == sorted(t)"),
+            (Problem::ValidPalindrome, 1) => Some("normalized == reversed(normalized)"),
+            (Problem::BestTimeStock, 1) => {
+                Some("max(0, max(prices[sell] - prices[buy]) for buy < sell)")
+            }
+            (Problem::ValidParentheses, 1) => {
+                Some("remove (), [], and {} pairs until no pair remains")
+            }
+            (Problem::BinarySearch, 1) => Some("first index where nums[i] == target"),
+            (Problem::ReverseLinkedList, 1) => Some("head.next.next = head; head.next = None"),
+            (Problem::MergeTwoLists, 1) => Some("sorted(values(list1) + values(list2))"),
+            (Problem::LinkedListCycle, 1) => Some("current node is already in visited"),
+            (Problem::InvertTree, 1) => Some("queue each node after swapping its children"),
+            (Problem::MaxDepthTree, 1) => Some("depth = number of completed BFS levels"),
+            (Problem::DiameterTree, 1) => Some("max(height(node.left) + height(node.right))"),
+            (Problem::BalancedTree, 1) => Some("abs(height(node.left) - height(node.right)) <= 1"),
+            (Problem::SameTree, 1) => Some("each queued node pair has equal structure and value"),
+            (Problem::Subtree, 1) => Some("serialize(subRoot) is contained in serialize(root)"),
+            (Problem::ClimbingStairs, 1) => Some("climb(n) = climb(n - 1) + climb(n - 2)"),
+            (Problem::MinCostStairs, 1) => {
+                Some("cost(i) = cost[i] + min(cost(i + 1), cost(i + 2))")
+            }
+            (Problem::KthLargestStream, 1) => Some("sorted(values)[len(values) - k]"),
+            (Problem::LastStone, 1) => Some("repeatedly select and smash the two largest stones"),
+            (Problem::MeetingRooms, 1) => Some("every pair of meeting intervals is disjoint"),
+            (Problem::HappyNumber, 1) => Some("next = sum(digit * digit); next not in history"),
+            (Problem::PlusOne, 1) => Some("int(join(digits)) + 1"),
+            (Problem::SingleNumber, 1) => Some("nums.count(value) == 1"),
+            (Problem::CountingBits, 1) => Some("bits[i] = popcount(i)"),
+            (Problem::ReverseBits, 1) => Some("reverse the 32-character binary representation"),
+            (Problem::MissingNumber, 1) => Some("candidate in 0..n where candidate not in nums"),
+            (Problem::Number1Bits, 1) => Some("sum((n >> bit) & 1 for bit in range(32))"),
+            (_, 0) => self.formula(),
             _ => None,
         }
     }

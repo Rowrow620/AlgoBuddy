@@ -2,6 +2,25 @@ use eframe::egui;
 use web_time::Instant;
 
 use crate::model::*;
+use crate::shortcuts::{
+    shortcut_actions_for_events, ShortcutAction, ShortcutBindings, SHORTCUTS_STORAGE_KEY,
+};
+
+pub(crate) const CANVAS_ZOOM_MIN: f32 = 0.7;
+pub(crate) const CANVAS_ZOOM_MAX: f32 = 2.2;
+pub(crate) const CANVAS_ZOOM_STEP: f32 = 0.1;
+pub(crate) const CANVAS_ZOOM_DEFAULT: f32 = 1.0;
+pub(crate) const PLAYBACK_SPEED_MIN_MS: u64 = 125;
+pub(crate) const PLAYBACK_SPEED_MAX_MS: u64 = 2000;
+pub(crate) const PLAYBACK_SPEED_STEP_MS: u64 = 100;
+
+pub(crate) fn canvas_zoom_in(zoom: f32) -> f32 {
+    (zoom + CANVAS_ZOOM_STEP).min(CANVAS_ZOOM_MAX)
+}
+
+pub(crate) fn canvas_zoom_out(zoom: f32) -> f32 {
+    (zoom - CANVAS_ZOOM_STEP).max(CANVAS_ZOOM_MIN)
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RightTab {
@@ -15,18 +34,34 @@ pub enum ViewMode {
     RoadmapDashboard,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SettingsPage {
+    General,
+    KeyboardShortcuts,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SettingsFocusTarget {
+    KeyboardMenuButton,
+    ShortcutBackButton,
+}
+
 pub struct VisualizerApp {
-    // Theme & Settings
+    // Theme and persistent settings.
     pub(crate) theme: Theme,
     pub(crate) colorblind_mode: ColorblindMode,
+    pub(crate) shortcut_bindings: ShortcutBindings,
+    pub(crate) shortcut_capture: Option<ShortcutAction>,
+    pub(crate) shortcut_rebind_error: Option<String>,
     pub(crate) show_settings_modal: bool,
+    pub(crate) settings_page: SettingsPage,
+    pub(crate) settings_focus_target: Option<SettingsFocusTarget>,
     pub(crate) show_reset_confirm_modal: bool,
-    pub(crate) show_unaudited: bool,
     pub(crate) view_mode: ViewMode,
     pub(crate) completed_problems: std::collections::HashSet<u32>,
     pub(crate) favorite_problems: std::collections::HashSet<u32>,
 
-    // Navigation state & Sidebar Visibility
+    // Navigation and sidebar state.
     pub(crate) show_roadmap_sidebar: bool,
     pub(crate) show_right_sidebar: bool,
     pub(crate) current_problem: Problem,
@@ -35,13 +70,13 @@ pub struct VisualizerApp {
     pub(crate) search_query: String,
     pub(crate) right_tab: RightTab,
 
-    // Dynamic input state maps
+    // Per-problem input state.
     pub(crate) input_strings: std::collections::HashMap<(Problem, &'static str), String>,
     pub(crate) input_integers: std::collections::HashMap<(Problem, &'static str), i32>,
 
     pub(crate) sudoku_preset_valid: bool,
 
-    // Playback state
+    // Timeline playback state.
     pub(crate) steps: Vec<Step>,
     pub(crate) current_step_idx: usize,
     pub(crate) is_playing: bool,
@@ -59,9 +94,13 @@ impl Default for VisualizerApp {
         let mut app = Self {
             theme: Theme::DarkVSCode, // Default to user's favorite VS Code Dark style!
             colorblind_mode: ColorblindMode::Off,
+            shortcut_bindings: ShortcutBindings::default(),
+            shortcut_capture: None,
+            shortcut_rebind_error: None,
             show_settings_modal: false,
+            settings_page: SettingsPage::General,
+            settings_focus_target: None,
             show_reset_confirm_modal: false,
-            show_unaudited: false, // Default: Only show 100% Audited problems in Public Release!
             view_mode: ViewMode::Visualizer,
             completed_problems: std::collections::HashSet::new(),
             favorite_problems: std::collections::HashSet::new(),
@@ -85,7 +124,7 @@ impl Default for VisualizerApp {
             playback_speed_ms: 500,
             last_step_time: Instant::now(),
 
-            canvas_zoom: 1.0,
+            canvas_zoom: CANVAS_ZOOM_DEFAULT,
             last_focused_step_idx: None,
             #[cfg(not(target_arch = "wasm32"))]
             is_fullscreen: false,
@@ -97,7 +136,7 @@ impl Default for VisualizerApp {
 }
 
 impl VisualizerApp {
-    // ── Input State Map Helpers ──
+    // Input state helpers.
 
     pub fn get_input_str<'a>(
         &'a self,
@@ -148,16 +187,8 @@ impl VisualizerApp {
         self.input_integers.insert((problem, key), val);
     }
 
-    pub fn set_show_unaudited(&mut self, show: bool) {
-        self.show_unaudited = show;
-    }
-
     pub fn visible_problems(&self) -> Vec<Problem> {
-        Problem::all()
-            .iter()
-            .copied()
-            .filter(|p| p.is_audited() || self.show_unaudited)
-            .collect()
+        Problem::all().to_vec()
     }
 
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
@@ -191,6 +222,11 @@ impl VisualizerApp {
             {
                 app.colorblind_mode = mode;
             }
+            if let Some(bindings) =
+                eframe::get_value::<ShortcutBindings>(storage, SHORTCUTS_STORAGE_KEY)
+            {
+                app.shortcut_bindings = bindings.validated_or_default();
+            }
             if let Some(speed) = eframe::get_value::<u64>(storage, "algobuddy_playback_speed_ms") {
                 app.playback_speed_ms = speed;
             }
@@ -203,9 +239,6 @@ impl VisualizerApp {
                 eframe::get_value::<bool>(storage, "algobuddy_show_right_sidebar")
             {
                 app.show_right_sidebar = show_right;
-            }
-            if let Some(show_un) = eframe::get_value::<bool>(storage, "algobuddy_show_unaudited") {
-                app.show_unaudited = show_un;
             }
         }
         app
@@ -267,6 +300,155 @@ impl VisualizerApp {
     pub(crate) fn select_problem(&mut self, problem: Problem) {
         crate::engine::select_problem(self, problem);
     }
+
+    pub(crate) fn select_approach(&mut self, approach_id: usize) -> bool {
+        crate::engine::select_approach(self, approach_id)
+    }
+
+    pub(crate) fn perform_shortcut_action(&mut self, action: ShortcutAction) {
+        match action {
+            ShortcutAction::PlayPause => {
+                if !self.is_playing && self.current_step_idx >= self.steps.len().saturating_sub(1) {
+                    self.current_step_idx = 0;
+                }
+                self.is_playing = !self.is_playing;
+                self.last_step_time = Instant::now();
+            }
+            ShortcutAction::PreviousStep => {
+                self.is_playing = false;
+                self.current_step_idx = self.current_step_idx.saturating_sub(1);
+            }
+            ShortcutAction::NextStep => {
+                self.is_playing = false;
+                if self.current_step_idx < self.steps.len().saturating_sub(1) {
+                    self.current_step_idx += 1;
+                }
+            }
+            ShortcutAction::ResetTimeline => {
+                self.is_playing = false;
+                self.current_step_idx = 0;
+            }
+            ShortcutAction::SpeedUp => {
+                self.playback_speed_ms = self
+                    .playback_speed_ms
+                    .saturating_sub(PLAYBACK_SPEED_STEP_MS)
+                    .max(PLAYBACK_SPEED_MIN_MS);
+            }
+            ShortcutAction::SpeedDown => {
+                self.playback_speed_ms = self
+                    .playback_speed_ms
+                    .saturating_add(PLAYBACK_SPEED_STEP_MS)
+                    .min(PLAYBACK_SPEED_MAX_MS);
+            }
+            ShortcutAction::ZoomIn => {
+                self.canvas_zoom = canvas_zoom_in(self.canvas_zoom);
+            }
+            ShortcutAction::ZoomOut => {
+                self.canvas_zoom = canvas_zoom_out(self.canvas_zoom);
+            }
+            ShortcutAction::ResetZoom => {
+                self.canvas_zoom = CANVAS_ZOOM_DEFAULT;
+            }
+        }
+    }
+
+    pub(crate) fn open_settings(&mut self) {
+        self.show_settings_modal = true;
+        self.settings_page = SettingsPage::General;
+        self.settings_focus_target = None;
+        self.cancel_shortcut_capture();
+    }
+
+    pub(crate) fn open_shortcut_settings(&mut self) {
+        self.settings_page = SettingsPage::KeyboardShortcuts;
+        self.settings_focus_target = Some(SettingsFocusTarget::ShortcutBackButton);
+        self.cancel_shortcut_capture();
+    }
+
+    pub(crate) fn return_to_general_settings(&mut self) {
+        self.settings_page = SettingsPage::General;
+        self.settings_focus_target = Some(SettingsFocusTarget::KeyboardMenuButton);
+        self.cancel_shortcut_capture();
+    }
+
+    pub(crate) fn close_settings(&mut self) {
+        self.show_settings_modal = false;
+        self.settings_page = SettingsPage::General;
+        self.settings_focus_target = None;
+        self.cancel_shortcut_capture();
+    }
+
+    pub(crate) fn begin_shortcut_capture(&mut self, action: ShortcutAction, ctx: &egui::Context) {
+        self.shortcut_capture = Some(action);
+        self.shortcut_rebind_error = None;
+        ctx.memory_mut(|memory| memory.stop_text_input());
+    }
+
+    pub(crate) fn cancel_shortcut_capture(&mut self) {
+        self.shortcut_capture = None;
+        self.shortcut_rebind_error = None;
+    }
+
+    pub(crate) fn apply_shortcut_capture_key(
+        &mut self,
+        key: egui::Key,
+        modifiers: egui::Modifiers,
+        repeat: bool,
+    ) {
+        let Some(action) = self.shortcut_capture else {
+            return;
+        };
+
+        if repeat {
+            return;
+        }
+        if key == egui::Key::Escape {
+            self.cancel_shortcut_capture();
+            return;
+        }
+        if modifiers.alt || modifiers.ctrl || modifiers.command || modifiers.mac_cmd {
+            self.shortcut_rebind_error =
+                Some("Use one key without Ctrl, Command, or Alt.".to_owned());
+            return;
+        }
+
+        match self.shortcut_bindings.try_rebind(action, key) {
+            Ok(()) => self.cancel_shortcut_capture(),
+            Err(error) => self.shortcut_rebind_error = Some(error.to_string()),
+        }
+    }
+
+    fn process_shortcut_capture_input(&mut self, ctx: &egui::Context) {
+        let captured_key = ctx.input_mut(|input| {
+            let captured = input.events.iter().find_map(|event| match event {
+                egui::Event::Key {
+                    key,
+                    pressed: true,
+                    repeat: false,
+                    modifiers,
+                    ..
+                } => Some((*key, *modifiers)),
+                _ => None,
+            });
+
+            input.events.retain(|event| {
+                !matches!(
+                    event,
+                    egui::Event::Key { pressed: true, .. } | egui::Event::Text(_)
+                )
+            });
+            captured
+        });
+
+        if let Some((key, modifiers)) = captured_key {
+            self.apply_shortcut_capture_key(key, modifiers, false);
+        }
+    }
+
+    pub(crate) fn restore_default_shortcuts(&mut self) {
+        self.shortcut_bindings = ShortcutBindings::default();
+        self.cancel_shortcut_capture();
+    }
 }
 
 impl eframe::App for VisualizerApp {
@@ -283,6 +465,7 @@ impl eframe::App for VisualizerApp {
         );
         eframe::set_value(storage, "algobuddy_theme", &self.theme);
         eframe::set_value(storage, "algobuddy_colorblind_mode", &self.colorblind_mode);
+        eframe::set_value(storage, SHORTCUTS_STORAGE_KEY, &self.shortcut_bindings);
         eframe::set_value(
             storage,
             "algobuddy_playback_speed_ms",
@@ -298,50 +481,37 @@ impl eframe::App for VisualizerApp {
             "algobuddy_show_right_sidebar",
             &self.show_right_sidebar,
         );
-        eframe::set_value(storage, "algobuddy_show_unaudited", &self.show_unaudited);
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        // ── Keyboard Shortcuts (Only active when not typing in text fields) ──
+        // Keep global shortcuts out of focused controls and modal dialogs.
+        let capture_was_active = self.shortcut_capture.is_some();
+        if capture_was_active {
+            self.process_shortcut_capture_input(ctx);
+        }
+
         #[cfg(not(target_arch = "wasm32"))]
         let mut toggle_fs = false;
-        if !ctx.wants_keyboard_input() {
-            ctx.input(|i| {
-                if i.key_pressed(egui::Key::Space) {
-                    if self.current_step_idx >= self.steps.len().saturating_sub(1) {
-                        self.current_step_idx = 0;
-                    }
-                    self.is_playing = !self.is_playing;
-                    self.last_step_time = Instant::now();
-                }
-                if i.key_pressed(egui::Key::ArrowLeft) {
-                    self.is_playing = false;
-                    self.current_step_idx = self.current_step_idx.saturating_sub(1);
-                }
-                if i.key_pressed(egui::Key::ArrowRight) {
-                    self.is_playing = false;
-                    if self.current_step_idx < self.steps.len().saturating_sub(1) {
-                        self.current_step_idx += 1;
-                    }
-                }
-                if i.key_pressed(egui::Key::R) {
-                    self.is_playing = false;
-                    self.current_step_idx = 0;
-                }
-                if i.key_pressed(egui::Key::ArrowUp)
-                    || i.key_pressed(egui::Key::Plus)
-                    || i.key_pressed(egui::Key::Equals)
-                {
-                    self.playback_speed_ms = self.playback_speed_ms.saturating_sub(100).max(100);
-                }
-                if i.key_pressed(egui::Key::ArrowDown) || i.key_pressed(egui::Key::Minus) {
-                    self.playback_speed_ms = (self.playback_speed_ms + 100).min(1500);
-                }
-                #[cfg(not(target_arch = "wasm32"))]
-                if i.key_pressed(egui::Key::F11) {
-                    toggle_fs = true;
-                }
-            });
+        let shortcuts_enabled = !self.show_settings_modal
+            && !self.show_reset_confirm_modal
+            && !capture_was_active
+            && self.shortcut_capture.is_none()
+            && !ctx.wants_keyboard_input();
+        if shortcuts_enabled {
+            let actions = ctx
+                .input(|input| shortcut_actions_for_events(self.shortcut_bindings, &input.events));
+            for action in actions {
+                self.perform_shortcut_action(action);
+            }
+
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                toggle_fs = ctx.input(|input| {
+                    input.events.iter().any(|event| {
+                        crate::shortcuts::plain_pressed_key(event) == Some(egui::Key::F11)
+                    })
+                });
+            }
         }
 
         #[cfg(not(target_arch = "wasm32"))]
@@ -377,173 +547,13 @@ impl eframe::App for VisualizerApp {
             crate::ui::sidebar::render_roadmap_sidebar(self, ctx, &p);
         }
 
-        // ── Top Header Panel ──
         crate::ui::header::render_header_panel(self, ctx, &p);
 
-        // ── Right Sidebar: Tabbed Code Trace & Problem Details ──
         crate::ui::inspector::render_right_sidebar_inspector(self, ctx, &p);
-        // ── Central Canvas ──
         self.render_central_canvas(ctx, &p);
     }
 }
 
 #[cfg(test)]
 #[allow(clippy::field_reassign_with_default)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_all_problems_recompute_steps() {
-        let mut app = VisualizerApp::default();
-        let all_problems = Problem::all();
-
-        // Verify the number of implemented problems dynamically
-        assert_eq!(
-            all_problems.len(),
-            150,
-            "Expected 150 problems in Problem::all()!"
-        );
-
-        let mut failed_problems = Vec::new();
-
-        for &problem in all_problems {
-            app.current_problem = problem;
-            // Test primary approach (0) and secondary approach (1)
-            for approach_id in 0..=1 {
-                app.selected_approach_id = approach_id;
-                app.recompute_steps();
-
-                if app.steps.is_empty() {
-                    failed_problems.push(format!(
-                        "{:?} (approach {}): steps vector is empty",
-                        problem, approach_id
-                    ));
-                    continue;
-                }
-
-                for (idx, step) in app.steps.iter().enumerate() {
-                    if step.description.trim().is_empty() {
-                        failed_problems.push(format!(
-                            "{:?} (approach {}, step {}): empty description",
-                            problem, approach_id, idx
-                        ));
-                    }
-                }
-            }
-        }
-
-        if !failed_problems.is_empty() {
-            panic!(
-                "Problem step generation failed for {} problem/approach combinations:\n{}",
-                failed_problems.len(),
-                failed_problems.join("\n")
-            );
-        }
-    }
-
-    #[test]
-    fn test_two_sum_logic_correctness() {
-        let mut app = VisualizerApp::default();
-        app.current_problem = Problem::TwoSum;
-        app.set_input_str(Problem::TwoSum, "nums", "2, 7, 11, 15");
-        app.set_input_int(Problem::TwoSum, "target", 9);
-        app.selected_approach_id = 0; // Hash map
-        app.recompute_steps();
-
-        let last_step = app.steps.last().expect("Steps should not be empty");
-        if let VisualState::TwoSum { found_indices, .. } = &last_step.visual {
-            assert_eq!(
-                *found_indices,
-                Some((0, 1)),
-                "Two Sum failed to find solution pair (0, 1)"
-            );
-        } else {
-            panic!("Expected VisualState::TwoSum");
-        }
-    }
-
-    #[test]
-    fn test_contains_duplicate_logic_correctness() {
-        let mut app = VisualizerApp::default();
-        app.current_problem = Problem::ContainsDuplicate;
-        app.set_input_str(Problem::ContainsDuplicate, "nums", "1, 2, 3, 1");
-        app.recompute_steps();
-
-        let last_step = app.steps.last().expect("Steps should not be empty");
-        if let VisualState::ContainsDuplicate {
-            has_duplicate,
-            duplicate_val,
-            ..
-        } = &last_step.visual
-        {
-            assert_eq!(
-                *has_duplicate,
-                Some(true),
-                "Contains Duplicate should return true for [1, 2, 3, 1]"
-            );
-            assert_eq!(*duplicate_val, Some(1), "Duplicate value should be 1");
-        } else {
-            panic!("Expected VisualState::ContainsDuplicate");
-        }
-    }
-
-    #[test]
-    fn test_valid_anagram_logic_correctness() {
-        let mut app = VisualizerApp::default();
-        app.current_problem = Problem::ValidAnagram;
-        app.set_input_str(Problem::ValidAnagram, "s", "anagram");
-        app.set_input_str(Problem::ValidAnagram, "t", "nagaram");
-        app.recompute_steps();
-
-        let last_step = app.steps.last().expect("Steps should not be empty");
-        assert!(
-            last_step.description.contains("VALID")
-                || last_step.description.contains("true")
-                || last_step.description.contains("match"),
-            "Valid Anagram description should indicate a valid anagram match"
-        );
-    }
-
-    #[test]
-    fn test_boundary_and_edge_case_safety() {
-        let mut app = VisualizerApp::default();
-
-        // Edge Case 1: Empty input string fallback for Contains Duplicate
-        app.current_problem = Problem::ContainsDuplicate;
-        app.set_input_str(Problem::ContainsDuplicate, "nums", "");
-        app.recompute_steps();
-        assert!(
-            !app.steps.is_empty(),
-            "Contains Duplicate failed on empty input string"
-        );
-
-        // Edge Case 2: Target not found for Two Sum
-        app.current_problem = Problem::TwoSum;
-        app.set_input_str(Problem::TwoSum, "nums", "1, 2, 3");
-        app.set_input_int(Problem::TwoSum, "target", 999);
-        app.recompute_steps();
-        assert!(
-            !app.steps.is_empty(),
-            "Two Sum failed on non-existent target"
-        );
-
-        // Edge Case 3: Empty string input for Valid Anagram
-        app.current_problem = Problem::ValidAnagram;
-        app.set_input_str(Problem::ValidAnagram, "s", "");
-        app.set_input_str(Problem::ValidAnagram, "t", "");
-        app.recompute_steps();
-        assert!(
-            !app.steps.is_empty(),
-            "Valid Anagram failed on empty string input"
-        );
-
-        // Edge Case 4: Length/Content mismatch for Valid Anagram
-        app.set_input_str(Problem::ValidAnagram, "s", "rat");
-        app.set_input_str(Problem::ValidAnagram, "t", "car");
-        app.recompute_steps();
-        assert!(
-            !app.steps.is_empty(),
-            "Valid Anagram failed on mismatch input"
-        );
-    }
-}
+mod tests;

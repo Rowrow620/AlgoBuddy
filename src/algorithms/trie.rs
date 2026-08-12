@@ -1,49 +1,32 @@
 use crate::model::{Step, VisualState};
 use std::collections::BTreeMap;
 
-#[allow(dead_code)]
 #[derive(Debug, Clone)]
-pub struct TrieVisualNode {
-    pub id: usize,
-    pub char_val: char,
-    pub is_end: bool,
-    pub children: BTreeMap<char, usize>,
-    pub active: bool,
-    pub matched: bool,
+struct TrieVisualNode {
+    char_val: char,
+    is_end: bool,
+    children: BTreeMap<char, usize>,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Clone)]
-pub struct TrieData {
-    pub nodes: Vec<TrieVisualNode>,
-    pub root: usize,
-    pub current_word: String,
-    pub current_char_idx: usize,
-    pub message: String,
+struct TrieData {
+    nodes: Vec<TrieVisualNode>,
 }
 
 impl TrieData {
     pub fn new() -> Self {
         let root_node = TrieVisualNode {
-            id: 0,
             char_val: '*',
             is_end: false,
             children: BTreeMap::new(),
-            active: false,
-            matched: false,
         };
         TrieData {
             nodes: vec![root_node],
-            root: 0,
-            current_word: String::new(),
-            current_char_idx: 0,
-            message: "Initialized empty Trie root node '*'.".to_string(),
         }
     }
 
     pub fn insert(&mut self, word: &str, steps: &mut Vec<Step>, line_start: usize) {
         let mut curr = 0;
-        self.current_word = word.to_string();
 
         steps.push(Step {
             description: format!("Inserting word '{}' into Trie.", word),
@@ -56,18 +39,14 @@ impl TrieData {
         });
 
         for (idx, ch) in word.chars().enumerate() {
-            self.current_char_idx = idx;
             let next_id = if let Some(&child_id) = self.nodes[curr].children.get(&ch) {
                 child_id
             } else {
                 let new_id = self.nodes.len();
                 let new_node = TrieVisualNode {
-                    id: new_id,
                     char_val: ch,
                     is_end: false,
                     children: BTreeMap::new(),
-                    active: true,
-                    matched: true,
                 };
                 self.nodes.push(new_node);
                 self.nodes[curr].children.insert(ch, new_id);

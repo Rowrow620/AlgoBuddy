@@ -1,7 +1,25 @@
 use crate::model::{Step, VisualState};
 use std::collections::BTreeSet;
 
+pub(crate) const CONTAINS_DUPLICATE_VISUALIZATION_LIMIT: usize = 128;
+
 pub fn generate_contains_duplicate_steps(nums: &[i32], approach_id: usize) -> Vec<Step> {
+    if nums.len() > CONTAINS_DUPLICATE_VISUALIZATION_LIMIT {
+        return vec![Step {
+            code_line: 3,
+            description: format!(
+                "Contains Duplicate visualization supports up to {} values; shorten the input to build the detailed trace.",
+                CONTAINS_DUPLICATE_VISUALIZATION_LIMIT
+            ),
+            visual: VisualState::TraceUnavailable {
+                message: format!(
+                    "Detailed traces accept at most {} values because each step stores the array state.",
+                    CONTAINS_DUPLICATE_VISUALIZATION_LIMIT
+                ),
+            },
+        }];
+    }
+
     let mut steps = Vec::new();
     let num_vec = nums.to_vec();
 
@@ -81,7 +99,7 @@ pub fn generate_contains_duplicate_steps(nums: &[i32], approach_id: usize) -> Ve
                 has_duplicate: Some(false),
             },
         });
-    } else {
+    } else if approach_id == 1 {
         // Sorting Approach
         let mut sorted = nums.to_vec();
         sorted.sort();
@@ -150,7 +168,45 @@ pub fn generate_contains_duplicate_steps(nums: &[i32], approach_id: usize) -> Ve
                 has_duplicate: Some(false),
             },
         });
+    } else {
+        return Vec::new();
     }
 
     steps
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn result(nums: &[i32], approach_id: usize) -> Option<bool> {
+        let steps = generate_contains_duplicate_steps(nums, approach_id);
+        match &steps.last().expect("trace must have a result").visual {
+            VisualState::ContainsDuplicate { has_duplicate, .. } => *has_duplicate,
+            _ => panic!("expected contains-duplicate state"),
+        }
+    }
+
+    #[test]
+    fn hash_set_and_sorting_agree() {
+        for (nums, expected) in [
+            (vec![1, 2, 3, 1], true),
+            (vec![1, 2, 3, 4], false),
+            (vec![-1, -1], true),
+        ] {
+            assert_eq!(result(&nums, 0), Some(expected));
+            assert_eq!(result(&nums, 1), Some(expected));
+        }
+    }
+
+    #[test]
+    fn oversized_inputs_return_an_explicit_trace_status() {
+        let nums = vec![1; CONTAINS_DUPLICATE_VISUALIZATION_LIMIT + 1];
+        let steps = generate_contains_duplicate_steps(&nums, 0);
+
+        assert!(matches!(
+            &steps[0].visual,
+            VisualState::TraceUnavailable { .. }
+        ));
+    }
 }

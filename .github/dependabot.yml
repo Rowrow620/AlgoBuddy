@@ -11,9 +11,6 @@ updates:
     ignore:
       - dependency-name: "eframe"
         update-types: ["version-update:semver-major"]
-    labels:
-      - "dependencies"
-      - "rust"
 
   # Enable weekly updates for GitHub Actions workflows (.github/workflows)
   - package-ecosystem: "github-actions"
@@ -21,6 +18,3 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    labels:
-      - "ci"
-      - "dependencies"
