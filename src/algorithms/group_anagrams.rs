@@ -9,7 +9,7 @@ pub fn generate_group_anagrams_steps(strs: &[String], approach_id: usize) -> Vec
         let message = "Group Anagrams traces accept lowercase English letters (a-z) only; empty strings are supported. Update every input value to match the displayed solutions."
             .to_string();
         return vec![Step {
-            code_line: 5,
+            code_line: 3,
             description: message.clone(),
             visual: VisualState::TraceUnavailable { message },
         }];
