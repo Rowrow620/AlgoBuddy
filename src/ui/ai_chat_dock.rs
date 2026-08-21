@@ -1,7 +1,8 @@
 use crate::app::{AiChatMessage, AiSender, VisualizerApp};
 use crate::model::ThemePalette;
 use eframe::egui::{self, Color32, FontId, Frame, Pos2, Rect, RichText, Rounding, Stroke};
-use std::time::{Duration, Instant};
+use std::time::Duration;
+use web_time::Instant;
 
 // Aged phosphor CRT palette — warm yellowish-green, not neon.
 const CRT_BG: Color32 = Color32::from_rgb(5, 10, 3);

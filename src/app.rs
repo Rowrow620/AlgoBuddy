@@ -64,7 +64,7 @@ pub enum TerminalQuizState {
 pub struct AiChatMessage {
     pub sender: AiSender,
     pub text: String,
-    pub created_at: std::time::Instant,
+    pub created_at: web_time::Instant,
 }
 
 pub struct VisualizerApp {

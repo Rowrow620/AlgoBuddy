@@ -193,9 +193,9 @@ fn cmd_start_quiz(app: &mut VisualizerApp) -> String {
         candidates.push(app.current_problem);
     }
 
-    let seed = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default()
+    let seed = web_time::SystemTime::now()
+        .duration_since(web_time::SystemTime::UNIX_EPOCH)
+        .unwrap_or(std::time::Duration::ZERO)
         .as_millis() as usize;
 
     let target_prob = candidates[seed % candidates.len()];
