@@ -4,11 +4,9 @@ use crate::model::*;
 pub fn generate_offline_ai_response(app: &mut VisualizerApp, query: &str) -> String {
     let q = query.trim().to_lowercase();
 
-    if q == "exit" || q == "quit" {
-        if app.terminal_quiz_state != TerminalQuizState::Inactive {
-            app.terminal_quiz_state = TerminalQuizState::Inactive;
-            return "Exited quiz mode.".to_string();
-        }
+    if (q == "exit" || q == "quit") && app.terminal_quiz_state != TerminalQuizState::Inactive {
+        app.terminal_quiz_state = TerminalQuizState::Inactive;
+        return "Exited quiz mode.".to_string();
     }
 
     match app.terminal_quiz_state {
@@ -28,7 +26,9 @@ pub fn generate_offline_ai_response(app: &mut VisualizerApp, query: &str) -> Str
             _ => "Unknown command. Type 'help' for available commands.".to_string(),
         },
         TerminalQuizState::AskingTime(prob, approach) => handle_quiz_time(app, prob, approach, &q),
-        TerminalQuizState::AskingSpace(prob, approach) => handle_quiz_space(app, prob, approach, &q),
+        TerminalQuizState::AskingSpace(prob, approach) => {
+            handle_quiz_space(app, prob, approach, &q)
+        }
     }
 }
 
@@ -213,7 +213,12 @@ fn cmd_start_quiz(app: &mut VisualizerApp) -> String {
     )
 }
 
-fn handle_quiz_time(app: &mut VisualizerApp, prob: Problem, approach_id: usize, answer: &str) -> String {
+fn handle_quiz_time(
+    app: &mut VisualizerApp,
+    prob: Problem,
+    approach_id: usize,
+    answer: &str,
+) -> String {
     let approach = prob.details().approach_by_id(approach_id).unwrap();
     let expected = approach.time_complexity.to_lowercase().replace(" ", "");
     let user_ans = answer.replace(" ", "");
@@ -225,11 +230,19 @@ fn handle_quiz_time(app: &mut VisualizerApp, prob: Problem, approach_id: usize, 
             approach.time_complexity
         )
     } else {
-        format!("Incorrect. Try again, or type 'exit' to leave quiz mode.\nHint: {}", approach.rationale)
+        format!(
+            "Incorrect. Try again, or type 'exit' to leave quiz mode.\nHint: {}",
+            approach.rationale
+        )
     }
 }
 
-fn handle_quiz_space(app: &mut VisualizerApp, prob: Problem, approach_id: usize, answer: &str) -> String {
+fn handle_quiz_space(
+    app: &mut VisualizerApp,
+    prob: Problem,
+    approach_id: usize,
+    answer: &str,
+) -> String {
     let approach = prob.details().approach_by_id(approach_id).unwrap();
     let expected = approach.space_complexity.to_lowercase().replace(" ", "");
     let user_ans = answer.replace(" ", "");
@@ -244,6 +257,9 @@ fn handle_quiz_space(app: &mut VisualizerApp, prob: Problem, approach_id: usize,
 
         format!("Correct! The space complexity is {}.\n\nYou have mastered this approach! Exited quiz mode.", approach.space_complexity)
     } else {
-        format!("Incorrect. Try again, or type 'exit' to leave quiz mode.\nHint: {}", approach.rationale)
+        format!(
+            "Incorrect. Try again, or type 'exit' to leave quiz mode.\nHint: {}",
+            approach.rationale
+        )
     }
 }

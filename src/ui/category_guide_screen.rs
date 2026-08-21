@@ -195,5 +195,3 @@ fn render_category_guide_overview_tab(
             }
         });
 }
-
-

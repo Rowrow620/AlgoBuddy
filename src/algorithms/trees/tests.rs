@@ -1,3 +1,6 @@
+#![allow(unknown_lints)]
+#![allow(clippy::chunks_exact_to_as_chunks)]
+
 use super::{generate_construct_tree_pre_in_steps, generate_tree_max_path_sum_steps};
 use crate::model::{Step, VisualState};
 
