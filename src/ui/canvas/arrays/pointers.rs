@@ -1,6 +1,6 @@
 use crate::app::VisualizerApp;
 use crate::model::{Problem, ThemePalette};
-use eframe::egui::{self, Color32, RichText, Rounding, Stroke};
+use eframe::egui::{self, Color32, RichText};
 
 impl VisualizerApp {
     #[allow(clippy::too_many_arguments)]
@@ -16,8 +16,6 @@ impl VisualizerApp {
     ) {
         let z = self.canvas_zoom;
         let font_title = (16.0 * z).max(10.0);
-        let font_char = (16.0 * z).max(9.0);
-        let margin = (8.0 * z).max(4.0);
 
         let heading = if self.current_problem == Problem::ValidPalindrome {
             self.current_problem
@@ -49,36 +47,26 @@ impl VisualizerApp {
                     p.cell_bg
                 };
 
-                egui::Frame::none()
-                    .fill(fill)
-                    .rounding(Rounding::same(6.0 * z))
-                    .stroke(Stroke::new(1.0_f32 * z, p.cell_border))
-                    .inner_margin(margin)
-                    .show(ui, |ui| {
-                        ui.vertical(|ui| {
-                            let ptr_label = if is_left && is_right {
-                                "L & R"
-                            } else if is_left {
-                                "L ->"
-                            } else if is_right {
-                                "<- R"
-                            } else {
-                                " "
-                            };
-                            ui.label(
-                                RichText::new(ptr_label)
-                                    .font(egui::FontId::monospace((10.0 * z).max(8.0)))
-                                    .strong()
-                                    .color(Color32::WHITE),
-                            );
-                            ui.label(
-                                RichText::new(c.to_string())
-                                    .font(egui::FontId::monospace(font_char))
-                                    .strong()
-                                    .color(Color32::WHITE),
-                            );
-                        });
-                    });
+                let ptr_label = if is_left && is_right {
+                    "L & R"
+                } else if is_left {
+                    "L ->"
+                } else if is_right {
+                    "<- R"
+                } else {
+                    ""
+                };
+
+                Self::render_canvas_cell(
+                    ui,
+                    &c.to_string(),
+                    Some(ptr_label),
+                    None,
+                    fill,
+                    p.cell_border,
+                    Color32::WHITE,
+                    z,
+                );
             }
         });
 

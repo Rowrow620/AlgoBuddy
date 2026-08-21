@@ -271,7 +271,7 @@ pub fn generate_k_closest_points_steps(points: &[(i32, i32)], k: usize) -> Vec<S
     steps
 }
 
-pub fn generate_task_scheduler_steps(tasks: &[char], _n: usize) -> Vec<Step> {
+pub fn generate_task_scheduler_steps(tasks: &[char], n: usize) -> Vec<Step> {
     let mut steps = Vec::new();
     let mut counts = std::collections::HashMap::new();
     for &t in tasks {
@@ -282,7 +282,10 @@ pub fn generate_task_scheduler_steps(tasks: &[char], _n: usize) -> Vec<Step> {
     freq_heap.sort_by(|a, b| b.cmp(a));
 
     steps.push(Step {
-        description: format!("Build Max-Heap of task frequencies: {:?}", counts),
+        description: format!(
+            "Build Max-Heap of task frequencies: {:?} with cooldown n = {}",
+            counts, n
+        ),
         code_line: 4,
         visual: VisualState::HeapVisual {
             heap_elements: freq_heap.clone(),

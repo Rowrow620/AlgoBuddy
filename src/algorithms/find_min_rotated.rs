@@ -2,6 +2,22 @@ use crate::model::{Step, VisualState};
 
 pub fn generate_find_min_rotated_steps(nums: &[i32]) -> Vec<Step> {
     let mut steps = Vec::new();
+    if nums.is_empty() {
+        steps.push(Step {
+            code_line: 3,
+            description: "Input array is empty. Cannot find minimum.".to_string(),
+            visual: VisualState::BinarySearch {
+                nums: Vec::new(),
+                target: 0,
+                left: 0,
+                right: 0,
+                mid: None,
+                found_idx: None,
+            },
+        });
+        return steps;
+    }
+
     let n = nums.len();
 
     steps.push(Step {

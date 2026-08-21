@@ -1,4 +1,7 @@
+pub mod ai_chat_dock;
 pub mod canvas;
+pub mod category_guide_screen;
+pub mod components;
 pub mod dashboard;
 pub mod header;
 pub mod inspector;

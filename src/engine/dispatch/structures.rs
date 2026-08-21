@@ -14,24 +14,18 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
             generate_reverse_linked_list_steps(&nodes, app_id)
         }
         Problem::MergeTwoLists => {
-            let l1: Vec<i32> = app
-                .get_input_str(Problem::MergeTwoLists, "list1", "1, 2, 4")
-                .split(',')
-                .filter_map(|s| s.trim().parse().ok())
-                .collect();
-            let l2: Vec<i32> = app
-                .get_input_str(Problem::MergeTwoLists, "list2", "1, 3, 5")
-                .split(',')
-                .filter_map(|s| s.trim().parse().ok())
-                .collect();
+            let l1 = input::i32_list(app, Problem::MergeTwoLists, "list1", "1, 2, 4", &[1, 2, 4]);
+            let l2 = input::i32_list(app, Problem::MergeTwoLists, "list2", "1, 3, 5", &[1, 3, 5]);
             generate_merge_two_lists_steps(&l1, &l2, app_id)
         }
         Problem::LinkedListCycle => {
-            let nodes: Vec<i32> = app
-                .get_input_str(Problem::LinkedListCycle, "nodes", "1, 2, 3, 4")
-                .split(',')
-                .filter_map(|s| s.trim().parse().ok())
-                .collect();
+            let nodes = input::i32_list(
+                app,
+                Problem::LinkedListCycle,
+                "nodes",
+                "1, 2, 3, 4",
+                &[1, 2, 3, 4],
+            );
             let cycle_idx = app.get_input_int(Problem::LinkedListCycle, "cycle_idx", 1);
             generate_linked_list_cycle_steps(&nodes, cycle_idx, app_id)
         }
@@ -91,7 +85,16 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
             8,
         ),
         Problem::KthLargestStream => generate_kth_largest_stream_steps(3, &[4, 5, 8, 2], 3, app_id),
-        Problem::LastStone => generate_last_stone_weight_steps(&[2, 7, 4, 1, 8, 1], app_id),
+        Problem::LastStone => {
+            let stones = input::i32_list(
+                app,
+                Problem::LastStone,
+                "stones",
+                "2, 7, 4, 1, 8, 1",
+                &[2, 7, 4, 1, 8, 1],
+            );
+            generate_last_stone_weight_steps(&stones, app_id)
+        }
         Problem::ImplementTrie => {
             let insert_words = input::string_list_allow_empty(
                 app,
@@ -133,10 +136,39 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
             );
             generate_find_median_steps(&nums)
         }
-        Problem::KthLargestArray => generate_kth_largest_array_steps(&[3, 2, 1, 5, 6, 4], 2),
+        Problem::KthLargestArray => {
+            let nums = input::i32_list(
+                app,
+                Problem::KthLargestArray,
+                "nums",
+                "3, 2, 1, 5, 6, 4",
+                &[3, 2, 1, 5, 6, 4],
+            );
+            let k = app.get_input_int(Problem::KthLargestArray, "k", 2) as usize;
+            generate_kth_largest_array_steps(&nums, k)
+        }
         Problem::DesignTwitter => generate_design_twitter_steps(),
-        Problem::ReorderList => generate_reorder_list_steps(&[1, 2, 3, 4, 5]),
-        Problem::RemoveNthNodeFromEnd => generate_remove_nth_node_steps(&[1, 2, 3, 4, 5], 2),
+        Problem::ReorderList => {
+            let nodes = input::i32_list(
+                app,
+                Problem::ReorderList,
+                "nodes",
+                "1, 2, 3, 4, 5",
+                &[1, 2, 3, 4, 5],
+            );
+            generate_reorder_list_steps(&nodes)
+        }
+        Problem::RemoveNthNodeFromEnd => {
+            let nodes = input::i32_list(
+                app,
+                Problem::RemoveNthNodeFromEnd,
+                "nodes",
+                "1, 2, 3, 4, 5",
+                &[1, 2, 3, 4, 5],
+            );
+            let n = app.get_input_int(Problem::RemoveNthNodeFromEnd, "n", 2) as usize;
+            generate_remove_nth_node_steps(&nodes, n)
+        }
         Problem::CopyListWithRandomPointer => generate_copy_list_random_steps(&[7, 13, 11, 10, 1]),
         Problem::AddTwoNumbers => generate_add_two_numbers_steps(&[2, 4, 3], &[5, 6, 4]),
         Problem::FindDuplicateNumber => generate_find_duplicate_number_steps(&[1, 3, 4, 2, 2]),
@@ -153,7 +185,17 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
         Problem::MergeKSortedLists => {
             generate_merge_k_lists_steps(&[vec![1, 4, 5], vec![1, 3, 4], vec![2, 6]])
         }
-        Problem::ReverseNodesInKGroup => generate_reverse_k_group_steps(&[1, 2, 3, 4, 5], 2),
+        Problem::ReverseNodesInKGroup => {
+            let nodes = input::i32_list(
+                app,
+                Problem::ReverseNodesInKGroup,
+                "nodes",
+                "1, 2, 3, 4, 5",
+                &[1, 2, 3, 4, 5],
+            );
+            let k = app.get_input_int(Problem::ReverseNodesInKGroup, "k", 2) as usize;
+            generate_reverse_k_group_steps(&nodes, k)
+        }
         Problem::BinaryTreeLevelOrderTraversal => generate_level_order_traversal_steps(&[
             Some(3),
             Some(9),

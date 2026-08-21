@@ -2,10 +2,10 @@ use crate::model::{Step, VisualState};
 
 pub fn generate_missing_number_steps(nums: &[i32]) -> Vec<Step> {
     let mut steps = Vec::new();
-    let n = nums.len();
+    let n = nums.len() as i64;
     let expected_sum = (n * (n + 1)) / 2;
-    let actual_sum: i32 = nums.iter().sum();
-    let missing = expected_sum as i32 - actual_sum;
+    let actual_sum: i64 = nums.iter().map(|&x| x as i64).sum();
+    let missing = (expected_sum - actual_sum) as i32;
 
     steps.push(Step {
         code_line: 3,
@@ -26,7 +26,10 @@ pub fn generate_missing_number_steps(nums: &[i32]) -> Vec<Step> {
             n, expected_sum, actual_sum
         ),
         visual: VisualState::ContainsDuplicate {
-            nums: vec![expected_sum as i32, actual_sum],
+            nums: vec![
+                expected_sum.min(i32::MAX as i64) as i32,
+                actual_sum.min(i32::MAX as i64) as i32,
+            ],
             active_idx: Some(1),
             seen_set: std::collections::BTreeSet::new(),
             duplicate_val: None,

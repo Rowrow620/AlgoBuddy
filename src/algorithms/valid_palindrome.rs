@@ -14,15 +14,11 @@ pub fn generate_valid_palindrome_steps(s: &str, approach_id: usize) -> Vec<Step>
     }
 
     if s.chars().count() > PALINDROME_VISUALIZATION_LIMIT {
-        let message = format!(
-            "Palindrome traces accept at most {} characters because each step stores the current character state.",
-            PALINDROME_VISUALIZATION_LIMIT
-        );
-        return vec![Step {
-            code_line: 3,
-            description: message.clone(),
-            visual: VisualState::TraceUnavailable { message },
-        }];
+        return vec![Step::trace_unavailable(
+            "Valid Palindrome",
+            PALINDROME_VISUALIZATION_LIMIT,
+            "each step stores the current character state",
+        )];
     }
 
     if approach_id == 1 {

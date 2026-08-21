@@ -20,14 +20,14 @@ pub fn generate_find_median_sorted_arrays_steps(nums1: &[i32], nums2: &[i32]) ->
             nums: a.clone(),
             target: 0,
             left: 0,
-            right: a.len(),
+            right: a.len().saturating_sub(1),
             mid: None,
             found_idx: None,
         },
     });
 
     let mut l = 0isize;
-    let mut r = a.len() as isize;
+    let mut r = a.len().saturating_sub(1) as isize;
 
     while l <= r {
         let i = (l + (r - l) / 2) as usize;
@@ -70,7 +70,7 @@ pub fn generate_find_median_sorted_arrays_steps(nums1: &[i32], nums2: &[i32]) ->
                     nums: a.clone(),
                     target: 0,
                     left: 0,
-                    right: a.len(),
+                    right: a.len().saturating_sub(1),
                     mid: Some(i),
                     found_idx: Some(i),
                 },

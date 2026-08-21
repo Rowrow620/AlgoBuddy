@@ -557,6 +557,61 @@ impl VisualizerApp {
                         }
                     });
                 }
+
+                ui.add_space(10.0);
+                crate::ui::ai_chat_dock::render_ai_chat_dock(self, ui, p);
             });
+    }
+
+    /// Renders a standardized canvas array cell box with optional top/bottom labels.
+    #[allow(clippy::too_many_arguments)]
+    pub(in crate::ui::canvas) fn render_canvas_cell(
+        ui: &mut egui::Ui,
+        value: &str,
+        top_label: Option<&str>,
+        sub_label: Option<&str>,
+        bg_color: egui::Color32,
+        border_color: egui::Color32,
+        text_color: egui::Color32,
+        zoom: f32,
+    ) {
+        let z = zoom;
+        let font_sub = (10.0 * z).max(8.0);
+        let font_val = (16.0 * z).max(9.0);
+        let margin = egui::Margin::symmetric((10.0 * z).max(4.0), (8.0 * z).max(4.0));
+
+        ui.vertical(|ui| {
+            if let Some(top) = top_label {
+                let top_str = if top.is_empty() { " " } else { top };
+                ui.label(
+                    RichText::new(top_str)
+                        .font(egui::FontId::monospace(font_sub))
+                        .strong()
+                        .color(egui::Color32::WHITE),
+                );
+            }
+
+            egui::Frame::none()
+                .fill(bg_color)
+                .rounding(Rounding::same(6.0 * z))
+                .stroke(Stroke::new(1.0_f32 * z, border_color))
+                .inner_margin(margin)
+                .show(ui, |ui| {
+                    ui.label(
+                        RichText::new(value)
+                            .font(egui::FontId::monospace(font_val))
+                            .strong()
+                            .color(text_color),
+                    );
+                });
+
+            if let Some(sub) = sub_label {
+                ui.label(
+                    RichText::new(sub)
+                        .font(egui::FontId::monospace(font_sub))
+                        .color(egui::Color32::from_gray(160)),
+                );
+            }
+        });
     }
 }

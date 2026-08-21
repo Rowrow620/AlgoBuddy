@@ -193,6 +193,11 @@ pub fn render_settings_modal(app: &mut VisualizerApp, ctx: &egui::Context) {
         return;
     }
 
+    if ctx.input(|i| i.key_pressed(egui::Key::Escape)) && app.shortcut_capture.is_none() {
+        app.close_settings();
+        return;
+    }
+
     let p = app.current_palette();
     let mut is_open = true;
     let available_rect = ctx.available_rect();
@@ -244,12 +249,6 @@ pub fn render_settings_modal(app: &mut VisualizerApp, ctx: &egui::Context) {
                     .clicked()
                 {
                     app.theme = Theme::DarkCyber;
-                }
-                if ui
-                    .selectable_label(app.theme == Theme::LightClean, "Clean Light")
-                    .clicked()
-                {
-                    app.theme = Theme::LightClean;
                 }
             });
 
@@ -363,6 +362,11 @@ pub fn render_settings_modal(app: &mut VisualizerApp, ctx: &egui::Context) {
 
 pub fn render_reset_confirm_modal(app: &mut VisualizerApp, ctx: &egui::Context) {
     if !app.show_reset_confirm_modal {
+        return;
+    }
+
+    if ctx.input(|i| i.key_pressed(egui::Key::Escape)) {
+        app.show_reset_confirm_modal = false;
         return;
     }
 

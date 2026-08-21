@@ -17,8 +17,6 @@ impl VisualizerApp {
         let z = self.canvas_zoom;
         let font_title = (16.0 * z).max(10.0);
         let font_label = (11.0 * z).max(8.0);
-        let font_price = (16.0 * z).max(9.0);
-        let margin = (10.0 * z).max(4.0);
 
         let approach_name = self
             .current_problem
@@ -53,43 +51,34 @@ impl VisualizerApp {
                         p.cell_bg
                     };
 
-                    egui::Frame::none()
-                        .fill(fill)
-                        .rounding(Rounding::same(8.0 * z))
-                        .stroke(Stroke::new(1.0_f32 * z, p.cell_border))
-                        .inner_margin(margin)
-                        .show(ui, |ui| {
-                            ui.vertical(|ui| {
-                                let label = if is_buy && is_sell {
-                                    "Buy & Sell"
-                                } else if is_buy {
-                                    if self.selected_approach_id == 1 {
-                                        "Buy (i)"
-                                    } else {
-                                        "Buy (l)"
-                                    }
-                                } else if is_sell {
-                                    if self.selected_approach_id == 1 {
-                                        "Sell (j)"
-                                    } else {
-                                        "Sell (r)"
-                                    }
-                                } else {
-                                    ""
-                                };
-                                ui.label(
-                                    RichText::new(format!("day {} {}", i, label))
-                                        .font(egui::FontId::proportional((10.0 * z).max(8.0)))
-                                        .color(p.text_muted),
-                                );
-                                ui.label(
-                                    RichText::new(format!("${}", price))
-                                        .font(egui::FontId::monospace(font_price))
-                                        .strong()
-                                        .color(Color32::WHITE),
-                                );
-                            });
-                        });
+                    let label = if is_buy && is_sell {
+                        "Buy & Sell"
+                    } else if is_buy {
+                        if self.selected_approach_id == 1 {
+                            "Buy (i)"
+                        } else {
+                            "Buy (l)"
+                        }
+                    } else if is_sell {
+                        if self.selected_approach_id == 1 {
+                            "Sell (j)"
+                        } else {
+                            "Sell (r)"
+                        }
+                    } else {
+                        ""
+                    };
+
+                    Self::render_canvas_cell(
+                        ui,
+                        &format!("${price}"),
+                        Some(&format!("day {i} {label}")),
+                        None,
+                        fill,
+                        p.cell_border,
+                        Color32::WHITE,
+                        z,
+                    );
                 }
             });
         });
@@ -160,8 +149,6 @@ impl VisualizerApp {
         found_idx: Option<usize>,
     ) {
         let z = self.canvas_zoom;
-        let margin = (12.0 * z).max(4.0);
-        let font_sz = (18.0 * z).max(9.0);
         let font_title = (18.0 * z).max(10.0);
 
         let approach_name = self
@@ -214,41 +201,31 @@ impl VisualizerApp {
                         p.text_dim
                     };
 
-                    egui::Frame::none()
-                        .fill(fill)
-                        .rounding(Rounding::same(8.0 * z))
-                        .stroke(Stroke::new(1.0_f32 * z, p.cell_border))
-                        .inner_margin(margin)
-                        .show(ui, |ui| {
-                            ui.vertical(|ui| {
-                                let mut ptr_label = String::new();
-                                if self.selected_approach_id == 0 && i == left {
-                                    ptr_label.push_str("L ");
-                                }
-                                if is_mid {
-                                    ptr_label.push_str(if self.selected_approach_id == 1 {
-                                        "i "
-                                    } else {
-                                        "MID "
-                                    });
-                                }
-                                if self.selected_approach_id == 0 && i == right {
-                                    ptr_label.push('R');
-                                }
-
-                                ui.label(
-                                    RichText::new(format!("i={} {}", i, ptr_label))
-                                        .font(egui::FontId::proportional((11.0 * z).max(8.0)))
-                                        .color(Color32::WHITE),
-                                );
-                                ui.label(
-                                    RichText::new(num.to_string())
-                                        .font(egui::FontId::monospace(font_sz))
-                                        .strong()
-                                        .color(Color32::WHITE),
-                                );
-                            });
+                    let mut ptr_label = String::new();
+                    if self.selected_approach_id == 0 && i == left {
+                        ptr_label.push_str("L ");
+                    }
+                    if is_mid {
+                        ptr_label.push_str(if self.selected_approach_id == 1 {
+                            "i "
+                        } else {
+                            "MID "
                         });
+                    }
+                    if self.selected_approach_id == 0 && i == right {
+                        ptr_label.push('R');
+                    }
+
+                    Self::render_canvas_cell(
+                        ui,
+                        &num.to_string(),
+                        Some(&format!("i={i} {ptr_label}")),
+                        None,
+                        fill,
+                        p.cell_border,
+                        Color32::WHITE,
+                        z,
+                    );
                 }
             });
         });

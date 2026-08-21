@@ -10,23 +10,55 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
             let nums = input::i32_list(app, Problem::Permutations, "nums", "1, 2, 3", &[1, 2, 3]);
             generate_permutations_steps(&nums)
         }
-        Problem::CombinationSum => generate_combination_sum_steps(&[2, 3, 6, 7], 7),
+        Problem::CombinationSum => {
+            let candidates = input::i32_list(
+                app,
+                Problem::CombinationSum,
+                "candidates",
+                "2, 3, 6, 7",
+                &[2, 3, 6, 7],
+            );
+            let target = app.get_input_int(Problem::CombinationSum, "target", 7);
+            generate_combination_sum_steps(&candidates, target)
+        }
         Problem::SubsetsII => {
             let nums = input::i32_list(app, Problem::SubsetsII, "nums", "1, 2, 2", &[1, 2, 2]);
             generate_subsets_ii_steps(&nums)
         }
-        Problem::CombinationSumII => generate_combination_sum_ii_steps(&[10, 1, 2, 7, 6, 1, 5], 8),
-        Problem::WordSearch => generate_word_search_steps(
-            &[
-                vec!['A', 'B', 'C', 'E'],
-                vec!['S', 'F', 'C', 'S'],
-                vec!['A', 'D', 'E', 'E'],
-            ],
-            "ABCCED",
-        ),
-        Problem::NQueens => generate_n_queens_steps(4),
-        Problem::PalindromePartitioning => generate_palindrome_partitioning_steps("aab"),
-        Problem::LetterCombinations => generate_letter_combinations_steps("23"),
+        Problem::CombinationSumII => {
+            let candidates = input::i32_list(
+                app,
+                Problem::CombinationSumII,
+                "candidates",
+                "10, 1, 2, 7, 6, 1, 5",
+                &[10, 1, 2, 7, 6, 1, 5],
+            );
+            let target = app.get_input_int(Problem::CombinationSumII, "target", 8);
+            generate_combination_sum_ii_steps(&candidates, target)
+        }
+        Problem::WordSearch => {
+            let word = app.get_input_str(Problem::WordSearch, "word", "ABCCED");
+            generate_word_search_steps(
+                &[
+                    vec!['A', 'B', 'C', 'E'],
+                    vec!['S', 'F', 'C', 'S'],
+                    vec!['A', 'D', 'E', 'E'],
+                ],
+                word,
+            )
+        }
+        Problem::NQueens => {
+            let n = app.get_input_int(Problem::NQueens, "n", 4).max(1) as usize;
+            generate_n_queens_steps(n)
+        }
+        Problem::PalindromePartitioning => {
+            let s = app.get_input_str(Problem::PalindromePartitioning, "s", "aab");
+            generate_palindrome_partitioning_steps(s)
+        }
+        Problem::LetterCombinations => {
+            let digits = app.get_input_str(Problem::LetterCombinations, "digits", "23");
+            generate_letter_combinations_steps(digits)
+        }
         Problem::NumberIslands => generate_number_islands_steps(&[
             vec!['1', '1', '1', '1', '0'],
             vec!['1', '1', '0', '1', '0'],
@@ -51,7 +83,17 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
             generate_redundant_connection_steps(&[[1, 2], [1, 3], [2, 3]])
         }
         Problem::WordLadder => {
-            generate_word_ladder_steps("hit", "cog", &["hot", "dot", "dog", "lot", "log", "cog"])
+            let begin = app.get_input_str(Problem::WordLadder, "begin", "hit");
+            let end = app.get_input_str(Problem::WordLadder, "end", "cog");
+            let word_list = input::string_list(
+                app,
+                Problem::WordLadder,
+                "word_list",
+                "hot, dot, dog, lot, log, cog",
+                &["hot", "dot", "dog", "lot", "log", "cog"],
+            );
+            let word_refs: Vec<&str> = word_list.iter().map(|s| s.as_str()).collect();
+            generate_word_ladder_steps(begin, end, &word_refs)
         }
         Problem::ReconstructItinerary => generate_reconstruct_itinerary_steps(),
         Problem::MinCostConnectPoints => generate_min_cost_points_steps(),

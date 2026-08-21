@@ -1,5 +1,5 @@
-use crate::app::{ViewMode, VisualizerApp};
-use crate::model::{Category, ThemePalette};
+use crate::app::VisualizerApp;
+use crate::model::{Category, Problem, ThemePalette};
 use crate::ui::theme_helpers::difficulty_color;
 use eframe::egui::{self, Frame, RichText, Rounding};
 
@@ -8,6 +8,7 @@ pub fn render_fullscreen_roadmap_dashboard(
     ctx: &egui::Context,
     p: &ThemePalette,
 ) {
+    let visible_probs = app.visible_problems();
     let mut prob_to_select = None;
     let total_solved = app.completed_problems.len();
     let overall_pct = (total_solved as f32 / 150.0) * 100.0;
@@ -26,7 +27,7 @@ pub fn render_fullscreen_roadmap_dashboard(
                     )
                     .clicked()
                 {
-                    app.view_mode = ViewMode::Visualizer;
+                    app.return_to_visualizer();
                 }
                 ui.add_space(16.0);
                 ui.heading(
@@ -52,10 +53,8 @@ pub fn render_fullscreen_roadmap_dashboard(
                         .show(ui, |ui| {
                             ui.label(
                                 RichText::new(format!(
-                                    "Overall Progress: {} / {} Solved ({:.1}%)",
-                                    total_solved,
-                                    app.visible_problems().len(),
-                                    overall_pct
+                                    "Overall Progress: {} / 150 Solved ({:.1}%)",
+                                    total_solved, overall_pct
                                 ))
                                 .font(egui::FontId::monospace(13.0))
                                 .color(p.emerald_text)
@@ -82,14 +81,12 @@ pub fn render_fullscreen_roadmap_dashboard(
                     .id_source("cat_scroll")
                     .show(&mut cols[0], |ui| {
                         for &category in Category::all() {
-                            let total_in_cat = app
-                                .visible_problems()
+                            let total_in_cat = Problem::all()
                                 .iter()
                                 .filter(|p| p.category() == category)
                                 .count()
                                 .max(1);
-                            let solved_in_cat = app
-                                .visible_problems()
+                            let solved_in_cat = Problem::all()
                                 .iter()
                                 .filter(|p| {
                                     p.category() == category
@@ -119,6 +116,23 @@ pub fn render_fullscreen_roadmap_dashboard(
                                         ui.with_layout(
                                             egui::Layout::right_to_left(egui::Align::Center),
                                             |ui| {
+                                                let response = ui.button(
+                                                    RichText::new("Category Guide")
+                                                        .font(egui::FontId::proportional(12.0))
+                                                        .strong(),
+                                                );
+
+                                                if response
+                                                    .on_hover_text(format!(
+                                                        "Open {} Category Guide",
+                                                        category.name()
+                                                    ))
+                                                    .clicked()
+                                                {
+                                                    app.open_category_masterclass(category);
+                                                }
+
+                                                ui.add_space(8.0);
                                                 ui.label(
                                                     RichText::new(format!(
                                                         "{}/{} ({:.0}%)",
@@ -164,13 +178,23 @@ pub fn render_fullscreen_roadmap_dashboard(
                             .striped(true)
                             .spacing([12.0, 8.0])
                             .show(ui, |ui| {
-                                for prob in app.visible_problems() {
+                                for &prob in &visible_probs {
                                     let details = prob.details();
                                     let d_color = difficulty_color(details.difficulty, p);
                                     let mut is_completed =
                                         app.completed_problems.contains(&details.id);
 
-                                    if ui.checkbox(&mut is_completed, "").changed() {
+                                    let checkbox_label = if is_completed {
+                                        format!("Mark #{} as incomplete", details.id)
+                                    } else {
+                                        format!("Mark #{} as completed", details.id)
+                                    };
+
+                                    if ui
+                                        .checkbox(&mut is_completed, "")
+                                        .on_hover_text(checkbox_label)
+                                        .changed()
+                                    {
                                         if is_completed {
                                             app.completed_problems.insert(details.id);
                                         } else {
@@ -212,8 +236,6 @@ pub fn render_fullscreen_roadmap_dashboard(
 
     if let Some(prob) = prob_to_select {
         app.select_problem(prob);
-        app.view_mode = ViewMode::Visualizer;
+        app.return_to_visualizer();
     }
-
-    crate::ui::modals::render_reset_confirm_modal(app, ctx);
 }

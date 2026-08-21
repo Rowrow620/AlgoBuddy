@@ -58,6 +58,36 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
                 _ => generate_sorting_steps(&nums, k),
             }
         }
+        Problem::LongestSubstring => {
+            let s = app.get_input_str(Problem::LongestSubstring, "s", "abcabcbb");
+            generate_longest_substring_steps(s)
+        }
+        Problem::CharacterReplacement => {
+            let s = app.get_input_str(Problem::CharacterReplacement, "s", "ABAB");
+            let k = app.get_input_int(Problem::CharacterReplacement, "k", 2) as usize;
+            generate_character_replacement_steps(s, k)
+        }
+        Problem::PermutationInString => {
+            let s1 = app.get_input_str(Problem::PermutationInString, "s1", "ab");
+            let s2 = app.get_input_str(Problem::PermutationInString, "s2", "eidbaooo");
+            generate_permutation_in_string_steps(s1, s2)
+        }
+        Problem::MinWindowSubstring => {
+            let s = app.get_input_str(Problem::MinWindowSubstring, "s", "ADOBECODEBANC");
+            let t = app.get_input_str(Problem::MinWindowSubstring, "t", "ABC");
+            generate_min_window_substring_steps(s, t)
+        }
+        Problem::SlidingWindowMax => {
+            let nums = input::i32_list(
+                app,
+                Problem::SlidingWindowMax,
+                "nums",
+                "1, 3, -1, -3, 5, 3, 6, 7",
+                &[1, 3, -1, -3, 5, 3, 6, 7],
+            );
+            let k = app.get_input_int(Problem::SlidingWindowMax, "k", 3) as usize;
+            generate_sliding_window_max_steps(&nums, k)
+        }
         Problem::ProductExceptSelf => {
             let nums = input::i32_list(
                 app,
@@ -105,25 +135,10 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
                 app,
                 Problem::BestTimeStock,
                 "prices",
-                "10, 1, 5, 6, 7, 1",
-                &[10, 1, 5, 6, 7, 1],
+                "7, 1, 5, 3, 6, 4",
+                &[7, 1, 5, 3, 6, 4],
             );
             generate_best_time_stock_steps(&prices, app_id)
-        }
-        Problem::ValidParentheses => {
-            let s = app.get_input_str(Problem::ValidParentheses, "s", "([{}])");
-            generate_valid_parentheses_steps(s, app_id)
-        }
-        Problem::BinarySearch => {
-            let nums = input::i32_list(
-                app,
-                Problem::BinarySearch,
-                "nums",
-                "-1, 0, 2, 4, 6, 8",
-                &[-1, 0, 2, 4, 6, 8],
-            );
-            let target = app.get_input_int(Problem::BinarySearch, "target", 4);
-            generate_binary_search_steps(&nums, target, app_id)
         }
         Problem::TwoSumII => {
             let nums = input::i32_list(
@@ -147,24 +162,28 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
             generate_three_sum_steps(&nums)
         }
         Problem::ContainerWater => {
-            let nums = input::i32_list(
+            let height = input::i32_list(
                 app,
                 Problem::ContainerWater,
-                "nums",
+                "height",
                 "1, 8, 6, 2, 5, 4, 8, 3, 7",
                 &[1, 8, 6, 2, 5, 4, 8, 3, 7],
             );
-            generate_container_water_steps(&nums)
+            generate_container_water_steps(&height)
         }
         Problem::TrappingRain => {
-            let nums = input::i32_list(
+            let height = input::i32_list(
                 app,
                 Problem::TrappingRain,
-                "nums",
+                "height",
                 "0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1",
                 &[0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1],
             );
-            generate_trapping_rain_steps(&nums)
+            generate_trapping_rain_steps(&height)
+        }
+        Problem::ValidParentheses => {
+            let s = app.get_input_str(Problem::ValidParentheses, "s", "()[]{}");
+            generate_valid_parentheses_steps(s, app_id)
         }
         Problem::MinStack => generate_min_stack_steps(&[
             ("push", Some(-2)),
@@ -176,39 +195,75 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
             ("getMin", None),
         ]),
         Problem::EvalRPN => {
-            let tokens = vec![
-                "2".to_string(),
-                "1".to_string(),
-                "+".to_string(),
-                "3".to_string(),
-                "*".to_string(),
-            ];
+            let tokens = input::string_list(
+                app,
+                Problem::EvalRPN,
+                "tokens",
+                "2, 1, +, 3, *",
+                &["2", "1", "+", "3", "*"],
+            );
             generate_eval_rpn_steps(&tokens)
         }
-        Problem::LongestSubstring => {
-            let s_input = app.get_input_str(Problem::LongestSubstring, "s", "abcabcbb");
-            let s = if s_input.is_empty() {
-                "abcabcbb"
-            } else {
-                s_input
-            };
-            generate_longest_substring_steps(s)
+        Problem::Search2DMatrix => generate_search_2d_matrix_steps(
+            &[vec![1, 3, 5, 7], vec![10, 11, 16, 20], vec![23, 30, 34, 60]],
+            3,
+        ),
+        Problem::GenerateParentheses => {
+            let n = app.get_input_int(Problem::GenerateParentheses, "n", 3);
+            generate_parentheses_combinations_steps(n.max(1) as usize)
         }
-        Problem::Search2DMatrix => {
-            let matrix = vec![vec![1, 3, 5, 7], vec![10, 11, 16, 20], vec![23, 30, 34, 60]];
-            generate_search_2d_matrix_steps(&matrix, 3)
-        }
-        Problem::GenerateParentheses => generate_parentheses_combinations_steps(3),
         Problem::DailyTemperatures => {
-            generate_daily_temperatures_steps(&[73, 74, 75, 71, 69, 72, 76, 73])
+            let temperatures = input::i32_list(
+                app,
+                Problem::DailyTemperatures,
+                "temperatures",
+                "73, 74, 75, 71, 69, 72, 76, 73",
+                &[73, 74, 75, 71, 69, 72, 76, 73],
+            );
+            generate_daily_temperatures_steps(&temperatures)
         }
         Problem::CarFleet => generate_car_fleet_steps(12, &[10, 8, 0, 5, 3], &[2, 4, 1, 1, 3]),
-        Problem::LargestRectangle => generate_largest_rectangle_steps(&[2, 1, 5, 6, 2, 3]),
-        Problem::CharacterReplacement => generate_character_replacement_steps("ABAB", 2),
-        Problem::PermutationInString => generate_permutation_in_string_steps("ab", "eidbaooo"),
-        Problem::MinWindowSubstring => generate_min_window_substring_steps("ADOBECODEBANC", "ABC"),
-        Problem::SlidingWindowMax => {
-            generate_sliding_window_max_steps(&[1, 3, -1, -3, 5, 3, 6, 7], 3)
+        Problem::LargestRectangle => {
+            let heights = input::i32_list(
+                app,
+                Problem::LargestRectangle,
+                "heights",
+                "2, 1, 5, 6, 2, 3",
+                &[2, 1, 5, 6, 2, 3],
+            );
+            generate_largest_rectangle_steps(&heights)
+        }
+        Problem::BinarySearch => {
+            let nums = input::i32_list(
+                app,
+                Problem::BinarySearch,
+                "nums",
+                "-1, 0, 3, 5, 9, 12",
+                &[-1, 0, 3, 5, 9, 12],
+            );
+            let target = app.get_input_int(Problem::BinarySearch, "target", 9);
+            generate_binary_search_steps(&nums, target, app_id)
+        }
+        Problem::KokoEatingBananas => {
+            let piles = input::i32_list(
+                app,
+                Problem::KokoEatingBananas,
+                "piles",
+                "3, 6, 7, 11",
+                &[3, 6, 7, 11],
+            );
+            let h = app.get_input_int(Problem::KokoEatingBananas, "h", 8);
+            generate_koko_eating_bananas_steps(&piles, h)
+        }
+        Problem::FindMinRotated => {
+            let nums = input::i32_list(
+                app,
+                Problem::FindMinRotated,
+                "nums",
+                "3, 4, 5, 1, 2",
+                &[3, 4, 5, 1, 2],
+            );
+            generate_find_min_rotated_steps(&nums)
         }
         Problem::SearchRotatedArray => {
             let nums = input::i32_list(
@@ -221,32 +276,18 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
             let target = app.get_input_int(Problem::SearchRotatedArray, "target", 0);
             generate_search_rotated_array_steps(&nums, target)
         }
-        Problem::FindMinRotated => {
-            let nums = input::i32_list(
+        Problem::FindMedianSortedArrays => {
+            let nums1 = input::i32_list(
                 app,
-                Problem::FindMinRotated,
-                "nums",
-                "3, 4, 5, 1, 2",
-                &[3, 4, 5, 1, 2],
+                Problem::FindMedianSortedArrays,
+                "nums1",
+                "1, 3",
+                &[1, 3],
             );
-            generate_find_min_rotated_steps(&nums)
+            let nums2 = input::i32_list(app, Problem::FindMedianSortedArrays, "nums2", "2", &[2]);
+            generate_find_median_sorted_arrays_steps(&nums1, &nums2)
         }
         Problem::TimeKeyValueStore => generate_time_key_value_store_steps(),
-        Problem::FindMedianSortedArrays => {
-            generate_find_median_sorted_arrays_steps(&[1, 3], &[2, 4])
-        }
-        Problem::KokoEatingBananas => {
-            let piles = input::i32_list(
-                app,
-                Problem::KokoEatingBananas,
-                "nums",
-                "3, 6, 7, 11",
-                &[3, 6, 7, 11],
-            );
-            let raw_target = app.get_input_int(Problem::KokoEatingBananas, "target", 8);
-            let target_h = if raw_target <= 0 { 8 } else { raw_target };
-            generate_koko_eating_bananas_steps(&piles, target_h)
-        }
         _ => unreachable!("problem routed to the wrong foundations engine"),
     }
 }

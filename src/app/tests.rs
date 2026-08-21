@@ -438,3 +438,57 @@ fn settings_navigation_and_default_restore_clear_capture_state() {
     assert_eq!(app.settings_page, SettingsPage::General);
     assert_eq!(app.settings_focus_target, None);
 }
+
+#[test]
+fn test_dashboard_and_masterclass_hides_roadmap_and_restores_previous_state() {
+    let mut app = VisualizerApp::default();
+    assert!(app.show_roadmap_sidebar);
+
+    // Opening dashboard hides roadmap and remembers previous state (true).
+    app.open_dashboard();
+    assert_eq!(app.view_mode, ViewMode::RoadmapDashboard);
+    assert!(!app.show_roadmap_sidebar);
+
+    // Returning to visualizer restores roadmap state (true).
+    app.return_to_visualizer();
+    assert_eq!(app.view_mode, ViewMode::Visualizer);
+    assert!(app.show_roadmap_sidebar);
+
+    // Explicitly hide roadmap sidebar in visualizer mode.
+    app.show_roadmap_sidebar = false;
+
+    // Opening category masterclass hides roadmap and remembers previous state (false).
+    app.open_category_masterclass(Category::ArraysAndHashing);
+    assert_eq!(
+        app.view_mode,
+        ViewMode::CategoryMasterclass(Category::ArraysAndHashing)
+    );
+    assert!(!app.show_roadmap_sidebar);
+
+    // Returning restores roadmap state (false).
+    app.return_to_visualizer();
+    assert_eq!(app.view_mode, ViewMode::Visualizer);
+    assert!(!app.show_roadmap_sidebar);
+}
+
+#[test]
+fn test_terminal_command_routing() {
+    let mut app = VisualizerApp::default();
+    app.current_problem = Problem::LongestConsecutive;
+    app.recompute_steps();
+
+    let help_text = crate::terminal::generate_offline_ai_response(&mut app, "help");
+    assert!(help_text.contains("Available commands"));
+
+    let vars_text = crate::terminal::generate_offline_ai_response(&mut app, "vars");
+    assert!(vars_text.contains("Variables") || vars_text.contains("active step"));
+
+    let formula_text = crate::terminal::generate_offline_ai_response(&mut app, "formula");
+    assert!(formula_text.contains("Invariant"));
+
+    let hint_text = crate::terminal::generate_offline_ai_response(&mut app, "hint");
+    assert!(hint_text.contains("Hint 1/3"));
+
+    let unknown_text = crate::terminal::generate_offline_ai_response(&mut app, "asdfasdf");
+    assert!(unknown_text.contains("Unknown command"));
+}

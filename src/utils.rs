@@ -57,6 +57,13 @@ pub fn format_python_set<T: std::fmt::Display>(set: &std::collections::BTreeSet<
     }
 }
 
+/// Converts a 2D grid of any Display-able items into a 2D String grid for VisualState display.
+pub fn to_string_grid<T: std::fmt::Display, Row: AsRef<[T]>>(grid: &[Row]) -> Vec<Vec<String>> {
+    grid.iter()
+        .map(|row| row.as_ref().iter().map(T::to_string).collect())
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

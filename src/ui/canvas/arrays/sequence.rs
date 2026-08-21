@@ -38,44 +38,23 @@ impl VisualizerApp {
                     p.text_primary
                 };
 
-                ui.vertical(|ui| {
-                    let ptr_text = pointers
-                        .iter()
-                        .filter(|(_, p_idx)| *p_idx == idx)
-                        .map(|(name, _)| *name)
-                        .collect::<Vec<_>>()
-                        .join(",");
+                let ptr_text = pointers
+                    .iter()
+                    .filter(|(_, p_idx)| *p_idx == idx)
+                    .map(|(name, _)| *name)
+                    .collect::<Vec<_>>()
+                    .join(",");
 
-                    if !ptr_text.is_empty() {
-                        ui.label(
-                            RichText::new(&ptr_text)
-                                .font(egui::FontId::monospace(10.0 * z))
-                                .color(p.amber)
-                                .strong(),
-                        );
-                    } else {
-                        ui.label(RichText::new(" ").font(egui::FontId::monospace(10.0 * z)));
-                    }
-
-                    egui::Frame::none()
-                        .fill(bg_color)
-                        .rounding(Rounding::same(8.0 * z))
-                        .inner_margin(egui::Margin::symmetric(10.0 * z, 8.0 * z))
-                        .show(ui, |ui| {
-                            ui.label(
-                                RichText::new(val.to_string())
-                                    .font(egui::FontId::monospace(14.0 * z))
-                                    .color(text_color)
-                                    .strong(),
-                            );
-                        });
-
-                    ui.label(
-                        RichText::new(format!("i={}", idx))
-                            .font(egui::FontId::monospace(10.0 * z))
-                            .color(p.text_muted),
-                    );
-                });
+                Self::render_canvas_cell(
+                    ui,
+                    &val.to_string(),
+                    Some(&ptr_text),
+                    Some(&format!("i={idx}")),
+                    bg_color,
+                    p.cell_border,
+                    text_color,
+                    z,
+                );
                 ui.add_space(4.0 * z);
             }
         });

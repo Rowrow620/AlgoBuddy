@@ -3,6 +3,7 @@ mod app;
 mod engine;
 mod model;
 mod shortcuts;
+mod terminal;
 mod ui;
 mod utils;
 

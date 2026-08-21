@@ -6,7 +6,6 @@ use eframe::egui::Color32;
 pub enum Theme {
     DarkVSCode,
     DarkCyber,
-    LightClean,
 }
 
 impl Theme {
@@ -14,7 +13,6 @@ impl Theme {
         match self {
             Theme::DarkVSCode => "VS Code Dark",
             Theme::DarkCyber => "Cyber Navy (Dark)",
-            Theme::LightClean => "Clean Light",
         }
     }
 }
@@ -76,7 +74,7 @@ impl Theme {
             ),
         };
 
-        match self {
+        let mut palette = match self {
             Theme::DarkVSCode => ThemePalette {
                 bg_dark: Color32::from_rgb(24, 24, 24),
                 sidebar_bg: Color32::from_rgb(30, 30, 30),
@@ -113,29 +111,20 @@ impl Theme {
                 red: base_red,
                 code_active_bg: Color32::from_rgb(14, 116, 144),
             },
-            Theme::LightClean => ThemePalette {
-                bg_dark: Color32::from_rgb(248, 250, 252),
-                sidebar_bg: Color32::from_rgb(255, 255, 255),
-                step_box_bg: Color32::from_rgb(241, 245, 249),
-                cell_bg: Color32::from_rgb(241, 245, 249),
-                cell_border: Color32::from_rgb(203, 213, 225),
-                text_primary: Color32::from_rgb(15, 23, 42),
-                text_muted: Color32::from_rgb(71, 85, 105),
-                text_dim: Color32::from_rgb(148, 163, 184),
-                cyan: Color32::from_rgb(2, 132, 199),
-                purple: Color32::from_rgb(147, 51, 234),
-                emerald: base_emerald,
-                emerald_text: if cb == ColorblindMode::Off {
-                    Color32::from_rgb(5, 150, 105)
-                } else {
-                    base_emerald_text
-                },
-                amber: Color32::from_rgb(217, 119, 6),
-                pink: Color32::from_rgb(219, 39, 119),
-                red: base_red,
-                code_active_bg: Color32::from_rgb(186, 230, 253),
-            },
+        };
+
+        if cb == ColorblindMode::HighContrast {
+            palette.cyan = Color32::WHITE;
+            palette.purple = Color32::WHITE;
+            palette.emerald = Color32::WHITE;
+            palette.emerald_text = Color32::WHITE;
+            palette.amber = Color32::WHITE;
+            palette.pink = Color32::WHITE;
+            palette.red = Color32::WHITE;
+            palette.code_active_bg = Color32::from_rgb(60, 60, 60);
         }
+
+        palette
     }
 }
 
@@ -160,7 +149,7 @@ impl Difficulty {
 
 // ── Roadmap Categories (NeetCode 150 Hierarchy) ──
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Category {
     ArraysAndHashing,
     TwoPointers,

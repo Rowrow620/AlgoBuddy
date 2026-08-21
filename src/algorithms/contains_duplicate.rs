@@ -5,19 +5,11 @@ pub(crate) const CONTAINS_DUPLICATE_VISUALIZATION_LIMIT: usize = 128;
 
 pub fn generate_contains_duplicate_steps(nums: &[i32], approach_id: usize) -> Vec<Step> {
     if nums.len() > CONTAINS_DUPLICATE_VISUALIZATION_LIMIT {
-        return vec![Step {
-            code_line: 3,
-            description: format!(
-                "Contains Duplicate visualization supports up to {} values; shorten the input to build the detailed trace.",
-                CONTAINS_DUPLICATE_VISUALIZATION_LIMIT
-            ),
-            visual: VisualState::TraceUnavailable {
-                message: format!(
-                    "Detailed traces accept at most {} values because each step stores the array state.",
-                    CONTAINS_DUPLICATE_VISUALIZATION_LIMIT
-                ),
-            },
-        }];
+        return vec![Step::trace_unavailable(
+            "Contains Duplicate",
+            CONTAINS_DUPLICATE_VISUALIZATION_LIMIT,
+            "each step stores the array state",
+        )];
     }
 
     let mut steps = Vec::new();

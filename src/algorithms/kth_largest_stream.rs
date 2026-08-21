@@ -71,7 +71,7 @@ fn generate_min_heap_steps(k: usize, nums: &[i32], val: i32) -> Vec<Step> {
         },
     });
 
-    let kth = heap[0];
+    let kth = heap.first().copied().unwrap_or(0);
     steps.push(Step {
         code_line: 8,
         description: format!("{}-th largest element in stream = {}.", k, kth),

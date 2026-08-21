@@ -1,4 +1,4 @@
-use crate::app::{ViewMode, VisualizerApp};
+use crate::app::VisualizerApp;
 use crate::model::ThemePalette;
 use crate::shortcuts::ShortcutAction;
 use crate::ui::theme_helpers::difficulty_color;
@@ -79,11 +79,8 @@ pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &The
                     #[cfg(not(target_arch = "wasm32"))]
                     {
                         ui.add_space(8.0);
-                        let fs_label = if app.is_fullscreen {
-                            "Windowed"
-                        } else {
-                            "Fullscreen"
-                        };
+                        let is_fs = ctx.input(|i| i.viewport().fullscreen.unwrap_or(false));
+                        let fs_label = if is_fs { "Windowed" } else { "Fullscreen" };
                         let fullscreen_help = "Toggle fullscreen mode (Shortcut: F11, fixed)";
                         let fullscreen_response = ui
                             .button(RichText::new(fs_label).strong().color(p.cyan))
@@ -96,10 +93,7 @@ pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &The
                             )
                         });
                         if fullscreen_response.clicked() {
-                            app.is_fullscreen = !app.is_fullscreen;
-                            ctx.send_viewport_cmd(egui::ViewportCommand::Fullscreen(
-                                app.is_fullscreen,
-                            ));
+                            ctx.send_viewport_cmd(egui::ViewportCommand::Fullscreen(!is_fs));
                         }
                     }
 
@@ -114,7 +108,7 @@ pub fn render_header_panel(app: &mut VisualizerApp, ctx: &egui::Context, p: &The
                         )
                         .clicked()
                     {
-                        app.view_mode = ViewMode::RoadmapDashboard;
+                        app.open_dashboard();
                     }
 
                     ui.add_space(8.0);

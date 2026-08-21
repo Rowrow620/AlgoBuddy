@@ -52,7 +52,7 @@ pub fn generate_product_steps(nums: &[i32]) -> Vec<Step> {
             },
         });
 
-        prefix_val *= nums[i] as i64;
+        prefix_val = prefix_val.saturating_mul(nums[i] as i64);
         steps.push(Step {
             code_line: 9,
             description: format!(
@@ -87,7 +87,7 @@ pub fn generate_product_steps(nums: &[i32]) -> Vec<Step> {
 
     // 5. Suffix pass (code_lines 13-14)
     for i in (0..n).rev() {
-        output[i] *= suffix_val;
+        output[i] = output[i].saturating_mul(suffix_val);
         steps.push(Step {
             code_line: 13,
             description: format!(
@@ -104,7 +104,7 @@ pub fn generate_product_steps(nums: &[i32]) -> Vec<Step> {
             },
         });
 
-        suffix_val *= nums[i] as i64;
+        suffix_val = suffix_val.saturating_mul(nums[i] as i64);
         steps.push(Step {
             code_line: 14,
             description: format!(

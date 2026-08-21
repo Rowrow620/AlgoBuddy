@@ -205,10 +205,13 @@ pub fn generate_max_product_subarray_steps(nums: &[i32]) -> Vec<Step> {
     steps
 }
 
-pub fn generate_word_break_steps(s: &str, _words: &[String]) -> Vec<Step> {
+pub fn generate_word_break_steps(s: &str, words: &[String]) -> Vec<Step> {
     let mut steps = Vec::new();
     steps.push(Step {
-        description: format!("Word Break right-to-left 1D DP for string '{}'", s),
+        description: format!(
+            "Word Break right-to-left 1D DP for string '{}' with dictionary {:?}",
+            s, words
+        ),
         code_line: 4,
         visual: VisualState::ContainsDuplicate {
             nums: vec![1, 0, 0, 0, 1, 0, 0, 0, 1],

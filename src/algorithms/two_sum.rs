@@ -14,19 +14,11 @@ pub fn generate_two_sum_steps(nums: &[i32], target: i32, approach_id: usize) -> 
 
 fn generate_two_sum_hash_map(nums: &[i32], target: i32) -> Vec<Step> {
     if nums.len() > HASH_MAP_VISUALIZATION_LIMIT {
-        return vec![Step {
-            code_line: 3,
-            description: format!(
-                "Hash Map visualization supports up to {} values; shorten the input to build the detailed trace.",
-                HASH_MAP_VISUALIZATION_LIMIT
-            ),
-            visual: VisualState::TraceUnavailable {
-                message: format!(
-                    "Detailed Hash Map traces accept at most {} values because each step stores an array and map snapshot.",
-                    HASH_MAP_VISUALIZATION_LIMIT
-                ),
-            },
-        }];
+        return vec![Step::trace_unavailable(
+            "Hash Map",
+            HASH_MAP_VISUALIZATION_LIMIT,
+            "each step stores an array and map snapshot",
+        )];
     }
 
     let mut steps = Vec::new();
@@ -133,19 +125,11 @@ fn generate_two_sum_hash_map(nums: &[i32], target: i32) -> Vec<Step> {
 
 fn generate_two_sum_brute_force(nums: &[i32], target: i32) -> Vec<Step> {
     if nums.len() > BRUTE_FORCE_VISUALIZATION_LIMIT {
-        return vec![Step {
-            code_line: 3,
-            description: format!(
-                "Brute Force visualization supports up to {} values; shorten the input to build this quadratic trace.",
-                BRUTE_FORCE_VISUALIZATION_LIMIT
-            ),
-            visual: VisualState::TraceUnavailable {
-                message: format!(
-                    "Brute Force traces accept at most {} values because every pair becomes a timeline step.",
-                    BRUTE_FORCE_VISUALIZATION_LIMIT
-                ),
-            },
-        }];
+        return vec![Step::trace_unavailable(
+            "Brute Force",
+            BRUTE_FORCE_VISUALIZATION_LIMIT,
+            "every pair becomes a timeline step",
+        )];
     }
 
     let nums_vec = nums.to_vec();

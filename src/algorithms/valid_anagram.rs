@@ -23,15 +23,11 @@ fn validate_trace_input(s: &str, t: &str) -> Option<Vec<Step>> {
     }
 
     if s.len().max(t.len()) > VALID_ANAGRAM_VISUALIZATION_LIMIT {
-        let message = format!(
-            "Valid Anagram visualization supports up to {} characters per string; shorten the input to build the detailed trace.",
-            VALID_ANAGRAM_VISUALIZATION_LIMIT
-        );
-        return Some(vec![Step {
-            code_line: 3,
-            description: message.clone(),
-            visual: VisualState::TraceUnavailable { message },
-        }]);
+        return Some(vec![Step::trace_unavailable(
+            "Valid Anagram",
+            VALID_ANAGRAM_VISUALIZATION_LIMIT,
+            "each step stores character frequency vectors",
+        )]);
     }
 
     None

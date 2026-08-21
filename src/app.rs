@@ -32,6 +32,7 @@ pub enum RightTab {
 pub enum ViewMode {
     Visualizer,
     RoadmapDashboard,
+    CategoryMasterclass(Category),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -44,6 +45,26 @@ pub(crate) enum SettingsPage {
 pub(crate) enum SettingsFocusTarget {
     KeyboardMenuButton,
     ShortcutBackButton,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AiSender {
+    User,
+    AlgoBuddyAi,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TerminalQuizState {
+    Inactive,
+    AskingTime,
+    AskingSpace,
+}
+
+#[derive(Debug, Clone)]
+pub struct AiChatMessage {
+    pub sender: AiSender,
+    pub text: String,
+    pub created_at: std::time::Instant,
 }
 
 pub struct VisualizerApp {
@@ -63,6 +84,7 @@ pub struct VisualizerApp {
 
     // Navigation and sidebar state.
     pub(crate) show_roadmap_sidebar: bool,
+    pub(crate) previous_roadmap_sidebar_state: Option<bool>,
     pub(crate) show_right_sidebar: bool,
     pub(crate) current_problem: Problem,
     pub(crate) selected_approach_id: usize,
@@ -85,8 +107,16 @@ pub struct VisualizerApp {
 
     pub(crate) canvas_zoom: f32,
     pub(crate) last_focused_step_idx: Option<usize>,
-    #[cfg(not(target_arch = "wasm32"))]
-    pub(crate) is_fullscreen: bool,
+
+    // Category guide and quiz state.
+    pub(crate) terminal_quiz_state: TerminalQuizState,
+    pub(crate) quiz_scores: std::collections::HashMap<Category, (usize, usize)>,
+
+    // Embedded AI Assistant state.
+    pub(crate) ai_chat_history: Vec<AiChatMessage>,
+    pub(crate) ai_input_text: String,
+    pub(crate) terminal_boot_start: Instant,
+    pub(crate) hint_progress: usize,
 }
 
 impl Default for VisualizerApp {
@@ -106,6 +136,7 @@ impl Default for VisualizerApp {
             favorite_problems: std::collections::HashSet::new(),
 
             show_roadmap_sidebar: true,
+            previous_roadmap_sidebar_state: None,
             show_right_sidebar: true,
             current_problem: Problem::ContainsDuplicate,
             selected_approach_id: 0,
@@ -126,8 +157,14 @@ impl Default for VisualizerApp {
 
             canvas_zoom: CANVAS_ZOOM_DEFAULT,
             last_focused_step_idx: None,
-            #[cfg(not(target_arch = "wasm32"))]
-            is_fullscreen: false,
+
+            terminal_quiz_state: TerminalQuizState::Inactive,
+            quiz_scores: std::collections::HashMap::new(),
+
+            ai_chat_history: Vec::new(),
+            ai_input_text: String::new(),
+            terminal_boot_start: Instant::now(),
+            hint_progress: 0,
         };
 
         app.recompute_steps();
@@ -136,6 +173,31 @@ impl Default for VisualizerApp {
 }
 
 impl VisualizerApp {
+    // View mode and sidebar navigation helpers.
+
+    pub fn open_dashboard(&mut self) {
+        if self.view_mode == ViewMode::Visualizer {
+            self.previous_roadmap_sidebar_state = Some(self.show_roadmap_sidebar);
+        }
+        self.show_roadmap_sidebar = false;
+        self.view_mode = ViewMode::RoadmapDashboard;
+    }
+
+    pub fn open_category_masterclass(&mut self, category: Category) {
+        if self.view_mode == ViewMode::Visualizer {
+            self.previous_roadmap_sidebar_state = Some(self.show_roadmap_sidebar);
+        }
+        self.show_roadmap_sidebar = false;
+        self.view_mode = ViewMode::CategoryMasterclass(category);
+    }
+
+    pub fn return_to_visualizer(&mut self) {
+        if let Some(prev) = self.previous_roadmap_sidebar_state.take() {
+            self.show_roadmap_sidebar = prev;
+        }
+        self.view_mode = ViewMode::Visualizer;
+    }
+
     // Input state helpers.
 
     pub fn get_input_str<'a>(
@@ -188,7 +250,28 @@ impl VisualizerApp {
     }
 
     pub fn visible_problems(&self) -> Vec<Problem> {
-        Problem::all().to_vec()
+        let q = self.search_query.trim().to_lowercase();
+        Problem::all()
+            .iter()
+            .copied()
+            .filter(|p| {
+                if let Some(d) = self.selected_difficulty {
+                    if p.details().difficulty != d {
+                        return false;
+                    }
+                }
+                if !q.is_empty() {
+                    let details = p.details();
+                    let matches_id = details.id.to_string().contains(&q);
+                    let matches_title = details.title.to_lowercase().contains(&q);
+                    let matches_category = details.category.name().to_lowercase().contains(&q);
+                    if !matches_id && !matches_title && !matches_category {
+                        return false;
+                    }
+                }
+                true
+            })
+            .collect()
     }
 
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
@@ -516,8 +599,8 @@ impl eframe::App for VisualizerApp {
 
         #[cfg(not(target_arch = "wasm32"))]
         if toggle_fs {
-            self.is_fullscreen = !self.is_fullscreen;
-            ctx.send_viewport_cmd(egui::ViewportCommand::Fullscreen(self.is_fullscreen));
+            let is_fs = ctx.input(|i| i.viewport().fullscreen.unwrap_or(false));
+            ctx.send_viewport_cmd(egui::ViewportCommand::Fullscreen(!is_fs));
         }
 
         if self.is_playing {
@@ -537,10 +620,20 @@ impl eframe::App for VisualizerApp {
         crate::ui::modals::render_settings_modal(self, ctx);
         crate::ui::modals::render_reset_confirm_modal(self, ctx);
 
-        if self.view_mode == ViewMode::RoadmapDashboard {
-            crate::ui::sidebar::render_roadmap_sidebar(self, ctx, &p);
-            crate::ui::dashboard::render_fullscreen_roadmap_dashboard(self, ctx, &p);
-            return;
+        match self.view_mode {
+            ViewMode::RoadmapDashboard => {
+                crate::ui::sidebar::render_roadmap_sidebar(self, ctx, &p);
+                crate::ui::dashboard::render_fullscreen_roadmap_dashboard(self, ctx, &p);
+                return;
+            }
+            ViewMode::CategoryMasterclass(category) => {
+                crate::ui::sidebar::render_roadmap_sidebar(self, ctx, &p);
+                crate::ui::category_guide_screen::render_fullscreen_category_masterclass(
+                    self, ctx, &p, category,
+                );
+                return;
+            }
+            ViewMode::Visualizer => {}
         }
 
         if self.show_roadmap_sidebar {

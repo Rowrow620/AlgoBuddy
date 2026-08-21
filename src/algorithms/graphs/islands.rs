@@ -9,10 +9,7 @@ pub fn generate_number_islands_steps(grid: &[Vec<char>]) -> Vec<Step> {
     }
     let cols = grid[0].len();
 
-    let string_grid: Vec<Vec<String>> = grid
-        .iter()
-        .map(|row| row.iter().map(|c| c.to_string()).collect())
-        .collect();
+    let string_grid = crate::utils::to_string_grid(grid);
 
     let mut visited = BTreeSet::new();
     let mut islands = 0;
@@ -116,10 +113,7 @@ pub fn generate_max_area_island_steps() -> Vec<Step> {
     ];
     let rows = grid.len();
     let cols = grid[0].len();
-    let string_grid: Vec<Vec<String>> = grid
-        .iter()
-        .map(|row| row.iter().map(char::to_string).collect())
-        .collect();
+    let string_grid = crate::utils::to_string_grid(&grid);
     let mut visited = BTreeSet::new();
     let mut max_area = 0;
     let mut steps = vec![Step {

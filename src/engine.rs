@@ -31,6 +31,8 @@ pub(crate) fn select_problem(app: &mut VisualizerApp, problem: Problem) {
     if app.current_problem != problem {
         app.current_problem = problem;
         app.selected_approach_id = problem.details().default_approach_id();
+        app.ai_chat_history.clear();
+        app.hint_progress = 0;
         app.recompute_steps();
     }
 }

@@ -36,11 +36,22 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
             generate_house_robber_ii_steps(&nums)
         }
         Problem::LongestPalindromicSubstring => {
-            generate_longest_palindromic_substring_steps("babad")
+            let s = app.get_input_str(Problem::LongestPalindromicSubstring, "s", "babad");
+            generate_longest_palindromic_substring_steps(s)
         }
-        Problem::PalindromicSubstrings => generate_palindromic_substrings_steps("aaa"),
-        Problem::DecodeWays => generate_decode_ways_steps("226"),
-        Problem::CoinChange => generate_coin_change_steps(&[1, 2, 5], 11),
+        Problem::PalindromicSubstrings => {
+            let s = app.get_input_str(Problem::PalindromicSubstrings, "s", "aaa");
+            generate_palindromic_substrings_steps(s)
+        }
+        Problem::DecodeWays => {
+            let s = app.get_input_str(Problem::DecodeWays, "s", "226");
+            generate_decode_ways_steps(s)
+        }
+        Problem::CoinChange => {
+            let coins = input::i32_list(app, Problem::CoinChange, "coins", "1, 2, 5", &[1, 2, 5]);
+            let amount = app.get_input_int(Problem::CoinChange, "amount", 11);
+            generate_coin_change_steps(&coins, amount)
+        }
         Problem::MaxProductSubarray => {
             let nums = input::i32_list(
                 app,
@@ -52,8 +63,15 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
             generate_max_product_subarray_steps(&nums)
         }
         Problem::WordBreak => {
-            let words: Vec<String> = vec!["leet".to_string(), "code".to_string()];
-            generate_word_break_steps("leetcode", &words)
+            let s = app.get_input_str(Problem::WordBreak, "s", "leetcode");
+            let words = input::string_list(
+                app,
+                Problem::WordBreak,
+                "words",
+                "leet, code",
+                &["leet", "code"],
+            );
+            generate_word_break_steps(s, &words)
         }
         Problem::LongestIncreasingSubsequence => {
             let nums = input::i32_list(
@@ -110,24 +128,76 @@ pub(super) fn generate_steps(app: &mut VisualizerApp) -> Vec<Step> {
             generate_hand_of_straights_steps(&[1, 2, 3, 6, 2, 3, 4, 7, 8], 3)
         }
         Problem::MergeTriplets => generate_merge_triplets_steps(),
-        Problem::PartitionLabels => generate_partition_labels_steps("ababcbacadefegdehijhklij"),
-        Problem::ValidParenthesisString => generate_valid_parenthesis_string_steps("(*)"),
+        Problem::PartitionLabels => {
+            let s = app.get_input_str(Problem::PartitionLabels, "s", "ababcbacadefegdehijhklij");
+            generate_partition_labels_steps(s)
+        }
+        Problem::ValidParenthesisString => {
+            let s = app.get_input_str(Problem::ValidParenthesisString, "s", "(*)");
+            generate_valid_parenthesis_string_steps(s)
+        }
         Problem::InsertInterval => generate_insert_interval_steps(),
         Problem::MergeIntervals => generate_merge_intervals_steps(),
         Problem::NonOverlappingIntervals => generate_non_overlapping_intervals_steps(),
         Problem::MeetingRoomsII => generate_meeting_rooms_ii_steps(),
         Problem::MinIntervalQuery => generate_min_interval_query_steps(),
-        Problem::UniquePaths => generate_unique_paths_steps(3, 7),
-        Problem::LongestCommonSubsequence => generate_lcs_steps("abcde", "ace"),
-        Problem::BestTimeStockCooldown => generate_stock_cooldown_steps(&[1, 2, 3, 0, 2]),
-        Problem::CoinChangeII => generate_coin_change_ii_steps(5, &[1, 2, 5]),
-        Problem::TargetSum => generate_target_sum_steps(&[1, 1, 1, 1, 1], 3),
+        Problem::UniquePaths => {
+            let m = app.get_input_int(Problem::UniquePaths, "m", 3).max(1) as usize;
+            let n = app.get_input_int(Problem::UniquePaths, "n", 7).max(1) as usize;
+            generate_unique_paths_steps(m, n)
+        }
+        Problem::LongestCommonSubsequence => {
+            let text1 = app.get_input_str(Problem::LongestCommonSubsequence, "text1", "abcde");
+            let text2 = app.get_input_str(Problem::LongestCommonSubsequence, "text2", "ace");
+            generate_lcs_steps(text1, text2)
+        }
+        Problem::BestTimeStockCooldown => {
+            let prices = input::i32_list(
+                app,
+                Problem::BestTimeStockCooldown,
+                "prices",
+                "1, 2, 3, 0, 2",
+                &[1, 2, 3, 0, 2],
+            );
+            generate_stock_cooldown_steps(&prices)
+        }
+        Problem::CoinChangeII => {
+            let coins: Vec<usize> =
+                input::i32_list(app, Problem::CoinChangeII, "coins", "1, 2, 5", &[1, 2, 5])
+                    .into_iter()
+                    .map(|c| c.max(1) as usize)
+                    .collect();
+            let amount = app.get_input_int(Problem::CoinChangeII, "amount", 5).max(0) as usize;
+            generate_coin_change_ii_steps(amount, &coins)
+        }
+        Problem::TargetSum => {
+            let nums = input::i32_list(
+                app,
+                Problem::TargetSum,
+                "nums",
+                "1, 1, 1, 1, 1",
+                &[1, 1, 1, 1, 1],
+            );
+            let target = app.get_input_int(Problem::TargetSum, "target", 3);
+            generate_target_sum_steps(&nums, target)
+        }
         Problem::InterleavingString => {
-            generate_interleaving_string_steps("aabcc", "dbbca", "aadbbcbcac")
+            let s1 = app.get_input_str(Problem::InterleavingString, "s1", "aabcc");
+            let s2 = app.get_input_str(Problem::InterleavingString, "s2", "dbbca");
+            let s3 = app.get_input_str(Problem::InterleavingString, "s3", "aadbbcbcac");
+            generate_interleaving_string_steps(s1, s2, s3)
         }
         Problem::LongestIncreasingPath => generate_lip_steps(),
-        Problem::DistinctSubsequences => generate_distinct_subsequences_steps("rabbbit", "rabbit"),
-        Problem::EditDistance => generate_edit_distance_steps("horse", "ros"),
+        Problem::DistinctSubsequences => {
+            let s = app.get_input_str(Problem::DistinctSubsequences, "s", "rabbbit");
+            let t = app.get_input_str(Problem::DistinctSubsequences, "t", "rabbit");
+            generate_distinct_subsequences_steps(s, t)
+        }
+        Problem::EditDistance => {
+            let word1 = app.get_input_str(Problem::EditDistance, "word1", "horse");
+            let word2 = app.get_input_str(Problem::EditDistance, "word2", "ros");
+            generate_edit_distance_steps(word1, word2)
+        }
         Problem::BurstBalloons => generate_burst_balloons_steps(),
         Problem::RegularExpressionMatching => generate_regex_matching_steps(),
         _ => unreachable!("problem routed to the wrong optimization engine"),

@@ -1,17 +1,24 @@
 use crate::model::{Step, VisualState};
 use std::collections::BTreeSet;
 
-pub fn generate_course_schedule_steps(_num_courses: i32, _prerequisites: &[[i32; 2]]) -> Vec<Step> {
+pub fn generate_course_schedule_steps(num_courses: i32, prerequisites: &[[i32; 2]]) -> Vec<Step> {
     let mut steps = Vec::new();
-    let num_courses = 4;
-    let nodes: Vec<usize> = (0..num_courses).collect();
+    let num_c = (num_courses as usize).max(4);
+    let nodes: Vec<usize> = (0..num_c).collect();
     let labels: Vec<String> = nodes.iter().map(|u| format!("Course {}", u)).collect();
-    let edges: Vec<(usize, usize)> = vec![(0, 1), (0, 2), (1, 3), (2, 3)];
+    let edges: Vec<(usize, usize)> = if prerequisites.is_empty() {
+        vec![(0, 1), (0, 2), (1, 3), (2, 3)]
+    } else {
+        prerequisites
+            .iter()
+            .map(|p| (p[1] as usize, p[0] as usize))
+            .collect()
+    };
 
     steps.push(Step {
         description: format!(
             "Course Schedule: Build dependency graph with {} courses",
-            num_courses
+            num_c
         ),
         code_line: 4,
         visual: VisualState::NodeGraph {
@@ -105,14 +112,21 @@ pub fn generate_course_schedule_steps(_num_courses: i32, _prerequisites: &[[i32;
 }
 
 pub fn generate_course_schedule_ii_steps(
-    _num_courses: i32,
-    _prerequisites: &[[i32; 2]],
+    num_courses: i32,
+    prerequisites: &[[i32; 2]],
 ) -> Vec<Step> {
     let mut steps = Vec::new();
-    let num_courses = 4;
-    let nodes: Vec<usize> = (0..num_courses).collect();
+    let num_c = (num_courses as usize).max(4);
+    let nodes: Vec<usize> = (0..num_c).collect();
     let labels: Vec<String> = nodes.iter().map(|u| format!("Course {}", u)).collect();
-    let edges: Vec<(usize, usize)> = vec![(0, 1), (0, 2), (1, 3), (2, 3)];
+    let edges: Vec<(usize, usize)> = if prerequisites.is_empty() {
+        vec![(0, 1), (0, 2), (1, 3), (2, 3)]
+    } else {
+        prerequisites
+            .iter()
+            .map(|p| (p[1] as usize, p[0] as usize))
+            .collect()
+    };
 
     let mut topo_order = Vec::new();
     let mut visited = BTreeSet::new();
@@ -120,7 +134,7 @@ pub fn generate_course_schedule_ii_steps(
     steps.push(Step {
         description: format!(
             "Course Schedule II: Initialize Topological Sort for {} courses",
-            num_courses
+            num_c
         ),
         code_line: 4,
         visual: VisualState::NodeGraph {

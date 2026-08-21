@@ -415,10 +415,15 @@ pub fn generate_combination_sum_ii_steps(candidates: &[i32], target: i32) -> Vec
     steps
 }
 
-pub fn generate_word_search_steps(_board: &[Vec<char>], word: &str) -> Vec<Step> {
+pub fn generate_word_search_steps(board: &[Vec<char>], word: &str) -> Vec<Step> {
     let mut steps = Vec::new();
+    let rows = board.len();
+    let cols = board.first().map(|r| r.len()).unwrap_or(0);
     steps.push(Step {
-        description: format!("Start 2D Grid Backtracking DFS for word '{}'", word),
+        description: format!(
+            "Start {}x{} Grid Backtracking DFS for word '{}'",
+            rows, cols, word
+        ),
         code_line: 5,
         visual: VisualState::DecisionTreeVisual {
             current_path: Vec::new(),

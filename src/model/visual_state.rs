@@ -35,6 +35,22 @@ pub struct Step {
     pub visual: VisualState,
 }
 
+impl Step {
+    pub fn trace_unavailable(approach_name: &str, limit: usize, rationale: &str) -> Self {
+        Step {
+            code_line: 3,
+            description: format!(
+                "{approach_name} visualization supports up to {limit} values; shorten the input to build the detailed trace."
+            ),
+            visual: VisualState::TraceUnavailable {
+                message: format!(
+                    "Detailed {approach_name} traces accept at most {limit} values because {rationale}."
+                ),
+            },
+        }
+    }
+}
+
 /// Renderer state captured at one point in an algorithm trace.
 /// Each variant is handled by the matching branch in `ui::canvas`.
 #[derive(Debug, Clone)]

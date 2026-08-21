@@ -26,14 +26,19 @@ pub fn generate_longest_consecutive_steps(nums: &[i32]) -> Vec<Step> {
     let mut longest = 0;
 
     for &n in &num_set {
-        let is_start = !num_set.contains(&(n - 1));
+        let is_start = n.checked_sub(1).is_none_or(|prev| !num_set.contains(&prev));
 
         steps.push(Step {
             code_line: 7,
             description: if is_start {
-                format!("Checking n={}: (n - 1) = {} is NOT in numSet. Element {} IS the start of a sequence!", n, n - 1, n)
+                if let Some(prev) = n.checked_sub(1) {
+                    format!("Checking n={}: (n - 1) = {} is NOT in numSet. Element {} IS the start of a sequence!", n, prev, n)
+                } else {
+                    format!("Checking n={}: (n - 1) underflows i32::MIN. Element {} IS the start of a sequence!", n, n)
+                }
             } else {
-                format!("Checking n={}: (n - 1) = {} IS in numSet. Skip {} (not sequence start).", n, n - 1, n)
+                let prev = n.checked_sub(1).unwrap();
+                format!("Checking n={}: (n - 1) = {} IS in numSet. Skip {} (not sequence start).", n, prev, n)
             },
             visual: VisualState::LongestConsecutive {
                 nums: num_vec.clone(),
@@ -49,7 +54,10 @@ pub fn generate_longest_consecutive_steps(nums: &[i32]) -> Vec<Step> {
             let mut curr_seq = vec![n];
             let mut length = 1;
 
-            while num_set.contains(&(n + length)) {
+            while n
+                .checked_add(length)
+                .is_some_and(|next_val| num_set.contains(&next_val))
+            {
                 let next_val = n + length;
                 curr_seq.push(next_val);
                 length += 1;
@@ -73,7 +81,7 @@ pub fn generate_longest_consecutive_steps(nums: &[i32]) -> Vec<Step> {
 
             steps.push(Step {
                 code_line: 11,
-                description: format!("Sequence ending at {}. Total streak length = {}. Updated max longest: {} -> {}.", n + (length - 1), length, prev_longest, longest),
+                description: format!("Sequence ending at {}. Total streak length = {}. Updated max longest: {} -> {}.", n.saturating_add(length - 1), length, prev_longest, longest),
                 visual: VisualState::LongestConsecutive {
                     nums: num_vec.clone(),
                     num_set: num_set.clone(),
