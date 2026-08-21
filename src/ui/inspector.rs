@@ -225,6 +225,22 @@ pub fn render_right_sidebar_inspector(
                                         app.last_focused_step_idx = Some(app.current_step_idx);
                                     }
                                 }
+                                ui.add_space(8.0);
+                                ui.horizontal(|ui| {
+                                    ui.label(
+                                        RichText::new("⚡ Engine")
+                                            .font(egui::FontId::monospace(10.0))
+                                            .color(p.amber),
+                                    );
+                                    ui.label(
+                                        RichText::new(format!(
+                                            "{:.2} ms",
+                                            app.step_generation_time_ms
+                                        ))
+                                        .font(egui::FontId::monospace(10.0))
+                                        .color(p.text_dim),
+                                    );
+                                });
                                 ui.add_space(16.0);
                             });
                     }

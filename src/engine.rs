@@ -9,7 +9,11 @@ pub(crate) fn recompute_steps(app: &mut VisualizerApp) {
     if details.approach_by_id(app.selected_approach_id).is_none() {
         app.selected_approach_id = details.default_approach_id();
     }
+
+    let start_time = web_time::Instant::now();
     app.steps = dispatch::generate_steps(app);
+    app.step_generation_time_ms = start_time.elapsed().as_secs_f64() * 1000.0;
+
     reset_playback(app);
 }
 

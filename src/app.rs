@@ -100,6 +100,7 @@ pub struct VisualizerApp {
 
     // Timeline playback state.
     pub(crate) steps: Vec<Step>,
+    pub(crate) step_generation_time_ms: f64,
     pub(crate) current_step_idx: usize,
     pub(crate) is_playing: bool,
     pub(crate) playback_speed_ms: u64,
@@ -149,6 +150,7 @@ impl Default for VisualizerApp {
             sudoku_preset_valid: true,
 
             steps: Vec::new(),
+            step_generation_time_ms: 0.0,
 
             current_step_idx: 0,
             is_playing: false,
