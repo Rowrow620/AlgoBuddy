@@ -4,11 +4,9 @@ use crate::model::*;
 pub fn generate_offline_ai_response(app: &mut VisualizerApp, query: &str) -> String {
     let q = query.trim().to_lowercase();
 
-    if q == "exit" || q == "quit" {
-        if app.terminal_quiz_state != TerminalQuizState::Inactive {
-            app.terminal_quiz_state = TerminalQuizState::Inactive;
-            return "Exited quiz mode.".to_string();
-        }
+    if (q == "exit" || q == "quit") && app.terminal_quiz_state != TerminalQuizState::Inactive {
+        app.terminal_quiz_state = TerminalQuizState::Inactive;
+        return "Exited quiz mode.".to_string();
     }
 
     match app.terminal_quiz_state {
