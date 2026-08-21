@@ -27,8 +27,8 @@ pub fn generate_offline_ai_response(app: &mut VisualizerApp, query: &str) -> Str
             "clear" | "cls" | "reset" => String::new(), // Sent to UI to clear history
             _ => "Unknown command. Type 'help' for available commands.".to_string(),
         },
-        TerminalQuizState::AskingTime => handle_quiz_time(app, &q),
-        TerminalQuizState::AskingSpace => handle_quiz_space(app, &q),
+        TerminalQuizState::AskingTime(prob, approach) => handle_quiz_time(app, prob, approach, &q),
+        TerminalQuizState::AskingSpace(prob, approach) => handle_quiz_space(app, prob, approach, &q),
     }
 }
 
@@ -182,54 +182,68 @@ fn cmd_next(app: &VisualizerApp) -> String {
 }
 
 fn cmd_start_quiz(app: &mut VisualizerApp) -> String {
-    app.terminal_quiz_state = TerminalQuizState::AskingTime;
-    let approach = app
-        .current_problem
-        .details()
-        .approach_by_id(app.selected_approach_id)
-        .unwrap();
-    format!("--- Quiz Mode Started ---\n\nApproach: {}\n\nQuestion 1: What is the Time Complexity?\n(e.g., O(1), O(n), O(n log n), O(n^2))", approach.name)
+    let cat = app.current_problem.details().category;
+    let mut candidates: Vec<Problem> = Problem::all()
+        .iter()
+        .copied()
+        .filter(|&p| p.category() == cat && p != app.current_problem)
+        .collect();
+
+    if candidates.is_empty() {
+        candidates.push(app.current_problem);
+    }
+
+    let seed = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis() as usize;
+
+    let target_prob = candidates[seed % candidates.len()];
+    let approaches = target_prob.details().approaches;
+    let approach_idx = seed % approaches.len();
+    let target_approach = &approaches[approach_idx];
+
+    app.terminal_quiz_state = TerminalQuizState::AskingTime(target_prob, target_approach.id);
+
+    format!(
+        "--- {} Mastery Quiz Started ---\n\nThink back to the problem \"{}\".\nIf you use the \"{}\" approach, what is the Time Complexity?\n(e.g., O(1), O(n), O(n log n), O(n^2))",
+        cat.name(),
+        target_prob.details().title,
+        target_approach.name
+    )
 }
 
-fn handle_quiz_time(app: &mut VisualizerApp, answer: &str) -> String {
-    let approach = app
-        .current_problem
-        .details()
-        .approach_by_id(app.selected_approach_id)
-        .unwrap();
+fn handle_quiz_time(app: &mut VisualizerApp, prob: Problem, approach_id: usize, answer: &str) -> String {
+    let approach = prob.details().approach_by_id(approach_id).unwrap();
     let expected = approach.time_complexity.to_lowercase().replace(" ", "");
     let user_ans = answer.replace(" ", "");
 
     if expected == user_ans || user_ans.contains(&expected) {
-        app.terminal_quiz_state = TerminalQuizState::AskingSpace;
+        app.terminal_quiz_state = TerminalQuizState::AskingSpace(prob, approach_id);
         format!(
             "Correct! The time complexity is {}.\n\nNext question: What is the Space Complexity?",
             approach.time_complexity
         )
     } else {
-        "Incorrect. Try again, or type 'exit' to leave quiz mode.".to_string()
+        format!("Incorrect. Try again, or type 'exit' to leave quiz mode.\nHint: {}", approach.rationale)
     }
 }
 
-fn handle_quiz_space(app: &mut VisualizerApp, answer: &str) -> String {
-    let approach = app
-        .current_problem
-        .details()
-        .approach_by_id(app.selected_approach_id)
-        .unwrap();
+fn handle_quiz_space(app: &mut VisualizerApp, prob: Problem, approach_id: usize, answer: &str) -> String {
+    let approach = prob.details().approach_by_id(approach_id).unwrap();
     let expected = approach.space_complexity.to_lowercase().replace(" ", "");
     let user_ans = answer.replace(" ", "");
 
     if expected == user_ans || user_ans.contains(&expected) {
         app.terminal_quiz_state = TerminalQuizState::Inactive;
 
-        let cat = app.current_problem.details().category;
+        let cat = prob.details().category;
         let entry = app.quiz_scores.entry(cat).or_insert((0, 0));
         entry.0 += 1;
         entry.1 += 1;
 
         format!("Correct! The space complexity is {}.\n\nYou have mastered this approach! Exited quiz mode.", approach.space_complexity)
     } else {
-        "Incorrect. Try again, or type 'exit' to leave quiz mode.".to_string()
+        format!("Incorrect. Try again, or type 'exit' to leave quiz mode.\nHint: {}", approach.rationale)
     }
 }

@@ -56,8 +56,8 @@ pub enum AiSender {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TerminalQuizState {
     Inactive,
-    AskingTime,
-    AskingSpace,
+    AskingTime(crate::model::Problem, usize),
+    AskingSpace(crate::model::Problem, usize),
 }
 
 #[derive(Debug, Clone)]
