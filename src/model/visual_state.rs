@@ -55,6 +55,7 @@ impl Step {
 /// Each variant is handled by the matching branch in `ui::canvas`.
 #[derive(Debug, Clone)]
 pub enum VisualState {
+    /// Array visualization for duplicate detection, tracking the current element and seen set.
     ContainsDuplicate {
         nums: Vec<i32>,
         active_idx: Option<usize>,
@@ -62,12 +63,14 @@ pub enum VisualState {
         duplicate_val: Option<i32>,
         has_duplicate: Option<bool>,
     },
+    /// Hash map visualization grouping sorted anagram keys to their original string values.
     GroupAnagrams {
         input_strs: Vec<String>,
         active_idx: Option<usize>,
         key_fmt: String,
         groups: BTreeMap<String, Vec<String>>,
     },
+    /// Bucket sort visualization tracking frequencies and gathering the most common elements.
     TopK {
         nums: Vec<i32>,
         active_nums_idx: Option<usize>,
@@ -76,6 +79,7 @@ pub enum VisualState {
         active_bucket_idx: Option<usize>,
         result: Vec<i32>,
     },
+    /// String manipulation trace highlighting chunk lengths and delimiters during encoding/decoding.
     EncodeDecode {
         input_strs: Vec<String>,
         encoded_so_far: String,
@@ -84,6 +88,7 @@ pub enum VisualState {
         active_str_idx: Option<usize>,
         phase: EncodeDecodePhase,
     },
+    /// Two-pass array visualization highlighting prefix and suffix product accumulation.
     Product {
         nums: Vec<i32>,
         output: Vec<i64>,
@@ -92,12 +97,14 @@ pub enum VisualState {
         suffix_val: i64,
         phase: ProductPhase,
     },
+    /// Tree-based string prefix structure highlighting active nodes and characters during search/insertion.
     Trie {
         words: Vec<String>,
         current_word: String,
         active_char_idx: Option<usize>,
     },
 
+    /// 9x9 grid visualization checking row, column, and sub-box constraints.
     ValidSudoku {
         board: [[char; 9]; 9],
         active_r: Option<usize>,
@@ -105,6 +112,7 @@ pub enum VisualState {
         duplicate_pos: Option<(usize, usize)>,
         is_valid: Option<bool>,
     },
+    /// Set-based sequence visualization highlighting consecutive chains and boundaries.
     LongestConsecutive {
         nums: Vec<i32>,
         num_set: BTreeSet<i32>,
@@ -113,6 +121,7 @@ pub enum VisualState {
         max_length: usize,
         is_seq_start: Option<bool>,
     },
+    /// Hash map array visualization tracking seen complements for a target sum.
     TwoSum {
         nums: Vec<i32>,
         target: i32,
@@ -121,6 +130,7 @@ pub enum VisualState {
         map: BTreeMap<i32, usize>,
         found_indices: Option<(usize, usize)>,
     },
+    /// Frequency map comparison visualizing character counts between two strings.
     ValidAnagram {
         s: String,
         t: String,
@@ -131,6 +141,7 @@ pub enum VisualState {
         active_t_idx: Option<usize>,
         is_anagram: Option<bool>,
     },
+    /// Left and right pointer visualization on a 1D array or string.
     TwoPointers {
         chars: Vec<char>,
         left: usize,
@@ -138,12 +149,14 @@ pub enum VisualState {
         is_valid: Option<bool>,
         skipped: bool,
     },
+    /// LIFO collection visualization showing pushed and popped elements.
     Stack {
         chars: Vec<char>,
         active_idx: Option<usize>,
         stack: Vec<char>,
         is_valid: Option<bool>,
     },
+    /// Array trace tracking minimum price seen and maximum profit achievable.
     BestTimeStock {
         prices: Vec<i32>,
         left_buy: usize,
@@ -151,6 +164,7 @@ pub enum VisualState {
         current_profit: i64,
         max_profit: i64,
     },
+    /// Logarithmic search space visualization highlighting low, mid, and high pointers.
     BinarySearch {
         nums: Vec<i32>,
         target: i32,
@@ -159,6 +173,7 @@ pub enum VisualState {
         mid: Option<usize>,
         found_idx: Option<usize>,
     },
+    /// Sequential node visualization showing traversal and pointer manipulation.
     LinkedList {
         nodes: Vec<i32>,
         prev_idx: Option<usize>,
@@ -166,6 +181,7 @@ pub enum VisualState {
         next_idx: Option<usize>,
         reversed_so_far: Vec<i32>,
     },
+    /// Two-list zipper visualization tracking pointers across both lists and the merged result.
     MergeLinkedLists {
         list1: Vec<i32>,
         list2: Vec<i32>,
@@ -174,6 +190,7 @@ pub enum VisualState {
         merged_so_far: Vec<i32>,
         phase: MergeListPhase,
     },
+    /// Fast and slow pointer visualization detecting topological cycles in a list.
     LinkedListCycle {
         nodes: Vec<i32>,
         cycle_target_idx: Option<usize>,
@@ -182,6 +199,7 @@ pub enum VisualState {
         visited_indices: BTreeSet<usize>,
         has_cycle: Option<bool>,
     },
+    /// Binary tree structural visualization highlighting current traversal nodes.
     TreeVisual {
         tree_nodes: Vec<Option<i32>>,
         active_node_idx: Option<usize>,
@@ -189,6 +207,7 @@ pub enum VisualState {
         depth_val: Option<i32>,
         max_diameter: Option<i32>,
     },
+    /// Tree visualization calculating local path gains and global maximum path sum.
     TreeMaxPathVisual {
         tree_nodes: Vec<Option<i32>>,
         active_node_idx: Option<usize>,
@@ -199,17 +218,20 @@ pub enum VisualState {
         returned_gain: Option<i32>,
         max_path_sum: Option<i32>,
     },
+    /// Priority queue visualization displaying the underlying array and conceptual tree.
     HeapVisual {
         heap_elements: Vec<i32>,
         active_idx: Option<usize>,
         swapped_pair: Option<(usize, usize)>,
         heap_type_label: String,
     },
+    /// Backtracking state space tree visualizing recursive choices and pruning.
     DecisionTreeVisual {
         current_path: Vec<i32>,
         active_choice: Option<String>,
         completed_results: Vec<Vec<i32>>,
     },
+    /// 2D grid matrix visualization for DFS/BFS algorithms like Island counting.
     GridGraph {
         rows: usize,
         cols: usize,
@@ -219,6 +241,7 @@ pub enum VisualState {
         frontier_cells: BTreeSet<(usize, usize)>,
         message: String,
     },
+    /// Adjacency list/matrix representation highlighting nodes, edges, and visited states.
     NodeGraph {
         nodes: Vec<usize>,
         node_labels: Vec<String>,
@@ -230,6 +253,7 @@ pub enum VisualState {
         topo_order: Vec<usize>,
         message: String,
     },
+    /// Generic 1-dimensional array visualization with a single active element.
     Array1D {
         title: String,
         elements: Vec<i32>,

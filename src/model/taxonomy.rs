@@ -2,9 +2,12 @@ use eframe::egui::Color32;
 
 // ── Themes & Accessibility ──
 
+/// Defines the overarching visual theme of the application.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum Theme {
+    /// A dark theme resembling the default Visual Studio Code color scheme.
     DarkVSCode,
+    /// A high-contrast dark theme with vibrant neon accents.
     DarkCyber,
 }
 
@@ -17,10 +20,14 @@ impl Theme {
     }
 }
 
+/// Configures the color palette filters applied to visualizers to improve accessibility.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum ColorblindMode {
+    /// No colorblind filter applied; uses default theme colors.
     Off,
+    /// Adjusts reds and greens to blue and orange for Protanopia and Deuteranopia.
     RedGreenSafe,
+    /// Maximizes contrast using black, white, and high-visibility yellow.
     HighContrast,
 }
 
@@ -130,10 +137,14 @@ impl Theme {
 
 // ── Difficulty Level ──
 
+/// Represents the difficulty level of a LeetCode problem.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Difficulty {
+    /// Foundational algorithms and data structure usage.
     Easy,
+    /// Intermediate problems requiring multiple steps or patterns.
     Medium,
+    /// Advanced algorithms requiring complex synthesis or optimizations.
     Hard,
 }
 
@@ -149,25 +160,44 @@ impl Difficulty {
 
 // ── Roadmap Categories (NeetCode 150 Hierarchy) ──
 
+/// Core algorithmic topics matching the NeetCode 150 roadmap.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Category {
+    /// Basic array manipulation and hashing maps/sets.
     ArraysAndHashing,
+    /// Fast and slow pointers, or convergent left/right pointers.
     TwoPointers,
+    /// LIFO data structures and monotonic stacks.
     Stack,
+    /// Logarithmic time searching on sorted arrays.
     BinarySearch,
+    /// Expanding and contracting continuous sub-segments of an array.
     SlidingWindow,
+    /// Node-based sequential memory structures.
     LinkedList,
+    /// Hierarchical node structures and traversals (DFS/BFS).
     Trees,
+    /// Prefix trees for fast string prefix searching.
     Tries,
+    /// Exhaustive search with state pruning.
     Backtracking,
+    /// Min/max heaps and priority-based processing.
     HeapPriorityQueue,
+    /// Nodes and edges, shortest path, and connectivity.
     Graphs,
+    /// Dynamic programming with linear state arrays.
     OneDDp,
+    /// Overlapping ranges and scheduling problems.
     Intervals,
+    /// Locally optimal choices leading to global optimization.
     Greedy,
+    /// Complex pathfinding and network flows (e.g. Dijkstra, Bellman-Ford).
     AdvancedGraphs,
+    /// Dynamic programming with grids or multiple state dimensions.
     TwoDDp,
+    /// Binary representation operations and bitwise logic.
     BitManipulation,
+    /// Mathematical properties, primes, and spatial geometry.
     MathAndGeometry,
 }
 

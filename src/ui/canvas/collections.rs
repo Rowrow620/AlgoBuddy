@@ -420,14 +420,14 @@ impl VisualizerApp {
                 .size(font_title),
         );
         ui.add_space(8.0 * z);
-        ui.horizontal(|ui| {
+        ui.horizontal_wrapped(|ui| {
             ui.group(|ui| {
                 ui.label(
                     RichText::new("NUMS ARRAY")
                         .font(egui::FontId::monospace((11.0 * z).max(8.0)))
                         .color(p.text_muted),
                 );
-                ui.horizontal(|ui| {
+                ui.horizontal_wrapped(|ui| {
                     for (idx, &val) in nums.iter().enumerate() {
                         let fill = if active_nums_idx == Some(idx) {
                             p.amber
@@ -457,7 +457,7 @@ impl VisualizerApp {
                         .font(egui::FontId::monospace((11.0 * z).max(8.0)))
                         .color(p.text_muted),
                 );
-                ui.horizontal(|ui| {
+                ui.horizontal_wrapped(|ui| {
                     if count_map.is_empty() {
                         ui.label(RichText::new("Empty {}").italics().color(p.text_dim));
                     } else {
@@ -498,7 +498,7 @@ impl VisualizerApp {
                 .size(font_title),
         );
         ui.add_space(8.0 * z);
-        ui.horizontal(|ui| {
+        ui.horizontal_wrapped(|ui| {
             for (idx, items) in buckets.iter().enumerate() {
                 let is_active = active_bucket_idx == Some(idx);
                 let fill = if is_active { p.pink } else { p.sidebar_bg };
@@ -522,7 +522,7 @@ impl VisualizerApp {
                                     .strong()
                                     .color(p.text_muted),
                             );
-                            ui.separator();
+                            ui.add_space(4.0 * z);
                             if items.is_empty() {
                                 ui.label(RichText::new("—").color(p.text_dim));
                             } else {
