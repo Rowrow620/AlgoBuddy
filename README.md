@@ -9,7 +9,7 @@
 [![GUI: eframe/egui](https://img.shields.io/badge/GUI-eframe%2Fegui-blueviolet)](https://github.com/emilk/egui)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20WebAssembly-lightgrey.svg)]()
 
-AlgoBuddy is a cross-platform algorithm visualizer built in Rust using `eframe` and `egui`. It provides step-by-step interactive visualizations formatted according to the NeetCode 150 learning roadmap across 18 algorithmic categories. All 150 problems are available natively on Windows, macOS, and Linux, or in your browser via WebAssembly.
+AlgoBuddy is a algorithm visualizer built in Rust using `eframe` and `egui`. It provides step-by-step interactive visualizations formatted according to the NeetCode 150 learning roadmap across 18 algorithmic categories. All 150 problems are available natively on Windows, macOS, and Linux, or in your browser via WebAssembly.
 
 <img width="305" height="300" alt="ste" src="https://github.com/user-attachments/assets/a978e0c4-a7fa-4d5c-b6d4-ca172c07f8ff" /><br>
 
@@ -25,20 +25,19 @@ AlgoBuddy is a cross-platform algorithm visualizer built in Rust using `eframe` 
 
 ### Key Capabilities
 
-- **18 Roadmap Categories**: Navigation is structured into 18 algorithmic topic categories featuring all **150 problems**: Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Tries, Backtracking, Heap / Priority Queue, 1D Dynamic Programming, Bit Manipulation, Math & Geometry, Greedy, Intervals, Graphs, 2D Dynamic Programming, and Advanced Graphs.
-- **Complete Problem Catalog**: All 150 NeetCode roadmap problems are available in every build. Catalog completeness is separate from the ongoing per-visualizer manual QA program.
-- **Deterministic State Engine**: Models algorithm execution as discrete state snapshots, enabling forward and backward timeline scrubbing, variable speed playback (0.25x - 4.00x), and synchronized source line highlighting.
-- **Solution Comparisons**: Problems can provide multiple approaches with their own trace, source listing, complexity analysis, invariant, and visual state. Every Easy roadmap problem includes a common baseline or suboptimal comparison approach.
-- **Specialized Visual Renderers**: Typed visual states drive dedicated renderers for arrays, hash-based collections, linked lists, trees and tries, graphs, and heaps.
-- **Theme & Accessibility System**: Includes built-in dark/light themes alongside Protan/Deuteran Red-Green colorblind safe palettes.
-
+- 18 categories: Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Tries, Backtracking, Heap / Priority Queue, 1D Dynamic Programming, Bit Manipulation, Math & Geometry, Greedy, Intervals, Graphs, 2D Dynamic Programming, and Advanced Graphs.
+- The goal is to have the complete 150 NeetCode roadmap problems in this visualizer. 
+- Works through discrete state snapshots. This enables forward and backward timeline scrubbing, variable speed playback (0.25x - 4.00x), and synchronized source line highlighting.
+- Problems can provide multiple approaches with their own trace, source listing, complexity analysis, invariant, and visual state. Every Easy roadmap problem includes a common baseline or suboptimal comparison approach.
+- Typed visual states drive dedicated renderers for arrays, hash-based collections, linked lists, trees and tries, graphs, and heaps.
+- Different theme and hotkey options!
 ---
 
 ## Quick Start
 
 ### WebAssembly (WASM)
 
-Try AlgoBuddy directly in your browser without installation:
+Works in browser!
 
 - **Live Demo**: [https://rowrow620.github.io/AlgoBuddy](https://rowrow620.github.io/AlgoBuddy)
 
