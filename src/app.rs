@@ -22,6 +22,35 @@ pub(crate) fn canvas_zoom_out(zoom: f32) -> f32 {
     (zoom - CANVAS_ZOOM_STEP).max(CANVAS_ZOOM_MIN)
 }
 
+#[cfg(target_arch = "wasm32")]
+fn request_web_readiness_frame(ctx: &egui::Context) {
+    if ctx.frame_nr() == 0 {
+        ctx.request_repaint();
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn mark_web_ready(ctx: &egui::Context) {
+    if ctx.frame_nr() != 1 {
+        return;
+    }
+
+    let document = web_sys::window()
+        .and_then(|window| window.document())
+        .expect("browser document must be available");
+    let canvas = document
+        .get_element_by_id("the_canvas_id")
+        .expect("AlgoBuddy canvas must exist");
+
+    canvas
+        .set_attribute("data-algobuddy-ready", "true")
+        .expect("canvas readiness marker must be writable");
+
+    if let Some(loading) = document.get_element_by_id("loading_text") {
+        loading.remove();
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RightTab {
     CodeTrace,
@@ -275,14 +304,6 @@ impl VisualizerApp {
     }
 
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        #[cfg(target_arch = "wasm32")]
-        if let Some(loading) = web_sys::window()
-            .and_then(|w| w.document())
-            .and_then(|d| d.get_element_by_id("loading_text"))
-        {
-            loading.remove();
-        }
-
         let mut app = Self::default();
         if let Some(storage) = cc.storage {
             if let Some(saved_completed) = eframe::get_value::<std::collections::HashSet<u32>>(
@@ -567,6 +588,9 @@ impl eframe::App for VisualizerApp {
     }
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        #[cfg(target_arch = "wasm32")]
+        request_web_readiness_frame(ctx);
+
         // Keep global shortcuts out of focused controls and modal dialogs.
         let capture_was_active = self.shortcut_capture.is_some();
         if capture_was_active {
@@ -624,6 +648,8 @@ impl eframe::App for VisualizerApp {
             ViewMode::RoadmapDashboard => {
                 crate::ui::sidebar::render_roadmap_sidebar(self, ctx, &p);
                 crate::ui::dashboard::render_fullscreen_roadmap_dashboard(self, ctx, &p);
+                #[cfg(target_arch = "wasm32")]
+                mark_web_ready(ctx);
                 return;
             }
             ViewMode::CategoryMasterclass(category) => {
@@ -631,6 +657,8 @@ impl eframe::App for VisualizerApp {
                 crate::ui::category_guide_screen::render_fullscreen_category_masterclass(
                     self, ctx, &p, category,
                 );
+                #[cfg(target_arch = "wasm32")]
+                mark_web_ready(ctx);
                 return;
             }
             ViewMode::Visualizer => {}
@@ -644,6 +672,8 @@ impl eframe::App for VisualizerApp {
 
         crate::ui::inspector::render_right_sidebar_inspector(self, ctx, &p);
         self.render_central_canvas(ctx, &p);
+        #[cfg(target_arch = "wasm32")]
+        mark_web_ready(ctx);
     }
 }
 

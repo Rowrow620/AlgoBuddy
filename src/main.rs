@@ -31,17 +31,21 @@ fn main() -> eframe::Result<()> {
 #[cfg(target_arch = "wasm32")]
 fn main() {
     console_error_panic_hook::set_once();
+    eframe::WebLogger::init(log::LevelFilter::Warn).ok();
 
     let web_options = eframe::WebOptions::default();
 
     wasm_bindgen_futures::spawn_local(async {
         let runner = eframe::WebRunner::new();
-        let _ = runner
+        if let Err(error) = runner
             .start(
                 "the_canvas_id",
                 web_options,
                 Box::new(|cc| Ok(Box::new(VisualizerApp::new(cc)))),
             )
-            .await;
+            .await
+        {
+            log::error!("Failed to start AlgoBuddy WebAssembly app: {error:?}");
+        }
     });
 }

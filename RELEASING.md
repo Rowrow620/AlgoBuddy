@@ -17,9 +17,9 @@ directly on `main`.
    ./scripts/release-check.ps1 -ExpectedVersion X.Y.Z -RequireClean
    ```
 
-6. Smoke-test the native application and the generated `dist` bundle. Verify
-   navigation, custom input, Play/Pause, Prev/Next, scrub, Reset, and every
-   visualizer repaired by the release.
+6. Run the browser launch test documented in `CONTRIBUTING.md`, then smoke-test
+   the native application. Verify navigation, custom input, Play/Pause,
+   Prev/Next, scrub, Reset, and every visualizer repaired by the release.
 7. Push `dev` and wait for CI and CodeQL to pass on the candidate commit.
 
 ## Publish
@@ -27,7 +27,9 @@ directly on `main`.
 1. Open a release pull request from `dev` to `main` using the changelog as its
    summary.
 2. Merge only after required checks pass.
-3. Verify the GitHub Pages deployment and live demo.
+3. Verify `CI & Quality Gates` completed its native gates, launched the local
+   WebAssembly bundle, deployed that tested artifact, and launched the published
+   GitHub Pages site at the expected commit revision.
 4. Create and push annotated tag `vX.Y.Z` on the exact merged `main` commit.
 5. Verify that the tag workflow publishes a GitHub Release from the matching
    changelog section.

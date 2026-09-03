@@ -12,3 +12,9 @@ releases/
 # Trunk build output
 /dist
 
+# Web smoke test output
+/node_modules
+/playwright-browsers
+/test-results
+/.npm-cache
+
