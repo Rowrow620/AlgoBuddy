@@ -33,7 +33,7 @@ Contributions generally fall into three categories:
 
 - A [stable Rust toolchain](https://www.rust-lang.org/tools/install), including `rustfmt` and Clippy. The crate uses the Rust 2021 edition.
 - Git
-- For optional WebAssembly work: Trunk and the `wasm32-unknown-unknown` Rust target
+- For WebAssembly, browser-startup, or hosting changes: Node.js 20 or newer, npm, Trunk 0.21.5, and the `wasm32-unknown-unknown` Rust target
 
 ### Development Setup
 
@@ -57,6 +57,27 @@ Contributions generally fall into three categories:
    ```text
    cargo clippy --all-targets -- -D warnings
    ```
+
+### WebAssembly Launch Test
+
+Pull requests and pushes to `dev` or `main` run a browser launch test in CI. If
+your change affects WebAssembly startup, `index.html`, GitHub Actions, or hosting,
+run the same check locally:
+
+```text
+rustup target add wasm32-unknown-unknown
+npm ci
+npx playwright install chromium
+trunk build --release --public-url ./
+npm run stamp:wasm
+npm run test:wasm-smoke
+```
+
+The smoke test serves the generated bundle at the same `/AlgoBuddy/` subpath
+used by GitHub Pages. It verifies the JavaScript and WebAssembly responses,
+WebAssembly MIME type, rendered-app readiness, and the bundle's Git revision.
+`npm run stamp:wasm` reads the current commit from Git when `DEPLOY_SHA` is not
+set, and the local smoke test reads that revision from the generated bundle.
 
 ---
 
@@ -110,7 +131,7 @@ Maintainers follow the same review path as other contributors for normal develop
 - Reserve direct commits to `dev` for coordinated release-candidate assembly or narrowly scoped fixes required to complete the release checks. Run the complete release check before pushing that candidate.
 - Treat `main` as the production branch. Do not commit or push directly to `main`; promote releases only through a reviewed Pull Request from `dev`.
 - Do not rewrite the shared history of `dev` or `main`.
-- Wait for CI and CodeQL to pass before merging. Release Pull Requests must also satisfy the version, changelog, native-build, and WebAssembly-build requirements in [RELEASING.md](RELEASING.md).
+- Wait for CI and CodeQL to pass before merging. CI now runs the native quality gates before its WebAssembly launch test. A `main` deployment uses that exact tested bundle and then launches the published site in a second browser check. Release Pull Requests must also satisfy the version, changelog, native-build, and WebAssembly-build requirements in [RELEASING.md](RELEASING.md).
 
 ---
 
@@ -121,6 +142,7 @@ Before submitting a Pull Request, ensure your changes adhere to these requiremen
 - **Formatting**: Run `cargo fmt --all -- --check` to verify standard Rust formatting.
 - **Clippy Clean**: Run `cargo clippy --all-targets -- -D warnings` to verify zero warnings.
 - **Unit Tests**: Add unit tests for any new algorithm step generators or parser functions.
+- **WebAssembly Startup**: For changes to the web entry point, loader, build workflow, or hosting behavior, run the WebAssembly launch test documented above.
 - **Synchronized State**: Keep timeline descriptions, inspector values, canvas state, final results, and highlighted source lines consistent at every step.
 - **Plain Text Interface**: Do not add decorative emoji to UI labels, documentation, code comments, contributor templates, or release notes. A functional text symbol may represent an established control state, such as `★`/`☆` for favorites, when the control also provides a clear tooltip.
 - **Commit Messages**: Write concise, descriptive commit messages (e.g., `feat: add visualizer for problem #X`, `fix: resolve bounds checking on timeline scrubber`).
