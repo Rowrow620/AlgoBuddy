@@ -9,7 +9,9 @@
 [![GUI: eframe/egui](https://img.shields.io/badge/GUI-eframe%2Fegui-blueviolet)](https://github.com/emilk/egui)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20WebAssembly-lightgrey.svg)]()
 
-AlgoBuddy is a work-in-progress, cross-platform algorithm visualizer built in Rust using `eframe` and `egui`. It follows the NeetCode 150 learning roadmap across 18 algorithmic categories on Windows, macOS, Linux, and the web through WebAssembly.
+AlgoBuddy is a work-in-progress, cross-platform algorithm visualizer built in Rust using `eframe` and `egui`. It follows the NeetCode 150 learning roadmap across 18 algorithmic categories.
+
+AlgoBuddy runs on Windows, macOS, Linux, and the web via WebAssembly.
 
 > [!WARNING]
 > The roadmap catalog is available, but visualizer coverage and quality are still being audited. Some algorithms, approaches, inputs, and rendered states may be incomplete or inaccurate. Please treat AlgoBuddy as an evolving learning tool and report visual issues you encounter.
