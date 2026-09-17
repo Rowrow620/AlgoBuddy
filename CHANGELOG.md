@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed GitHub Pages releases to run directly from `main` after the native quality gates, require a successful browser launch test before deployment, and launch the published commit in a second live-site check.
+
 ## [0.9.0] - 2026-08-10
 
 ### Added

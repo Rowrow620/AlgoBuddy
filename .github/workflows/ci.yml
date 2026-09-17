@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ main, dev ]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
   CARGO_TERM_COLOR: always
@@ -35,3 +41,130 @@ jobs:
 
       - name: Run Test Suite
         run: cargo test --all
+
+  build-and-smoke-test:
+    name: Build & Launch WebAssembly Bundle
+    needs: check-and-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Setup Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache Cargo Dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install Smoke Test Dependencies
+        run: npm ci
+
+      - name: Install Binaryen and Trunk
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y binaryen
+          trunk_archive="trunk-x86_64-unknown-linux-gnu.tar.gz"
+          trunk_release="https://github.com/trunk-rs/trunk/releases/download/v0.21.5"
+          wget --quiet "$trunk_release/$trunk_archive" --directory-prefix /tmp
+          wget --quiet "$trunk_release/$trunk_archive.sha256" --directory-prefix /tmp
+          pushd /tmp
+          sha256sum --check "$trunk_archive.sha256"
+          popd
+          sudo tar -xzf "/tmp/$trunk_archive" -C /usr/local/bin
+          trunk --version
+
+      - name: Build WebAssembly Release Bundle
+        run: trunk build --release --public-url "./"
+
+      - name: Stamp Built Revision
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+        run: npm run stamp:wasm
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Smoke Test WebAssembly Startup
+        env:
+          EXPECTED_DEPLOY_SHA: ${{ github.sha }}
+        run: npm run test:wasm-smoke
+
+      - name: Upload GitHub Pages Artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./dist
+
+      - name: Upload Smoke Test Failure Screenshot
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: wasm-smoke-test-failure
+          path: test-results/
+          if-no-files-found: ignore
+
+  deploy:
+    name: Deploy Tested Bundle
+    needs: build-and-smoke-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+  verify-live-site:
+    name: Launch Published WebAssembly App
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install Smoke Test Dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Launch Published WebAssembly App
+        env:
+          EXPECTED_DEPLOY_SHA: ${{ github.sha }}
+          SMOKE_BASE_URL: ${{ needs.deploy.outputs.page_url }}
+        run: npm run test:wasm-smoke
+
+      - name: Upload Live Smoke Test Failure Screenshots
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: live-wasm-smoke-test-failure
+          path: test-results/
+          if-no-files-found: ignore

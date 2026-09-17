@@ -1,0 +1,14 @@
+{
+  "name": "algobuddy-web-smoke",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "stamp:wasm": "node scripts/stamp-wasm-build.mjs",
+    "test:wasm-smoke": "node scripts/wasm-smoke.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}
