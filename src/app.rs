@@ -31,20 +31,30 @@ fn request_web_readiness_frame(ctx: &egui::Context) {
 
 #[cfg(target_arch = "wasm32")]
 fn mark_web_ready(ctx: &egui::Context) {
-    if ctx.frame_nr() != 1 {
+    if ctx.frame_nr() < 1 {
         return;
     }
 
-    let document = web_sys::window()
-        .and_then(|window| window.document())
-        .expect("browser document must be available");
-    let canvas = document
-        .get_element_by_id("the_canvas_id")
-        .expect("AlgoBuddy canvas must exist");
+    let Some(document) = web_sys::window().and_then(|window| window.document()) else {
+        log::error!("Web readiness marker failed: window/document unavailable");
+        return;
+    };
 
-    canvas
-        .set_attribute("data-algobuddy-ready", "true")
-        .expect("canvas readiness marker must be writable");
+    let Some(canvas) = document.get_element_by_id("the_canvas_id") else {
+        log::error!("Web readiness marker failed: #the_canvas_id not found");
+        return;
+    };
+
+    if canvas
+        .get_attribute("data-algobuddy-ready")
+        .as_deref()
+        != Some("true")
+    {
+        if let Err(error) = canvas.set_attribute("data-algobuddy-ready", "true") {
+            log::error!("Web readiness marker failed: {error:?}");
+            return;
+        }
+    }
 
     if let Some(loading) = document.get_element_by_id("loading_text") {
         loading.remove();
